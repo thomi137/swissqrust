@@ -12,5 +12,34 @@ pub struct Cli {
     #[arg(short, long)]
     pub iban: String,
 
+    #[arg(short, long)]
+    pub text: String,
+
+    #[arg(short, long)]
+    pub creditor_name: String,
+
+    #[arg(short = '1', long)]
+    creditor_address_line1: String,
+
+    #[arg(short = '2', long)]
+    creditor_address_line2: String,
+
+    #[arg(short, long)]
+    pub creditor_street_name: String,
+
+    #[arg(short = 'h', long)]
+    pub creditor_house_number: String,
+
+    #[arg(short= 'p', long)]
+    pub creditor_postal_code: i32,
+
+    #[arg(short = 'c', long)]
+    creditor_city: String,
+
+    #[arg(short, long)]
+    creditor_country: String,
+
+    #[arg(short, long)]
+    amount_payable: f64,
 
 }
