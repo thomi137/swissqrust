@@ -15,7 +15,7 @@ pub struct Cli {
     #[arg(short, long)]
     pub text: String,
 
-    #[arg(short, long)]
+    #[arg(short = 'c', long)]
     pub creditor_name: String,
 
     #[arg(short = '1', long)]
@@ -24,22 +24,22 @@ pub struct Cli {
     #[arg(short = '2', long)]
     creditor_address_line2: String,
 
-    #[arg(short, long)]
+    #[arg(short = 'a', long)]
     pub creditor_street_name: String,
 
-    #[arg(short = 'h', long)]
+    #[arg(short = 'n', long)]
     pub creditor_house_number: String,
 
     #[arg(short= 'p', long)]
     pub creditor_postal_code: i32,
 
-    #[arg(short = 'c', long)]
+    #[arg(short = 's', long)]
     creditor_city: String,
 
-    #[arg(short, long)]
+    #[arg(short = 'l', long)]
     creditor_country: String,
 
-    #[arg(short, long)]
+    #[arg(short = 'm', long)]
     amount_payable: f64,
 
 }
