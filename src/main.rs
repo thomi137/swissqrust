@@ -1,3 +1,4 @@
+use crate::cli::*;
+
 fn main() {
-    println!("Hello, world!");
 }
