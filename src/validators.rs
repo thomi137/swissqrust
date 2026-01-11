@@ -29,7 +29,6 @@ pub fn is_valid_iban(iban: &str) ->  Result<bool, String>  {
         return Err("Invalid IBAN length".into());
     }
 
-
     let rearranged = iban[4..]
         .chars()
         .chain(iban[..4].chars());
@@ -51,6 +50,14 @@ pub fn is_valid_iban(iban: &str) ->  Result<bool, String>  {
     Ok(remainder == 1)
 }
 
+/// QR Reference Number
+///
+/// Valid QR Reference:
+/// ```
+/// use swiss_qrust::validators::is_valid_qr_reference;
+/// const REF: &str = "21 00000 00003 13947 14300 09017";
+/// assert!(is_valid_qr_reference(REF).is_ok());
+/// ```
 pub fn is_valid_qr_reference(reference: &str) ->  Result<bool, String> {
     let mut carry: u8 = 0;
 
