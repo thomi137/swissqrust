@@ -1,6 +1,5 @@
-use crate::cli::Cli;
 
-mod cli;
+use SwissQRust::cli::*;
 use clap::Parser;
 fn main() {
 
