@@ -1,5 +1,4 @@
 //! Damm Table
-
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 
 /// Validates an IBAN
@@ -19,7 +18,7 @@ const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 ///let result = is_valid_iban(IBAN).unwrap();
 ///assert!(!result, "Expected '{}' to be invalid, but got true", IBAN);
 ///```
-pub fn is_valid_iban(iban: &str) ->  Result<bool, String>  {
+pub fn is_valid_iban(iban: &str) -> Result<bool, String>  {
 
     let iban: String = iban.chars()
         .filter(|c| !c.is_whitespace())
