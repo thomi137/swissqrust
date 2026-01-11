@@ -1,5 +1,5 @@
 
-use swuss_qrust::cli::*;
+use swiss_qrust::cli::*;
 use clap::Parser;
 fn main() {
 
