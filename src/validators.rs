@@ -1,5 +1,7 @@
 //! Damm Table
+
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
+
 
 /// Validates an IBAN
 ///
@@ -18,11 +20,31 @@ const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 ///let result = is_valid_iban(IBAN).unwrap();
 ///assert!(!result, "Expected '{}' to be invalid, but got true", IBAN);
 ///```
+///
+/// Another invalid IBAN:
+///```
+/// pub const CNT_ERR: &str = "IBAN must pertain to Switzerland or Liechtenstein";
+/// use swiss_qrust::validators::is_valid_iban;
+///
+/// const IBAN: &str = "GB33BUKB20201555555555";
+/// let err = is_valid_iban(IBAN).unwrap_err();
+/// assert_eq!(err, CNT_ERR );
+/// ```
 pub fn is_valid_iban(iban: &str) -> Result<bool, String>  {
 
     let iban: String = iban.chars()
         .filter(|c| !c.is_whitespace())
         .collect();
+
+    let first_two: String = iban
+        .to_ascii_uppercase()
+        .chars()
+        .take(2)
+        .collect();
+
+    if !(first_two == "CH" || first_two == "LI") {
+        return Err("IBAN must pertain to Switzerland or Liechtenstein".into());
+    }
 
     if iban.len() < 15 || iban.len() > 34 {
         return Err("Invalid IBAN length".into());
