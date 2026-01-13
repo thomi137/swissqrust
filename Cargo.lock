@@ -105,6 +105,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
+name = "is"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36d801d6b679b4c98bc764830d2f3f076350596f18a3293c608786a75d2b40f9"
+
+[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -174,6 +180,7 @@ name = "swiss_qrust"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "is",
  "serde",
 ]
 

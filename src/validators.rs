@@ -3,7 +3,7 @@ const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 
 #[derive(Debug, PartialEq)]
 pub enum IbanError{
-    IncorrectLength,
+    IncorrectLength{expected: usize, actual: usize},
     IncorrectCountryCode,
     InvalidCharacter,
 }
@@ -52,8 +52,10 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
     }
 
     if iban.len() < 15 || iban.len() > 34 {
-        return Err(IbanError::IncorrectLength)
-    }
+        return Err(IbanError::IncorrectLength{
+            expected: 21,
+            actual: 22,
+        })}
 
     let rearranged = iban[4..]
         .chars()
