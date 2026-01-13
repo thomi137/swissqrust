@@ -1,7 +1,12 @@
-//! Damm Table
-
+//! Damm Table for testing QR Reference against mod-10
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 
+#[derive(Debug, PartialEq)]
+pub enum IbanError{
+    IncorrectLength,
+    IncorrectCountryCode,
+    InvalidCharacter,
+}
 
 /// Validates an IBAN
 ///
@@ -24,13 +29,13 @@ const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 /// Another invalid IBAN:
 ///```
 /// pub const CNT_ERR: &str = "IBAN must pertain to Switzerland or Liechtenstein";
-/// use swiss_qrust::validators::is_valid_iban;
+/// use swiss_qrust::validators::{is_valid_iban, IbanError};
 ///
 /// const IBAN: &str = "GB33BUKB20201555555555";
 /// let err = is_valid_iban(IBAN).unwrap_err();
-/// assert_eq!(err, CNT_ERR );
+/// assert_eq!(err, IbanError::IncorrectCountryCode );
 /// ```
-pub fn is_valid_iban(iban: &str) -> Result<bool, String>  {
+pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
 
     let iban: String = iban.chars()
         .filter(|c| !c.is_whitespace())
@@ -43,11 +48,11 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, String>  {
         .collect();
 
     if !(first_two == "CH" || first_two == "LI") {
-        return Err("IBAN must pertain to Switzerland or Liechtenstein".into());
+        return Err(IbanError::IncorrectCountryCode);
     }
 
     if iban.len() < 15 || iban.len() > 34 {
-        return Err("Invalid IBAN length".into());
+        return Err(IbanError::IncorrectLength)
     }
 
     let rearranged = iban[4..]
@@ -65,7 +70,7 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, String>  {
                 let value = ch.to_ascii_uppercase() as u32 - 'A' as u32 + 10;
                 remainder = (remainder * 100 + value) % 97;
             }
-            _ => return Err(format!("Invalid character in IBAN: {}", ch)),
+            _ => return Err(IbanError::InvalidCharacter),
         }
     }
     Ok(remainder == 1)
