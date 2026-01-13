@@ -13,4 +13,19 @@ const QR_BILL_SLIP_WIDTH: u8 = 210;
 const QR_BILL_HEIGHT: u8 = 105;
 
 //! Then the width with scissors symbol and all... Surprise
-const QR_BILL_WITH_ALL_WIDTH = 210;
+const QR_BILL_WITH_ALL_WIDTH: u8 = 210;
+
+//! Takes 5 mm more with all the scissors svg.
+const QR_BILL_WITH_HORI_LINE_HEIGHT = 110;
+
+//! QR Code Width
+const QR_CODE_WIDTH: u8 = 46;
+
+//! QR Code Height
+const QR_CODE_HEIGHT: u8 = 46;
+
+//! QR Code Padding
+const QR_CODE_PADDING: u8 = 56;
+
+//! QR Width in mm
+const QR_CODE_OVERALL_WIDTH: u8 = 148;
