@@ -1,3 +1,10 @@
+use regex::Regex;
+use once_cell::sync::Lazy;
+
+static AMOUNT_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"\d{1,9}\.\d{2}").unwrap());
+
+
 /// This is all in Millimeters and all in DIN A4
 
 /// A4 Width in mm
