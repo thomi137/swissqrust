@@ -1,5 +1,6 @@
 
     use swiss_qrust::validators::is_valid_iban;
+    use swiss_qrust::bill::*;
 
     #[test]
     fn test_valid_iban(){
@@ -18,3 +19,11 @@
 
         assert!(!result, "Expected '{}' to be invalid, but got true", IBAN);
     }
+
+    #[test]
+    fn test_amount_regex(){
+        let amount_f64 = 2384.15;
+        assert!(AMOUNT_REGEX.is_match(&amount_f64.to_string()));
+    }
+
+
