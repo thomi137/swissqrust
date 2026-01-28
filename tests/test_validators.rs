@@ -26,4 +26,16 @@
         assert!(AMOUNT_REGEX.is_match(&amount_f64.to_string()));
     }
 
+    #[test]
+    fn test_max_amount_regex(){
+        let amount_f64 = 999999999999.99;
+        assert!(!AMOUNT_REGEX.is_match(&amount_f64.to_string()));
+    }
+
+    #[test]
+    fn test_invalid_amount_regex(){
+        let amount_f64 = 2384.1;
+        assert!(!AMOUNT_REGEX.is_match(&amount_f64.to_string()));
+    }
+
 

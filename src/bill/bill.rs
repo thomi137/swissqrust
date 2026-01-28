@@ -1,7 +1,7 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
 pub static AMOUNT_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\d{1,9}\.\d{2}").unwrap());
+    Lazy::new(|| Regex::new(r"^\d{1,9}\.\d{2}$").unwrap());
 
 /// This is all in Millimeters and all in DIN A4
 
