@@ -1,5 +1,8 @@
 use once_cell::sync::Lazy;
 use regex::Regex;
+use crate::Address;
+use crate::bill::reference_type::ReferenceType;
+
 pub static AMOUNT_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"^\d{1,9}\.\d{2}$").unwrap());
 
@@ -35,3 +38,25 @@ pub const QR_CODE_PADDING: u16 = 56;
 /// QR Width in mm
 pub const QR_CODE_OVERALL_WIDTH: u16 = 148;
 
+
+pub enum Version {
+    V2_0,
+}
+
+pub enum Country {
+    CH,
+    LI
+}
+
+struct Bill {
+    version: Version,
+    creditor_address: Address,
+    debtor_address: Address,
+    country: Country,
+    currency: String,
+    amount: f64,
+    reference_type: ReferenceType,
+    reference: String,
+    unstructured_message: Option<String>,
+    bill_information: String,
+}

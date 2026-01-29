@@ -1,40 +1,52 @@
 use serde::{Serialize, Deserialize};
 
-/// No need for line1 or 2 since
-/// Deprecated on Nov 21, 2025
+/// No need for unstructured address
+/// as deprecated on Nov 21, 2025
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Address {
-    pub name: String,
-    pub street: String,
-    pub house_num: String,
-    pub plz: String,
-    pub city: String,
-    pub country: String,
+    name: String,
+    street: Option<String>,
+    house_num: Option<String>,
+    plz: String,
+    city: String,
+    country: String,
 }
 
 impl Address {
     pub fn new(
         name: &str,
-        street: &str,
-        house_num: &str,
+        street: Option<&str>,
+        house_num: Option<&str>,
         plz: &str,
         city: &str,
         country: &str,
-    ) -> Result<Self, String> {
+    ) -> Result<Self, &'static str> {
 
         let name = name.trim().to_string();
         if !(1..=70).contains(&name.len()) {
             return Err("Name must be 1–70 chars".into());
         }
 
-        let street = street.trim().to_string();
-        if street.len() > 70 {
-            return Err("Street max 70 chars".into());
+        let street = street
+            .map(|s| s.trim())
+            .filter(|s|!s.is_empty())
+            .map(|s| s.to_string());
+
+        if let Some(ref s) = street {
+            if s.len() > 70 {
+                return Err("Street max 70 characters");
+            }
         }
 
-        let house_num = house_num.trim().to_string();
-        if house_num.len() > 16 {
-            return Err("House number max 16 chars".into());
+        let house_num = house_num
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .map(|s| s.to_string());
+
+        if let Some(ref h) = house_num {
+            if h.len() > 16 {
+                return Err("House number max 16 characters");
+            }
         }
 
         let plz = plz.trim().to_string();
