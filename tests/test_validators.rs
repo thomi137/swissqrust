@@ -12,6 +12,15 @@
     }
 
     #[test]
+    fn test_valid_qr_iban(){
+        const IBAN: &str = "CH55 30024 123456789012";
+
+        let result = is_valid_iban(IBAN);
+
+        assert!(result.is_ok());
+    }
+
+    #[test]
     fn test_invalid_iban(){
         const IBAN: &str = "CH44 0871 0000 0033 1272 0007";
 

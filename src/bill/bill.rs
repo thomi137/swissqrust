@@ -38,11 +38,17 @@ pub const QR_CODE_PADDING: u16 = 56;
 /// QR Width in mm
 pub const QR_CODE_OVERALL_WIDTH: u16 = 148;
 
-
 pub enum Version {
     V2_0,
 }
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum Currency {
+    CHF,
+    EUR,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Country {
     CH,
     LI
@@ -51,12 +57,22 @@ pub enum Country {
 struct Bill {
     version: Version,
     creditor_address: Address,
-    debtor_address: Address,
+    debtor_address: Option<Address>,
     country: Country,
-    currency: String,
+    currency: Currency,
     amount: f64,
     reference_type: ReferenceType,
     reference: String,
     unstructured_message: Option<String>,
     bill_information: String,
+}
+
+impl Bill {
+    pub fn new(version: &Version, creditor_address: Address, debtor_address: Option<Address>) -> Self {
+
+        let version = version;
+        let creditor_address = creditor_address;
+        let debtor_address = debtor_address.;
+
+    }
 }

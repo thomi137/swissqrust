@@ -4,6 +4,7 @@ pub enum Language {
     De,
     Fr,
     It,
+    En,
 }
 
 pub fn label(key: &str, lang: Language) -> &str {

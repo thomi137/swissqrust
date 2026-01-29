@@ -86,6 +86,7 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
 /// const REF: &str = "21 00000 00003 13947 14300 09017";
 /// assert!(is_valid_qr_reference(REF).is_ok());
 /// ```
+/// TODO: Needs more checks. A Reference "0" passes this
 pub fn is_valid_qr_reference(reference: &str) ->  Result<bool, String> {
     let mut carry: u8 = 0;
 
@@ -104,3 +105,12 @@ pub fn is_valid_qr_reference(reference: &str) ->  Result<bool, String> {
     Ok(carry == 0)
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_valid_qr_ref(){
+    assert_eq!(is_valid_qr_reference("0").is_ok(), true);
+}
+}
