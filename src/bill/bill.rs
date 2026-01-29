@@ -68,11 +68,33 @@ struct Bill {
 }
 
 impl Bill {
-    pub fn new(version: &Version, creditor_address: Address, debtor_address: Option<Address>) -> Self {
-
+    pub fn new(version: Version,
+               creditor_address: Address,
+               debtor_address: Option<Address>,
+               country: Country,
+               currency: Currency,
+               amount: f64,
+               reference_type: ReferenceType,
+               reference: String,
+               unstructured_message: Option<String>,
+               bill_information: String,
+    ) -> Self {
         let version = version;
         let creditor_address = creditor_address;
-        let debtor_address = debtor_address.;
+        let debtor_address = debtor_address;
 
+        return Self{
+            version,
+            creditor_address,
+            debtor_address,
+            amount,
+            country,
+            currency,
+            reference,
+            reference_type,
+            unstructured_message,
+            bill_information,
+
+        }
     }
 }

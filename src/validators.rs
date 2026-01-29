@@ -87,7 +87,7 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
 /// assert!(is_valid_qr_reference(REF).is_ok());
 /// ```
 /// TODO: Needs more checks. A Reference "0" passes this
-pub fn is_valid_qr_reference(reference: &str) ->  Result<bool, String> {
+pub fn is_valid_qr_reference(reference: &str) ->  Result<(), String> {
     let mut carry: u8 = 0;
 
     let reference: String = reference
@@ -102,8 +102,52 @@ pub fn is_valid_qr_reference(reference: &str) ->  Result<bool, String> {
         let digit = ch as u8 - b'0';
         carry = MOD_10[((carry + digit) % 10) as usize];
     }
-    Ok(carry == 0)
+    Ok(())
 }
+
+pub fn is_valid_iso11649_reference(reference: &str) ->  Result<(), &str> {
+
+    if reference.len() < 5 || reference.len() > 25 {
+        return Err("ISO 11649 reference must be 5–25 characters long");
+    }
+
+    if !reference.starts_with("RF") {
+        return Err("ISO 11649 reference must start with 'RF'");
+    }
+
+    if !reference.chars().all(|c| c.is_ascii_alphanumeric()) {
+        return Err("ISO 11649 reference contains invalid characters");
+    }
+
+    if !mod97(reference) {
+        return Err("Invalid ISO 11649 checksum");
+    }
+
+
+    Ok(())
+}
+
+pub fn mod97(reference: &str) -> bool {
+    let mut remainder: u32 = 0;
+
+    for ch in reference.chars() {
+        let value = match ch {
+            '0'..='9' => ch.to_digit(10).unwrap(),
+            'A'..='Z' => ch as u32 - 'A' as u32 + 10,
+            _ => return false, // invalid character
+        };
+
+        // multiply remainder by 10 or 100 depending on digits
+        if value >= 10 {
+            remainder = (remainder * 100 + value) % 97;
+        } else {
+            remainder = (remainder * 10 + value) % 97;
+        }
+    }
+
+    remainder == 1
+}
+
 
 #[cfg(test)]
 mod tests {
