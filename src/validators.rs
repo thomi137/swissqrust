@@ -27,6 +27,7 @@ pub enum ReferenceError {
     InvalidIso11649Prefix,
     InvalidIso11649Char(char),
     InvalidIso11649Checksum,
+    InvalidReference,
 }
 impl std::error::Error for ReferenceError {}
 
@@ -48,6 +49,9 @@ fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         }
         ReferenceError::InvalidIso11649Checksum => {
             write!(f, "ISO11649 reference checksum failed")
+        }
+        ReferenceError::InvalidReference => {
+            write!(f, "Invalid reference")
         }
     }
 }
