@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2026 Thomas Prosser 
+ * Licensed under MIT License
+ * https://opensource.org/licenses/MIT
+ */
+
 use once_cell::sync::Lazy;
 use regex::Regex;
 use crate::Address;
@@ -82,6 +88,7 @@ impl Bill {
         let version = version;
         let creditor_address = creditor_address;
         let debtor_address = debtor_address;
+        
 
         return Self{
             version,
@@ -90,8 +97,8 @@ impl Bill {
             amount,
             country,
             currency,
-            reference,
             reference_type,
+            reference,
             unstructured_message,
             bill_information,
 

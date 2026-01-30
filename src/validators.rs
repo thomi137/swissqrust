@@ -1,4 +1,11 @@
+/*
+ * Copyright (c) 2026. Thomas Prosser
+ * Licensed under MIT License
+ * https://opensource.org/licenses/MIT
+ */
+
 use std::fmt;
+use crate::utils::remove_whitespace;
 
 /// Damm Table for testing QR Reference against mod-10
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
@@ -125,7 +132,7 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
 /// assert!(is_valid_qr_reference(REF).is_ok());
 /// ```
 /// TODO: Needs more checks. A Reference "0" passes this
-pub fn is_valid_qr_reference(reference: &str) ->  Result<(), String> {
+pub fn is_valid_qr_reference(reference: &str) ->  Result<(), ReferenceError> {
     let mut carry: u8 = 0;
 
     let reference: String = reference
@@ -135,7 +142,7 @@ pub fn is_valid_qr_reference(reference: &str) ->  Result<(), String> {
 
     for ch in reference.chars() {
         if !ch.is_ascii_digit() {
-            return Err(format!("Invalid character: {}", ch));
+            return Result::Err(ReferenceError::InvalidIso11649Char(ch));
         }
         let digit = ch as u8 - b'0';
         carry = MOD_10[((carry + digit) % 10) as usize];
@@ -144,6 +151,9 @@ pub fn is_valid_qr_reference(reference: &str) ->  Result<(), String> {
 }
 
 pub fn is_valid_iso11649_reference(reference: &str) ->  Result<(), ReferenceError> {
+
+    let mut reference = String::from(reference);
+    remove_whitespace(&mut reference);
 
     if reference.len() < 5 || reference.len() > 25 {
         return Err(ReferenceError::InvalidIso11649Length);
@@ -229,5 +239,39 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(err, ReferenceError::InvalidIso11649Prefix);
+    }
+
+    #[test]
+    fn valid_iso11649_with_spaces() {
+        let valid = "RF08 B370 0321";
+
+        assert!(
+            is_valid_iso11649_reference(valid).is_ok(),
+            "Expected '{}' to be valid", valid
+        );
+    }
+
+    #[test]
+    fn valid_iso11649_with_lowercase() {
+        let valid = "RF 44 all lower case";
+
+        assert!(
+            is_valid_iso11649_reference(valid).is_ok(),
+            "Expected '{}' to be valid", valid
+        );
+    }
+
+    #[test]
+    fn invalid_iso11649_too_short() {
+        let err = is_valid_iso11649_reference("RF04");
+
+        assert_eq!(err, Err(ReferenceError::InvalidIso11649Length));
+    }
+
+    #[test]
+    fn invalid_iso11649_too_long() {
+        let err = is_valid_iso11649_reference("RF04GHJ74CV9B4DFH99RXPLMMQ43JKL0");
+
+        assert_eq!(err.unwrap_err(), ReferenceError::InvalidIso11649Length);
     }
 }

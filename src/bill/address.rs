@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2026 Thomas Prosser 
+ * Licensed under MIT License
+ * https://opensource.org/licenses/MIT
+ */
+
 use serde::{Serialize, Deserialize};
 
 /// No need for unstructured address
