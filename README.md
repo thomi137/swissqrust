@@ -2,6 +2,7 @@
 
 [![swiss_qrust](https://github.com/thomi137/swissqrust/actions/workflows/rust.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/rust.yml) 
 [![Rust 1.90.0+](https://img.shields.io/badge/rust-1.87.0+-orange.svg)](https://www.rust-lang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Swiss QR Payment Slips in Rust
 
