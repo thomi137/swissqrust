@@ -5,7 +5,7 @@
  */
 
 use std::fmt;
-use crate::utils::remove_whitespace;
+use crate::utils::{is_numeric, remove_whitespace};
 
 /// Damm Table for testing QR Reference against mod-10
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
@@ -21,8 +21,9 @@ pub enum IbanError{
 /// Reference number errors for both QR-IBAN and SCOR (ISO11649)
 #[derive(Debug, PartialEq)]
 pub enum ReferenceError {
-    InvalidQrChar(char),
+    InvalidQrChar,
     InvalidQrChecksum,
+    InvalidQrLength{expected: usize, actual: usize},
     InvalidIso11649Length,
     InvalidIso11649Prefix,
     InvalidIso11649Char(char),
@@ -32,29 +33,30 @@ pub enum ReferenceError {
 impl std::error::Error for ReferenceError {}
 
 impl fmt::Display for ReferenceError {
-fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    match self {
-        ReferenceError::InvalidQrChar(c) => {
-            write!(f, "Invalid QR reference character: '{}'", c)
-        }
-        ReferenceError::InvalidQrChecksum => write!(f, "QR reference checksum failed"),
-        ReferenceError::InvalidIso11649Length => {
-            write!(f, "ISO 11649 reference must be 5–25 characters long")
-        }
-        ReferenceError::InvalidIso11649Prefix => {
-            write!(f, "ISO 11649 reference must start with 'RF'")
-        }
-        ReferenceError::InvalidIso11649Char(c) => {
-            write!(f, "ISO11649 reference invalid character: '{}'", c)
-        }
-        ReferenceError::InvalidIso11649Checksum => {
-            write!(f, "ISO11649 reference checksum failed")
-        }
-        ReferenceError::InvalidReference => {
-            write!(f, "Invalid reference")
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ReferenceError::InvalidQrChar => {
+                write!(f, "Invalid QR reference character")
+            }
+            ReferenceError::InvalidQrChecksum => write!(f, "QR reference checksum failed"),
+            ReferenceError::InvalidQrLength { expected: e, actual: a } => write!(f, "Invalid QR length, must be {}, is {}", e, a),
+            ReferenceError::InvalidIso11649Length => {
+                write!(f, "ISO 11649 reference must be 5–25 characters long")
+            }
+            ReferenceError::InvalidIso11649Prefix => {
+                write!(f, "ISO 11649 reference must start with 'RF'")
+            }
+            ReferenceError::InvalidIso11649Char(c) => {
+                write!(f, "ISO11649 reference invalid character: '{}'", c)
+            }
+            ReferenceError::InvalidIso11649Checksum => {
+                write!(f, "ISO11649 reference checksum failed")
+            }
+            ReferenceError::InvalidReference => {
+                write!(f, "Invalid reference")
+            }
         }
     }
-}
 }
 
 /// Validates an IBAN
@@ -132,26 +134,45 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
 /// Valid QR Reference:
 /// ```
 /// use swiss_qrust::validators::is_valid_qr_reference;
-/// const REF: &str = "21 00000 00003 13947 14300 09017";
+/// const REF: &str = "21 00000 00003 13947 14300 0901 7";
 /// assert!(is_valid_qr_reference(REF).is_ok());
 /// ```
-/// TODO: Needs more checks. A Reference "0" passes this
-pub fn is_valid_qr_reference(reference: &str) ->  Result<(), ReferenceError> {
+pub fn is_valid_qr_reference(reference: &str) -> Result<(), ReferenceError> {
+    let mut reference = reference.to_owned();
+    remove_whitespace(&mut reference);
+
+    if !is_numeric(&reference) {
+        return Err(ReferenceError::InvalidQrChar);
+    }
+
+    if reference.len() != 27 {
+        return Err(ReferenceError::InvalidQrLength {
+            expected: 27,
+            actual: reference.len(),
+        });
+    }
+
+    if reference == "000000000000000000000000000" {
+        return Err(ReferenceError::InvalidQrChecksum);
+    }
+
+    if !mod10(&reference) {
+        return Err(ReferenceError::InvalidQrChecksum);
+    }
+
+    Ok(())
+}
+
+fn mod10(reference: &str) -> bool {
     let mut carry: u8 = 0;
 
-    let reference: String = reference
-        .chars()
-        .filter(|c| !c.is_whitespace())
-        .collect();
+    for ch in reference.bytes() {
 
-    for ch in reference.chars() {
-        if !ch.is_ascii_digit() {
-            return Result::Err(ReferenceError::InvalidIso11649Char(ch));
-        }
-        let digit = ch as u8 - b'0';
+        let digit = ch - b'0';
         carry = MOD_10[((carry + digit) % 10) as usize];
     }
-    Ok(())
+
+    ((10 - carry) % 10) == 0
 }
 
 pub fn is_valid_iso11649_reference(reference: &str) ->  Result<(), ReferenceError> {
@@ -216,8 +237,14 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_valid_qr_ref(){
-    assert_eq!(is_valid_qr_reference("0").is_ok(), true);
+    fn test_valid_qr(){
+        let qr = "21 00000 00003 13947 14300 0901 7";
+        assert!(is_valid_qr_reference(qr).is_ok());
+    }
+
+    #[test]
+    fn test_invalid_length_qr_ref(){
+        assert_eq!(is_valid_qr_reference("0").unwrap_err(), ReferenceError::InvalidQrLength{expected: 27, actual: 1});
     }
 
     #[test]

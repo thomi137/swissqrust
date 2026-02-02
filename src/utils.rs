@@ -65,5 +65,29 @@ pub fn is_qr_iban(s: &str) -> bool {
 
     // let slice: u16 = s[4..9].parse().unwrap();
 
-    (30000u16..=39999u16).contains(&value)
+    (30000u16..=31999u16).contains(&value)
+}
+
+/// Used for checking QR Reference for digits only. Fails at first non-digit
+/// character
+///
+/// ```
+/// use swiss_qrust::utils::is_numeric;
+/// assert_eq!(is_numeric("210000000003139471430009017"), true)
+/// ```
+/// Note that the string needs to be clear of whitespace.
+/// `is_numeric(s: &str)` has to fail in that case because whitespace
+/// is not numeric:
+///
+/// ```
+/// use swiss_qrust::utils::is_numeric;
+/// assert_eq!(is_numeric("21 00000 00003 13947 14300 0901 7"), false)
+/// ```
+pub fn is_numeric(s: &str) -> bool {
+
+    let mut iter = s.chars();
+    for c in &mut iter {
+        if !c.is_numeric() { return false; }
+    }
+    true
 }
