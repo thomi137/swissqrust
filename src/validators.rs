@@ -5,10 +5,28 @@
  */
 
 use std::fmt;
-use crate::utils::{is_numeric, remove_whitespace};
+use std::fmt::{Display, Formatter};
+use crate::utils::{qr_ref_is_numeric, remove_whitespace};
 
 /// Damm Table for testing QR Reference against mod-10
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
+
+/// Charset Error
+#[derive(Debug, PartialEq)]
+pub struct SPSCharsetError {
+        invalid: char,
+        index: usize,
+}
+
+impl Display for SPSCharsetError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+        SPSCharsetError { invalid, index } => {
+                write!(f, "Found invalid character {} at {}", invalid, index)
+            }
+        }
+    }
+}
 
 /// IBAN Errors
 #[derive(Debug, PartialEq)]
@@ -30,7 +48,6 @@ pub enum ReferenceError {
     InvalidIso11649Checksum,
     InvalidReference,
 }
-impl std::error::Error for ReferenceError {}
 
 impl fmt::Display for ReferenceError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -141,7 +158,7 @@ pub fn is_valid_qr_reference(reference: &str) -> Result<(), ReferenceError> {
     let mut reference = reference.to_owned();
     remove_whitespace(&mut reference);
 
-    if !is_numeric(&reference) {
+    if !qr_ref_is_numeric(&reference) {
         return Err(ReferenceError::InvalidQrChar);
     }
 
@@ -173,6 +190,20 @@ fn mod10(reference: &str) -> bool {
     }
 
     ((10 - carry) % 10) == 0
+}
+
+pub fn is_valid_sps_charset(s: &str) -> Result<(), SPSCharsetError> {
+
+    for (i, ch) in s.chars().enumerate() {
+        if !is_in_extended_sps_charset(ch as u32) {
+            return Err(SPSCharsetError {
+                invalid: ch,
+                index: i,
+            })
+        }
+    }
+
+    Ok(())
 }
 
 pub fn is_valid_iso11649_reference(reference: &str) ->  Result<(), ReferenceError> {
@@ -229,7 +260,21 @@ where
     remainder == 1
 }
 
+/// According to spec
+fn is_in_extended_sps_charset(ch: u32) -> bool {
 
+    // Basic Latin
+    (0x0020..=0x007E).contains(&ch)
+        // Latin1 Supplement
+        ||(0x00A0..=0x00FF).contains(&ch)
+        // Latin Extended-A
+        || (0x0100..=0x017F).contains(&ch)
+        // Additional characters (Ș ș Ț ț)
+        || (0x0218..=0x021B).contains(&ch)
+        // Eurp sign
+        || ch == 0x20AC
+
+}
 
 
 #[cfg(test)]
@@ -304,5 +349,17 @@ mod tests {
         let err = is_valid_iso11649_reference("RF04GHJ74CV9B4DFH99RXPLMMQ43JKL0");
 
         assert_eq!(err.unwrap_err(), ReferenceError::InvalidIso11649Length);
+    }
+
+    #[test]
+    fn valid_sps_string() {
+        assert!(is_valid_sps_charset("Șipi Müller € AG").is_ok())
+    }
+
+    #[test]
+    fn invalid_sps_string() {
+        let err = is_valid_sps_charset("Hello 🤣").unwrap_err();
+        assert_eq!(err.invalid, '🤣');
+        assert_eq!(err.index, 6);
     }
 }

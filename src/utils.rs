@@ -72,22 +72,22 @@ pub fn is_qr_iban(s: &str) -> bool {
 /// character
 ///
 /// ```
-/// use swiss_qrust::utils::is_numeric;
-/// assert_eq!(is_numeric("210000000003139471430009017"), true)
+/// use swiss_qrust::utils::qr_ref_is_numeric;
+/// assert_eq!(qr_ref_is_numeric("210000000003139471430009017"), true)
 /// ```
 /// Note that the string needs to be clear of whitespace.
 /// `is_numeric(s: &str)` has to fail in that case because whitespace
 /// is not numeric:
 ///
 /// ```
-/// use swiss_qrust::utils::is_numeric;
-/// assert_eq!(is_numeric("21 00000 00003 13947 14300 0901 7"), false)
+/// use swiss_qrust::utils::qr_ref_is_numeric;
+/// assert_eq!(qr_ref_is_numeric("21 00000 00003 13947 14300 0901 7"), false)
 /// ```
-pub fn is_numeric(s: &str) -> bool {
+pub fn qr_ref_is_numeric(s: &str) -> bool {
 
     let mut iter = s.chars();
     for c in &mut iter {
-        if !c.is_numeric() { return false; }
+        if !c.is_ascii_digit() { return false; }
     }
     true
 }

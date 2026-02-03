@@ -1,6 +1,7 @@
 pub mod bill;
 pub mod address;
-mod reference_type;
+pub mod reference_type;
+pub mod qr_bill;
 
 pub use bill::*;
 
