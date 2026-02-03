@@ -6,7 +6,10 @@
 
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use crate::utils::{qr_ref_is_numeric, remove_whitespace};
+use crate::utils::{qr_ref_is_numeric,
+                   remove_whitespace,
+                   is_in_extended_sps_charset
+};
 
 /// Damm Table for testing QR Reference against mod-10
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
@@ -258,22 +261,6 @@ where
     }
 
     remainder == 1
-}
-
-/// According to spec
-fn is_in_extended_sps_charset(ch: u32) -> bool {
-
-    // Basic Latin
-    (0x0020..=0x007E).contains(&ch)
-        // Latin1 Supplement
-        ||(0x00A0..=0x00FF).contains(&ch)
-        // Latin Extended-A
-        || (0x0100..=0x017F).contains(&ch)
-        // Additional characters (Ș ș Ț ț)
-        || (0x0218..=0x021B).contains(&ch)
-        // Eurp sign
-        || ch == 0x20AC
-
 }
 
 
