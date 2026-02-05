@@ -1,0 +1,24 @@
+/*
+ * Copyright (c) 2026 Thomas Prosser 
+ * Licensed under MIT License
+ * https://opensource.org/licenses/MIT
+ */
+
+
+/// A4 Width in mm
+pub const A4_PORTRAIT_WIDTH: u16 = 210;
+
+/// A4 Height in mm
+pub const A4_PORTRAIT_HEIGHT: u16 = 297;
+
+/// Width of a QR Slip is incidentally the same as the whole paper slip 🤣
+pub const QR_BILL_SLIP_WIDTH: u16 = 210;
+
+/// Now the height of the slip itself
+pub const QR_BILL_HEIGHT: u16 = 105;
+
+/// Then the width with scissors symbol and all... Surprise
+pub const QR_BILL_WITH_ALL_WIDTH: u16 = 210;
+
+/// Takes 5 mm more with all the scissors svg.
+pub const QR_BILL_WITH_HORI_LINE_HEIGHT: u16 = 110;

@@ -8,9 +8,16 @@ use serde::{Serialize, Deserialize};
 
 const ADDRESS_TYPE: &'static str = "S";
 
+pub enum AddressError {
+    AddressNameError,
+    AddressStreetError,
+    AddressCountryError,
+    
+}
+
 /// No need for unstructured address
 /// as deprecated on Nov 21, 2025
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Address {
     address_type: String,
     name: String,

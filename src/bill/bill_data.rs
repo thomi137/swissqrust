@@ -33,32 +33,7 @@ pub enum BillError{
 
 /// This is all in Millimeters and all in DIN A4
 
-/// A4 Width in mm
-pub const A4_PORTRAIT_WIDTH: u16 = 210;
 
-/// A4 Height in mm
-pub const A4_PORTRAIT_HEIGHT: u16 = 297;
-
-/// Width of a QR Slip is incidentally the same as the whole paper slip 🤣
-pub const QR_BILL_SLIP_WIDTH: u16 = 210;
-
-/// Now the height of the slip itself
-pub const QR_BILL_HEIGHT: u16 = 105;
-
-/// Then the width with scissors symbol and all... Surprise
-pub const QR_BILL_WITH_ALL_WIDTH: u16 = 210;
-
-/// Takes 5 mm more with all the scissors svg.
-pub const QR_BILL_WITH_HORI_LINE_HEIGHT: u16 = 110;
-
-/// QR Code Width
-pub const QR_CODE_WIDTH: u16 = 46;
-
-/// QR Code Height
-pub const QR_CODE_HEIGHT: u16 = 46;
-
-/// QR Code Padding
-pub const QR_CODE_PADDING: u16 = 56;
 
 /// QR Width in mm
 pub const QR_CODE_OVERALL_WIDTH: u16 = 148;
@@ -92,16 +67,16 @@ impl Display for Country {
         }
     }
 }
-
-struct BillData {
-    creditor_address: Address,
-    debtor_address: Option<Address>,
-    country: Country,
-    currency: Currency,
-    amount: String,
-    reference_type: ReferenceType,
-    unstructured_message: Option<String>,
-    bill_information: Option<String>,
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct BillData {
+    pub creditor_address: Address,
+    pub debtor_address: Option<Address>,
+    pub country: Country,
+    pub currency: Currency,
+    pub amount: String,
+    pub reference_type: ReferenceType,
+    pub unstructured_message: Option<String>,
+    pub bill_information: Option<String>,
 } impl BillData {
     pub fn new (
         creditor_address: Address,
