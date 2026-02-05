@@ -6,10 +6,13 @@
 
 use serde::{Serialize, Deserialize};
 
+const ADDRESS_TYPE: &'static str = "S";
+
 /// No need for unstructured address
 /// as deprecated on Nov 21, 2025
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Address {
+    address_type: String,
     name: String,
     street: Option<String>,
     house_num: Option<String>,
@@ -71,6 +74,7 @@ impl Address {
         }
 
         Ok(Self {
+            address_type: ADDRESS_TYPE.into(),
             name,
             street,
             house_num,

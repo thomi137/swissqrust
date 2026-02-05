@@ -38,10 +38,14 @@ impl Version {
 
 impl Display for Version {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:02}{:02}", self.major, self.minor)
+        f.write_str(&self.qr_code_version())
     }
 }
 
 const QR_TYPE: &'static str = "SPC";
+const VERSION: Version = Version { major: 2, minor: 0 };
 
-
+pub struct QrBill {
+    qr_type: String,
+    version: String,
+}

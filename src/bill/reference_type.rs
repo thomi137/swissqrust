@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use serde::{Deserialize, Serialize};
 
 use crate::validators::*;
@@ -38,19 +39,25 @@ impl ReferenceType {
         Err(ReferenceError::InvalidReference)
     }
 
-    pub fn validate(&self) -> Result<(), &'static str> {
+    pub fn code(&self) -> &'static str {
         match self {
-            ReferenceType::NoRef => Ok(()),
+            ReferenceType::NoRef => "NON",
+            ReferenceType::QrRef(_) => "QRR",
+            ReferenceType::Creditor(_) => "SCOR",
+        }
+    }
+    pub fn requires_references(&self) -> bool {
+        matches!(self, ReferenceType::QrRef(_) | ReferenceType::Creditor(_))
+    }
 
-            ReferenceType::QrRef(v) => {
-                is_valid_qr_reference(v).unwrap();
-                Ok(())
-            }
+}
 
-            ReferenceType::Creditor(v) => {
-                is_valid_iso11649_reference(v).unwrap();
-                Ok(())
-            }
+impl Display for ReferenceType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ReferenceType::NoRef => f.write_str("NON"),
+            ReferenceType::QrRef(reference) => write!(f,"QRR: {}",reference),
+            ReferenceType::Creditor(reference) => write!(f,"SCOR: {}",reference),
         }
     }
 }
@@ -79,5 +86,12 @@ mod tests {
         let value = "RF18539007547034";
         let ref_type = ReferenceType::infer(value).unwrap();
         assert_eq!(ref_type, ReferenceType::Creditor(value.to_owned()));
+    }
+
+    #[test]
+    fn reference_type_codes() {
+        assert_eq!(ReferenceType::NoRef.code(), "NON");
+        assert_eq!(ReferenceType::QrRef("210000000003139471430009017".into()).code(), "QRR");
+        assert_eq!(ReferenceType::Creditor("RF18539007547034".into()).code(), "SCOR");
     }
 }

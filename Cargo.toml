@@ -12,4 +12,5 @@ text = "0.0.4"
 once_cell = "1.21.3"
 bincode = "1.3.3"
 serde =  { version = "1.0.228", features = ["derive"]}
+thiserror = "2.0.18"
 

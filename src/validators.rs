@@ -31,20 +31,39 @@ impl Display for SPSCharsetError {
     }
 }
 
+impl std::error::Error for SPSCharsetError {}
+
 /// IBAN Errors
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum IbanError{
     IncorrectLength{expected: usize, actual: usize},
     IncorrectCountryCode,
     InvalidCharacter,
 }
+impl Display for IbanError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            IbanError::IncorrectLength { expected, actual } => { 
+                write!(f, "Incorrect length expected {} got {}", expected, actual)
+            },
+            IbanError::IncorrectCountryCode => {
+                write!(f, "Incorrect country code. Must be CH or LI")
+            },
+            IbanError::InvalidCharacter => {
+                f.write_str("Invalid character")
+            }
+        }
+    }
+}
+
+impl std::error::Error for IbanError {}
 
 /// Reference number errors for both QR-IBAN and SCOR (ISO11649)
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ReferenceError {
     InvalidQrChar,
     InvalidQrChecksum,
-    InvalidQrLength{expected: usize, actual: usize},
+    InvalidQrLength { expected: usize, actual: usize },
     InvalidIso11649Length,
     InvalidIso11649Prefix,
     InvalidIso11649Char(char),
@@ -78,6 +97,8 @@ impl fmt::Display for ReferenceError {
         }
     }
 }
+
+impl std::error::Error for ReferenceError {}
 
 /// Validates an IBAN
 ///
