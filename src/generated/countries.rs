@@ -2,6 +2,8 @@
 // https://github.com/mledoze/countries
 // DO NOT EDIT BY HAND
 
+use std::str::FromStr;
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Country {
     AW,
@@ -2275,7 +2277,7 @@ impl Country {
     }
 }
 
-impl core::str::FromStr for Country {
+impl std::str::FromStr for Country {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {

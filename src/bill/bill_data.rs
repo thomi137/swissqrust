@@ -31,13 +31,6 @@ pub enum BillError{
     
 }
 
-/// This is all in Millimeters and all in DIN A4
-
-
-
-/// QR Width in mm
-pub const QR_CODE_OVERALL_WIDTH: u16 = 148;
-
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
 pub enum Currency {
     #[default]
@@ -54,16 +47,16 @@ impl Display for Currency {
 }
 
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
-pub enum Country {
+pub enum QRCountry {
     #[default]
     CH,
     LI
 }
-impl Display for Country {
+impl Display for QRCountry {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            Country::CH => f.write_str("CH"),
-            Country::LI => f.write_str("LI"),
+            QRCountry::CH => f.write_str("CH"),
+            QRCountry::LI => f.write_str("LI"),
         }
     }
 }
@@ -71,7 +64,7 @@ impl Display for Country {
 pub struct BillData {
     pub creditor_address: Address,
     pub debtor_address: Option<Address>,
-    pub country: Country,
+    pub country: QRCountry,
     pub currency: Currency,
     pub amount: String,
     pub reference_type: ReferenceType,
@@ -81,7 +74,7 @@ pub struct BillData {
     pub fn new (
         creditor_address: Address,
         debtor_address: Option<Address>,
-        country: Country,
+        country: QRCountry,
         currency: Currency,
         amount: String,
         reference_type: ReferenceType,

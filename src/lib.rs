@@ -5,7 +5,6 @@ pub mod utils;
 pub mod bill;
 pub mod language;
 pub mod pdf;
-mod iso_3166;
 
 pub use bill::*;
 

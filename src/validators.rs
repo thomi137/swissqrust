@@ -6,13 +6,13 @@
 
 use std::fmt;
 use std::fmt::{Display, Formatter};
-use crate::utils::{qr_ref_is_numeric,
-                   remove_whitespace,
-                   is_in_extended_sps_charset
+use thiserror::Error;
+use crate::{utils, Country};
+use crate::utils::{is_in_extended_sps_charset,
+                   qr_ref_is_numeric,
+                   remove_whitespace
 };
 
-/// Damm Table for testing QR Reference against mod-10
-const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 
 /// Charset Error
 #[derive(Debug, PartialEq)]
@@ -32,6 +32,7 @@ impl Display for SPSCharsetError {
 }
 
 impl std::error::Error for SPSCharsetError {}
+
 
 /// IBAN Errors
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -57,6 +58,20 @@ impl Display for IbanError {
 }
 
 impl std::error::Error for IbanError {}
+
+#[derive(Debug, Error)]
+pub enum CountryValidationError {
+
+    #[error("Invalid country code")]
+    InvalidCountryCode(String),
+
+    #[error("country code is withdrawn")]
+    Withdrawn,
+
+    #[error("country code is reserved")]
+    Reserved,
+}
+
 
 /// Reference number errors for both QR-IBAN and SCOR (ISO11649)
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -197,23 +212,11 @@ pub fn is_valid_qr_reference(reference: &str) -> Result<(), ReferenceError> {
         return Err(ReferenceError::InvalidQrChecksum);
     }
 
-    if !mod10(&reference) {
+    if !utils::mod10(&reference) {
         return Err(ReferenceError::InvalidQrChecksum);
     }
 
     Ok(())
-}
-
-fn mod10(reference: &str) -> bool {
-    let mut carry: u8 = 0;
-
-    for ch in reference.bytes() {
-
-        let digit = ch - b'0';
-        carry = MOD_10[((carry + digit) % 10) as usize];
-    }
-
-    ((10 - carry) % 10) == 0
 }
 
 pub fn is_valid_sps_charset(s: &str) -> Result<(), SPSCharsetError> {
@@ -253,35 +256,21 @@ pub fn is_valid_iso11649_reference(reference: &str) ->  Result<(), ReferenceErro
         .chars()
         .chain(reference[..4].chars());
 
-    if !mod97(rearranged) {
+    if !utils::mod97(rearranged) {
         return Err(ReferenceError::InvalidIso11649Checksum);
     }
 
     Ok(())
 }
 
-pub fn mod97<I>(chars: I) -> bool
-where
-    I: IntoIterator<Item = char>,
-{
-    let mut remainder: u32 = 0;
+pub fn is_valid_iso_3661_1_country(country: &str) -> Result<Country, CountryValidationError> {
 
-    for ch in chars {
-        let ch = ch.to_ascii_uppercase();
-        let value = match ch {
-            '0'..='9' => ch as u32 - '0' as u32,
-            'A'..='Z' => ch as u32 - 'A' as u32 + 10,
-            _ => return false, // invalid character
-        };
+    let country: Country = country
+        .to_ascii_uppercase()
+        .parse()
+        .map_err(|_| CountryValidationError::InvalidCountryCode(country.to_string()))?;
 
-        remainder = if value < 10 {
-            (remainder * 10 + value) % 97
-        } else {
-            (remainder * 100 + value) % 97
-        };
-    }
-
-    remainder == 1
+    Ok(country)
 }
 
 

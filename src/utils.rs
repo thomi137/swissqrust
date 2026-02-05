@@ -4,6 +4,9 @@
  * https://opensource.org/licenses/MIT
  */
 
+/// Damm Table for testing QR Reference against mod-10
+const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
+
 /// Helpers for String manipultion or checking.
 
 /// Removes whitespace in-place
@@ -125,4 +128,40 @@ pub fn is_in_extended_sps_charset(ch: u32) -> bool {
         // Eurp sign
         || ch == 0x20AC
 
+}
+
+pub fn mod97<I>(chars: I) -> bool
+where
+    I: IntoIterator<Item = char>,
+{
+    let mut remainder: u32 = 0;
+
+    for ch in chars {
+        let ch = ch.to_ascii_uppercase();
+        let value = match ch {
+            '0'..='9' => ch as u32 - '0' as u32,
+            'A'..='Z' => ch as u32 - 'A' as u32 + 10,
+            _ => return false, // invalid character
+        };
+
+        remainder = if value < 10 {
+            (remainder * 10 + value) % 97
+        } else {
+            (remainder * 100 + value) % 97
+        };
+    }
+
+    remainder == 1
+}
+
+pub fn mod10(reference: &str) -> bool {
+    let mut carry: u8 = 0;
+
+    for ch in reference.bytes() {
+
+        let digit = ch - b'0';
+        carry = MOD_10[((carry + digit) % 10) as usize];
+    }
+
+    ((10 - carry) % 10) == 0
 }

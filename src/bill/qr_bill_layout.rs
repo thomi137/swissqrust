@@ -4,6 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
+/// All constants are in mm
 
 /// A4 Width in mm
 pub const A4_PORTRAIT_WIDTH: u16 = 210;
@@ -22,3 +23,6 @@ pub const QR_BILL_WITH_ALL_WIDTH: u16 = 210;
 
 /// Takes 5 mm more with all the scissors svg.
 pub const QR_BILL_WITH_HORI_LINE_HEIGHT: u16 = 110;
+
+/// QR Width in mm
+pub const QR_CODE_OVERALL_WIDTH: u16 = 148;

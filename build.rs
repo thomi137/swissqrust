@@ -11,6 +11,7 @@ use std::{
 };
 use serde::Deserialize;
 
+
 #[derive(Debug, Deserialize)]
 struct CountryRaw {
     cca2: String,
@@ -28,6 +29,16 @@ struct Name {
 
 fn main() {
 
+    let dest_path = Path::new("src/generated/countries.rs");
+
+    // ensure parent directory exists
+    if let Some(parent) = dest_path.parent() {
+        fs::create_dir_all(parent).expect("failed to create generated directory");
+    }
+
+
+    // rerun if build script changes
+    println!("cargo:rerun-if-changed=build.rs");
     // tell cargo to rerun if file has changed.
     println!("cargo:rerun-if-changed=data/countries.json");
 
@@ -92,6 +103,8 @@ fn main() {
 // https://github.com/mledoze/countries
 // DO NOT EDIT BY HAND
 
+use std::str::FromStr;
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Country {{
 {enum_variants}
@@ -115,7 +128,7 @@ impl Country {{
     }}
 }}
 
-impl core::str::FromStr for Country {{
+impl std::str::FromStr for Country {{
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {{
