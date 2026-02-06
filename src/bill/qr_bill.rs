@@ -38,7 +38,6 @@ impl Display for LineSeparator {
     }
 }
 
-
 /// At the moment, only version "0200" is accepted. Starting from
 /// version 3, minors are accepted.
 ///
@@ -69,6 +68,7 @@ impl Version {
         format!("{:02}{:02}", self.major, self.minor)
     }
 }
+
 impl Display for Version {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.qr_code_version())
@@ -79,7 +79,6 @@ const QR_TYPE: &'static str = "SPC";
 const VERSION: Version = Version { major: 2, minor: 0 };
 const CODING_TYPE: &'static str = "1";
 const TRAILER_EPD: &str = "EPD";
-
 
 pub struct QrBill {
     bill_data: BillData,
