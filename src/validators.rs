@@ -33,7 +33,6 @@ impl Display for SPSCharsetError {
 
 impl std::error::Error for SPSCharsetError {}
 
-
 /// IBAN Errors
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum IbanError{

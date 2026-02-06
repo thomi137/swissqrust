@@ -5,8 +5,9 @@
  */
 
 use std::fmt::{Display, Formatter, Write};
-use crate::{Address, BillData};
+use crate::{Address, BillData, ReferenceType};
 
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum QRBillError {}
 
 /// According to the [spec] (https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.3-de.pdf)
@@ -77,6 +78,8 @@ impl Display for Version {
 const QR_TYPE: &'static str = "SPC";
 const VERSION: Version = Version { major: 2, minor: 0 };
 const CODING_TYPE: &'static str = "1";
+const TRAILER_EPD: &str = "EPD";
+
 
 pub struct QrBill {
     bill_data: BillData,
@@ -87,16 +90,11 @@ pub struct QrBill {
 
 impl QrBill {
     pub fn new(
-        qr_type: String,
-        version: String,
-        coding_type: String,
         bill_data: BillData,
     ) -> Result<Self, QRBillError> {
         let qr_type = QR_TYPE.to_string();
         let version = VERSION.to_string();
         let coding_type = CODING_TYPE.to_string();
-        let cdtr = bill_data.creditor_address.clone();
-
         Ok(QrBill{
             bill_data,
             qr_type,
@@ -115,10 +113,34 @@ impl QrBill {
 
         // IBAN - Mandatory
         qr_text.append_data_field(Some(self.bill_data.iban.as_str()));
+        // Creditor - Cdtr
         qr_text.append_person(Some(&self.bill_data.creditor_address));
+        // UltmtCdtr - Has to be there, has to be empty
+        qr_text.append_person(None);
+        qr_text.append_data_field(Some(&self.bill_data.amount));
+        qr_text.append_data_field(Some(&self.bill_data.currency.to_string()));
 
+        // UltmtDbtr - Debtor
+        qr_text.append_person(self.bill_data.debtor_address.as_ref());
 
-        Ok(QR_TYPE.to_string())
+        let ref_type = &self.bill_data.reference_type;
+        // RmtInf + Tp - Reference Type
+        qr_text.append_data_field(Some(ref_type.code()));
+
+        // Reference
+        match ref_type {
+            ReferenceType::NoRef => qr_text.append_data_field(None),
+            ReferenceType::QrRef(reference) => qr_text.append_data_field(Some(reference)),
+            ReferenceType::Creditor(reference) => qr_text.append_data_field(Some(reference)),
+        }
+
+        //Trailer - End of Payment Data
+
+        // Additional information
+        qr_text.append_data_field(self.bill_data.unstructured_message.as_deref());
+        qr_text.append_data_field(Some(TRAILER_EPD));
+
+        Ok(qr_text.build())
     }
 }
 
@@ -158,12 +180,11 @@ impl QRTextBuilder {
 
     pub fn append_header(&mut self, qr_type: &str, version: &str, coding_type: &str) {
         self.text.push_str(qr_type);
-        self.append_data_field(Some(VERSION.qr_code_version().as_str()));
-        self.append_data_field(Some(CODING_TYPE));
+        self.append_data_field(Some(version.as_ref()));
+        self.append_data_field(Some(coding_type.as_ref()));
     }
 
     pub fn build(self) -> String {
         self.text
     }
-
 }
