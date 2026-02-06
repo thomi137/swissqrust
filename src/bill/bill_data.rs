@@ -10,6 +10,7 @@ use regex::Regex;
 use thiserror::Error;
 use crate::Address;
 use crate::bill::reference_type::ReferenceType;
+use crate::utils::remove_whitespace;
 use crate::validators::*;
 
 pub static AMOUNT_REGEX: Lazy<Regex> =
@@ -62,6 +63,7 @@ impl Display for QRCountry {
 }
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct BillData {
+    pub iban: String,
     pub creditor_address: Address,
     pub debtor_address: Option<Address>,
     pub country: QRCountry,
@@ -72,6 +74,7 @@ pub struct BillData {
     pub bill_information: Option<String>,
 } impl BillData {
     pub fn new (
+        iban: String,
         creditor_address: Address,
         debtor_address: Option<Address>,
         country: QRCountry,
@@ -86,7 +89,10 @@ pub struct BillData {
             return Err(BillError::InvalidAmount);
         }
 
+        is_valid_iban(&iban)?;
+
         Ok(BillData{
+            iban,
             creditor_address,
             debtor_address,
             country,

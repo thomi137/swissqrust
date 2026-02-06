@@ -9,6 +9,15 @@ use thiserror::Error;
 use crate::Country;
 use crate::validators::is_valid_iso_3661_1_country;
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
+pub enum AddressIdentity {
+    #[default]
+    Cdtr,
+    Dbtr,
+    UltmtCdtr,
+    UltmtDbtr,
+}
+
 const ADDRESS_TYPE: &'static str = "S";
 
 #[derive(Error, Debug)]
@@ -31,13 +40,13 @@ pub enum AddressError {
 /// as deprecated on Nov 21, 2025
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Address {
-    address_type: String,
-    name: String,
-    street: Option<String>,
-    house_num: Option<String>,
-    plz: String,
-    city: String,
-    country: Country,
+    pub address_type: String,
+    pub name: String,
+    pub street: Option<String>,
+    pub house_num: Option<String>,
+    pub plz: String,
+    pub city: String,
+    pub country: Country,
 }
 
 impl Address {

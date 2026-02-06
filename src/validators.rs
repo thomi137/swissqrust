@@ -40,6 +40,7 @@ pub enum IbanError{
     IncorrectLength{expected: usize, actual: usize},
     IncorrectCountryCode,
     InvalidCharacter,
+    InvalidIban,
 }
 impl Display for IbanError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -52,6 +53,9 @@ impl Display for IbanError {
             },
             IbanError::InvalidCharacter => {
                 f.write_str("Invalid character")
+            },
+            IbanError::InvalidIban => {
+                f.write_str("Invalid Iban")
             }
         }
     }
@@ -129,8 +133,8 @@ impl std::error::Error for ReferenceError {}
 ///use swiss_qrust::validators::is_valid_iban;
 ///
 ///const IBAN: &str = "CH44 0871 0000 0033 1272 0007";
-///let result = is_valid_iban(IBAN).unwrap();
-///assert!(!result, "Expected '{}' to be invalid, but got true", IBAN);
+///let result = is_valid_iban(IBAN);
+///assert!(result.is_err(), "Expected '{}' to be invalid, but got true", IBAN);
 ///```
 ///
 /// Another invalid IBAN:
@@ -142,7 +146,7 @@ impl std::error::Error for ReferenceError {}
 /// let err = is_valid_iban(IBAN).unwrap_err();
 /// assert_eq!(err, IbanError::IncorrectCountryCode );
 /// ```
-pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
+pub fn is_valid_iban(iban: &str) -> Result<(), IbanError>  {
 
     let iban: String = iban.chars()
         .filter(|c| !c.is_whitespace())
@@ -182,7 +186,12 @@ pub fn is_valid_iban(iban: &str) -> Result<bool, IbanError>  {
             _ => return Err(IbanError::InvalidCharacter),
         }
     }
-    Ok(remainder == 1)
+
+    if remainder != 1 {
+        return Err(IbanError::InvalidIban)
+    }
+
+    Ok(())
 }
 
 /// QR Reference Number
@@ -358,5 +367,23 @@ mod tests {
         let err = is_valid_sps_charset("Hello 🤣").unwrap_err();
         assert_eq!(err.invalid, '🤣');
         assert_eq!(err.index, 6);
+    }
+
+    #[test]
+    fn is_valid_iso_country() {
+        let country = "AF";
+        assert!(is_valid_iso_3661_1_country(country).is_ok());
+    }
+
+    #[test]
+    fn is_valid_iso_country_lowercase() {
+        let country = "fr";
+        assert!(is_valid_iso_3661_1_country(country).is_ok());
+    }
+
+    #[test]
+    fn is_invalid_iso_country() {
+        let country = "SU";
+        assert!(is_valid_iso_3661_1_country(country).is_err());
     }
 }

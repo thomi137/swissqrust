@@ -3,10 +3,9 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use std::fmt::{Display, Formatter};
-use bincode::config::FixintEncoding;
-use svg::node::NodeClone;
-use crate::BillData;
+
+use std::fmt::{Display, Formatter, Write};
+use crate::{Address, BillData};
 
 pub enum QRBillError {}
 
@@ -20,6 +19,15 @@ pub enum LineSeparator{
     // Line feed. Unicode U+000A.
     Lf
 }
+impl LineSeparator {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            LineSeparator::CrLF => "\r\n",
+            LineSeparator::Lf => "\n",
+        }
+    }
+}
+
 impl Display for LineSeparator {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
@@ -87,8 +95,8 @@ impl QrBill {
         let qr_type = QR_TYPE.to_string();
         let version = VERSION.to_string();
         let coding_type = CODING_TYPE.to_string();
-      
-        
+        let cdtr = bill_data.creditor_address.clone();
+
         Ok(QrBill{
             bill_data,
             qr_type,
@@ -96,5 +104,66 @@ impl QrBill {
             coding_type,
         })
     }
+
+    pub fn create_qr_text(&self) -> Result<String, QRBillError> {
+
+        // TODO Make available for other line separator as well
+        let mut qr_text = QRTextBuilder::new(LineSeparator::default());
+
+        // Header Data. Not expected to change anytime soon.
+        qr_text.append_header(&self.qr_type, &self.version, &self.coding_type);
+
+        // IBAN - Mandatory
+        qr_text.append_data_field(Some(self.bill_data.iban.as_str()));
+        qr_text.append_person(Some(&self.bill_data.creditor_address));
+
+
+        Ok(QR_TYPE.to_string())
+    }
 }
-    
+
+pub struct QRTextBuilder {
+    text: String,
+    separator: LineSeparator,
+}
+impl QRTextBuilder {
+    pub fn new(separator: LineSeparator) -> Self {
+        Self {
+            text: String::new(),
+            separator
+        }
+    }
+
+    pub fn append_data_field(&mut self, value: Option<&str>) {
+        let value = value.unwrap_or("");
+        self.text.push_str(self.separator.as_str());
+        self.text.push_str(value);
+    }
+
+    pub fn append_person(&mut self, address: Option<&Address>) {
+        if let Some(addr) = address {
+            self.append_data_field(Some(&addr.address_type));
+            self.append_data_field(Some(&addr.name));
+            self.append_data_field(addr.street.as_deref());
+            self.append_data_field(addr.house_num.as_deref());
+            self.append_data_field(Some(&addr.plz));
+            self.append_data_field(Some(&addr.city));
+            self.append_data_field(Some(&addr.country.meta().alpha2));
+        } else {
+            for _ in 0..7 {
+                self.append_data_field(None);
+            }
+        }
+    }
+
+    pub fn append_header(&mut self, qr_type: &str, version: &str, coding_type: &str) {
+        self.text.push_str(qr_type);
+        self.append_data_field(Some(VERSION.qr_code_version().as_str()));
+        self.append_data_field(Some(CODING_TYPE));
+    }
+
+    pub fn build(self) -> String {
+        self.text
+    }
+
+}
