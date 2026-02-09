@@ -1,3 +1,4 @@
+```
 MIT License
 
 Copyright (c) 2026 Thomas Prosser
@@ -25,3 +26,10 @@ SOFTWARE.
 The country data JSON (data/countries.json) is derived from mledoze/countries:
 https://github.com/mledoze/countries
 Licensed under the Open Database License (ODbL) 1.0
+
+---
+
+The Liberation Sans font is licensed under the GNU General Public License v2.0
+https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#SEC1
+
+```
