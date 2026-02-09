@@ -50,7 +50,7 @@ fn bill_data() -> BillData {
     let creditor_address = crdt_address();
     let debtor_address = dbt_address();
     let amount = String::from("111.00");
-    let iban = "CH6431961000004421557";
+    let iban = "CH64 3196 1000 0044 2155 7";
     BillData::new(
         iban.to_string(),
         creditor_address,

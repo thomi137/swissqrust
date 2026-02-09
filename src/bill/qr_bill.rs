@@ -5,10 +5,15 @@
  */
 
 use std::fmt::{Display, Formatter, Write};
+use qrcodegen::{QrCode, QrCodeEcc};
+use thiserror::Error;
 use crate::{Address, BillData, ReferenceType};
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum QRBillError {}
+#[derive(Debug, Error, Clone, Eq, PartialEq)]
+pub enum QRBillError {
+    #[error("QR encoding failed")]
+    QrEncodingFailed,
+}
 
 /// According to the [spec] (https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.3-de.pdf)
 /// section 4.1.4, there are two allowed line separators.
@@ -102,6 +107,7 @@ impl QrBill {
         })
     }
 
+    
     pub fn create_qr_text(&self) -> Result<String, QRBillError> {
 
         // TODO Make available for other line separator as well
@@ -187,3 +193,10 @@ impl QRTextBuilder {
         self.text
     }
 }
+
+pub fn encode_text_to_qr_code(qr_text: &str) -> Result<QrCode, QRBillError> {
+    QrCode::encode_text(qr_text, QrCodeEcc::Medium)
+        .map_err(|_| QRBillError::QrEncodingFailed)
+}
+
+

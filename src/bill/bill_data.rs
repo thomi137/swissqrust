@@ -91,6 +91,13 @@ pub struct BillData {
 
         is_valid_iban(&iban)?;
 
+        // TODO: This should have happened before here.
+        let iban =
+            iban
+                .chars()
+                .filter(|s| !s.is_whitespace())
+                .collect();
+
         Ok(BillData{
             iban,
             creditor_address,

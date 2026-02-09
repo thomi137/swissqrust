@@ -21,7 +21,7 @@ pub const QR_BILL_HEIGHT: u16 = 105;
 /// Then the width with scissors symbol and all... Surprise
 pub const QR_BILL_WITH_ALL_WIDTH: u16 = 210;
 
-/// Takes 5 mm more with all the scissors svg.
+/// Takes 5 mm more with all the scissors assets.
 pub const QR_BILL_WITH_HORI_LINE_HEIGHT: u16 = 110;
 
 /// QR Width in mm
