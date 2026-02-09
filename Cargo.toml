@@ -11,6 +11,8 @@ serde =  { version = "1.0.228", features = ["derive"]}
 thiserror = "2.0.18"
 qrcodegen = "1.8.0"
 svg = "0.18.0"
+usvg = "0.46.0"
+resvg = "0.46.0"
 
 
 [build-dependencies]

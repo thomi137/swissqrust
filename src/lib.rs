@@ -7,6 +7,7 @@ pub mod utils;
 pub mod bill;
 pub mod language;
 pub mod svg;
+pub mod render;
 
 pub use bill::*;
 

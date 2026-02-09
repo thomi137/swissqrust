@@ -11,5 +11,5 @@ mod parse_svg;
 pub fn run() {
     println!("cargo:warning=build_functions.rs is running");
     build_countries::generate();
-    generate_svg_constants("assets/CH-Kreuz_7mm.svg", "CROSS", "src/generated/cross.rs");
+    generate_svg_constants("assets/svg/CH-Kreuz_7mm.svg", "CROSS", "src/generated/cross.rs");
 }

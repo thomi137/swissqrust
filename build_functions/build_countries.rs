@@ -40,9 +40,9 @@ pub fn generate() {
     // rerun if build_functions script changes
     println!("cargo:rerun-if-changed=build_functions.rs");
     // tell cargo to rerun if file has changed.
-    println!("cargo:rerun-if-changed=assets/countries.json");
+    println!("cargo:rerun-if-changed=assets/data/countries.json");
 
-    let json = fs::read_to_string("assets/countries.json")
+    let json = fs::read_to_string("assets/data/countries.json")
         .expect("failed to read countries.json");
 
     let countries: Vec<CountryRaw> =
