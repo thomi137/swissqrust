@@ -117,6 +117,23 @@ pub fn label(key: LabelKey, lang: Language) -> Result<&'static str, LanguageErro
         .ok_or(LanguageError::LabelNotFound(key))
 }
 
+/// Exports a macro for the above
+///
+/// Possible keys are:
+///
+/// `PaymentPart`,
+/// `AccountPayableTo`,
+/// `Reference`,
+/// `AdditionalInformation`,
+/// `Currency`,
+/// `Amount`,
+/// `Receipt`,
+/// `AcceptancePoint`,
+/// `SeparateBeforePayingIn`,
+/// `PayableBy`,
+/// `PayableByNameAddress`,
+/// `InFavourOf`
+///
 #[macro_export]
 macro_rules! label {
     ($key:ident) => {
@@ -125,4 +142,34 @@ macro_rules! label {
     ($key:ident, $lang:expr) => {
         $crate::language::label($crate::language::LabelKey::$key, $lang)
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_german_label() {
+        assert_eq!(label(LabelKey::PaymentPart, Language::De ).unwrap(), "Zahlteil");
+    }
+
+    #[test]
+    fn test_french_label() {
+        assert_eq!(label(LabelKey::AcceptancePoint, Language::Fr ).unwrap(), "Point de dépôt");
+    }
+
+    #[test]
+    fn test_italian_label() {
+        assert_eq!(label(LabelKey::AdditionalInformation, Language::It).unwrap(), "Informazioni supplementari")
+    }
+
+    #[test]
+    fn test_macro() {
+        assert_eq!(label!(PayableByNameAddress, Language::En), Ok("Payable by (name/address)"));
+    }
+
+    #[test]
+    fn test_default() {
+        assert_eq!(label!(InFavourOf), Ok("In favour of"));
+    }
 }
