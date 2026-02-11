@@ -5,14 +5,15 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.54", features = ["derive"] }
+serde =  { version = "1.0.228", features = ["derive"]}
 regex = "1.12.2"
 once_cell = "1.21.3"
-serde =  { version = "1.0.228", features = ["derive"]}
 thiserror = "2.0.18"
 qrcodegen = "1.8.0"
+usvg = "0.47.0"
+resvg = "0.47.0"
 svg = "0.18.0"
-usvg = "0.46.0"
-resvg = "0.46.0"
+pdf-writer = "0.14.0"
 
 
 [build-dependencies]
