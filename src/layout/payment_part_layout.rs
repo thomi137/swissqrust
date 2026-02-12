@@ -7,6 +7,7 @@ use crate::{label, Language};
 use crate::layout::draw::*;
 use crate::layout::geometry::*;
 use crate::layout::spacing::*;
+use crate::constants::*;
 
 pub struct PaymentPartLayout<'a> {
 
@@ -40,17 +41,7 @@ pub struct PaymentPartLayout<'a> {
 }
 
 impl<'a> PaymentPartLayout<'a> {
-    const DEBTOR_BOX_WIDTH_PP: Mm = Mm(65f32);
-    const DEBTOR_BOX_HEIGHT: Mm = Mm(25f32);
-
-    const CURRENCY_WIDTH: Mm = Mm(12.0);
-    const AMOUNT_BOX_WIDTH_PP: Mm = Mm(51f32);
-    const AMOUNT_BOX_HEIGHT_PP: Mm = Mm(22f32);
-
-    const PAYMENT_PART_MAX_HEIGHT: Mm = Mm(95f32);
-
-
-
+   
     // INFORMATION SECTION
     pub fn layout_payment_part_information_section(&mut self) {
         let mut y = Mm(self.top_start.0 - self.label_ascender.0);
@@ -130,14 +121,14 @@ impl<'a> PaymentPartLayout<'a> {
                     self.line_spacing,
                 );
 
-                y = Mm(y.0 - Self::DEBTOR_BOX_HEIGHT.0);
+                y = Mm(y.0 - DEBTOR_BOX_HEIGHT.0);
 
                 self.ops.push(DrawOp::Box {
                     rect: QRLayoutRect {
                         x,
                         y,
-                        width: Self::DEBTOR_BOX_WIDTH_PP,
-                        height: Self::DEBTOR_BOX_HEIGHT,
+                        width: DEBTOR_BOX_WIDTH_PP,
+                        height: DEBTOR_BOX_HEIGHT,
                     },
                 });
 
@@ -238,14 +229,14 @@ impl<'a> PaymentPartLayout<'a> {
             None => {
                 text_lines += 1;
                 fixed_height =
-                    Mm(fixed_height.0 + Self::DEBTOR_BOX_HEIGHT.0);
+                    Mm(fixed_height.0 + DEBTOR_BOX_HEIGHT.0);
             }
         }
 
         extra_blocks += 1;
 
         let spacing = compute_spacing(
-            Self::PAYMENT_PART_MAX_HEIGHT,            fixed_height,
+            PAYMENT_PART_MAX_HEIGHT,            fixed_height,
             text_lines,
             extra_blocks,
             self.line_spacing,

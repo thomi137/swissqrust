@@ -6,6 +6,7 @@
 use pdf_writer::writers::AdditionalActions;
 use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRLayoutRect, label, Language};
 use crate::layout::draw::{draw_label, draw_single_line, draw_text_lines};
+use crate::constants::*;
 
 pub struct ReceiptLayout<'a> {
 
@@ -39,17 +40,6 @@ pub struct ReceiptLayout<'a> {
 
 impl<'a> ReceiptLayout<'a> {
 
-    const CURRENCY_WIDTH_RC: Mm = Mm(12f32);
-    const RECEIPT_MAX_HEIGHT: Mm = Mm(95f32);
-
-    const CURRENCY_WIDTH: Mm = Mm(12f32);
-
-    const AMOUNT_BOX_WIDTH_RC: Mm = Mm(30f32); // mm
-    const  AMOUNT_BOX_HEIGHT_RC: Mm = Mm(10f32); // mm
-
-    const DEBTOR_BOX_WIDTH_RC: Mm = Mm(52f32);
-    const DEBTOR_BOX_HEIGHT_RC: Mm = Mm(20f32);
-    const ACCEPTANCE_POINT_SECTION_TOP: Mm = Mm(23f32);
 
     pub fn layout_payment_information_section(&mut self) {
         let mut y = Mm(self.top_start.0 - self.label_ascender.0);
@@ -123,13 +113,13 @@ impl<'a> ReceiptLayout<'a> {
                 self.ops.push(DrawOp::Box {
                     rect: QRLayoutRect {
                         x,
-                        y: Mm(y.0 - Self::DEBTOR_BOX_HEIGHT_RC.0),
-                        width: Self::DEBTOR_BOX_WIDTH_RC,
-                        height: Self::DEBTOR_BOX_HEIGHT_RC,
+                        y: Mm(y.0 - DEBTOR_BOX_HEIGHT_RC.0),
+                        width: DEBTOR_BOX_WIDTH_RC,
+                        height: DEBTOR_BOX_HEIGHT_RC,
                     },
                 });
 
-                y = Mm(y.0 - Self::DEBTOR_BOX_HEIGHT_RC.0 - self.extra_spacing.0);
+                y = Mm(y.0 - DEBTOR_BOX_HEIGHT_RC.0 - self.extra_spacing.0);
             }
         }
     }
@@ -166,7 +156,7 @@ impl<'a> ReceiptLayout<'a> {
             bold: false,
         });
 
-        let amount_x = Mm(self.horizontal_offset.0 + Self::CURRENCY_WIDTH.0);
+        let amount_x = Mm(self.horizontal_offset.0 + CURRENCY_WIDTH.0);
 
         // Amount label
         self.ops.push(DrawOp::Text {
@@ -192,9 +182,9 @@ impl<'a> ReceiptLayout<'a> {
                 self.ops.push(DrawOp::Box {
                     rect: QRLayoutRect {
                         x: amount_x,
-                        y: Mm(section_top.0 - Self::AMOUNT_BOX_HEIGHT_RC.0),
-                        width: Self::AMOUNT_BOX_WIDTH_RC,
-                        height: Self::AMOUNT_BOX_HEIGHT_RC,
+                        y: Mm(section_top.0 - AMOUNT_BOX_HEIGHT_RC.0),
+                        width: AMOUNT_BOX_WIDTH_RC,
+                        height: AMOUNT_BOX_HEIGHT_RC,
                     },
                 });
             }
@@ -202,7 +192,7 @@ impl<'a> ReceiptLayout<'a> {
     }
 
     pub fn layout_receipt_acceptance_point(&mut self, text_width: Mm) {
-        let y = Mm(Self::ACCEPTANCE_POINT_SECTION_TOP.0 - self.label_ascender.0);
+        let y = Mm(ACCEPTANCE_POINT_SECTION_TOP.0 - self.label_ascender.0);
 
         self.ops.push(DrawOp::Text {
             text: label!(AcceptancePoint, self.language).into(),
@@ -237,14 +227,14 @@ impl<'a> ReceiptLayout<'a> {
             None => {
                 text_lines += 1;
                 fixed_height =
-                    Mm(fixed_height.0 + Self::DEBTOR_BOX_HEIGHT_RC.0);
+                    Mm(fixed_height.0 + DEBTOR_BOX_HEIGHT_RC.0);
             }
         }
 
         extra_blocks += 1;
 
         let spacing = compute_spacing(
-            Self::RECEIPT_MAX_HEIGHT,
+            RECEIPT_MAX_HEIGHT,
             fixed_height,
             text_lines,
             extra_blocks,
@@ -256,6 +246,5 @@ impl<'a> ReceiptLayout<'a> {
 
         spacing.extra_spacing.0 / spacing.line_spacing.0 < 0.8
     }
-
 
 }
