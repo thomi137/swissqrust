@@ -137,12 +137,21 @@ pub fn label(key: LabelKey, lang: Language) -> Result<&'static str, LanguageErro
 #[macro_export]
 macro_rules! label {
     ($key:ident) => {
-        $crate::language::label($crate::language::LabelKey::$key, $crate::language::Language::default())
+        $crate::language::label(
+            $crate::language::LabelKey::$key,
+            $crate::language::Language::default(),
+        )
+        .expect("Missing label")
     };
     ($key:ident, $lang:expr) => {
-        $crate::language::label($crate::language::LabelKey::$key, $lang)
+        $crate::language::label(
+            $crate::language::LabelKey::$key,
+            $lang,
+        )
+        .expect("Missing label")
     };
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -165,11 +174,11 @@ mod tests {
 
     #[test]
     fn test_macro() {
-        assert_eq!(label!(PayableByNameAddress, Language::En), Ok("Payable by (name/address)"));
+        assert_eq!(label!(PayableByNameAddress, Language::En), "Payable by (name/address)");
     }
 
     #[test]
     fn test_default() {
-        assert_eq!(label!(InFavourOf), Ok("In favour of"));
+        assert_eq!(label!(InFavourOf), "In favour of");
     }
 }

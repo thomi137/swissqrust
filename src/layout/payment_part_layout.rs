@@ -3,7 +3,7 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
+use crate::{label, Language};
 use crate::layout::draw::*;
 use crate::layout::geometry::*;
 use crate::layout::spacing::*;
@@ -16,6 +16,9 @@ pub struct PaymentPartLayout<'a> {
     // geometry
     pub horizontal_offset: Mm,
     pub top_start: Mm,
+
+    // Label language.
+    pub language: Language,
 
     // typography
     pub label_font_size: Pt,
@@ -46,6 +49,8 @@ impl<'a> PaymentPartLayout<'a> {
 
     const PAYMENT_PART_MAX_HEIGHT: Mm = Mm(95f32);
 
+
+
     // INFORMATION SECTION
     pub fn layout_payment_part_information_section(&mut self) {
         let mut y = Mm(self.top_start.0 - self.label_ascender.0);
@@ -54,7 +59,7 @@ impl<'a> PaymentPartLayout<'a> {
         // Account / Payable to
         draw_label(
             &mut self.ops,
-            "Account / Payable to",
+            label!(AccountPayableTo, self.language),
             x,
             &mut y,
             self.label_font_size,
@@ -75,7 +80,7 @@ impl<'a> PaymentPartLayout<'a> {
         if let Some(reference) = &self.reference {
             draw_label(
                 &mut self.ops,
-                "Reference",
+                label!(Reference, self.language),
                 x,
                 &mut y,
                 self.label_font_size,
@@ -143,7 +148,7 @@ impl<'a> PaymentPartLayout<'a> {
         if let Some(info_lines) = &self.additional_information {
             draw_label(
                 &mut self.ops,
-                "Additional information",
+                label!(AdditionalInformation, self.language),
                 x,
                 &mut y,
                 self.label_font_size,
@@ -169,7 +174,7 @@ impl<'a> PaymentPartLayout<'a> {
 
         // Currency label
         self.ops.push(DrawOp::Text {
-            text: "Currency".into(),
+            text: label!(Currency, self.language).into(),
             at: Baseline {
                 x: self.horizontal_offset,
                 y: currency_label_y,
@@ -180,7 +185,7 @@ impl<'a> PaymentPartLayout<'a> {
 
         let value_y = Mm(
             currency_label_y.0
-                - self.text_font_size.to_mm().0
+                - self.text_ascender.0
                 - Pt(3.0).to_mm().0,
         );
 
@@ -194,42 +199,7 @@ impl<'a> PaymentPartLayout<'a> {
             size: self.text_font_size,
             bold: false,
         });
-
-        // Amount label
-        let amount_x = Mm(self.horizontal_offset.0 + Self::CURRENCY_WIDTH.0);
-
-        self.ops.push(DrawOp::Text {
-            text: "Amount".into(),
-            at: Baseline {
-                x: amount_x,
-                y: currency_label_y,
-            },
-            size: self.label_font_size,
-            bold: true,
-        });
-
-        match &self.amount {
-            Some(amount) => {
-                self.ops.push(DrawOp::Text {
-                    text: amount.to_string(),
-                    at: Baseline { x: amount_x, y: value_y },
-                    size: self.text_font_size,
-                    bold: false,
-                });
-            }
-            None => {
-                self.ops.push(DrawOp::Box {
-                    rect: QRLayoutRect {
-                        x: amount_x,
-                        y: Mm(section_top.0 - Self::AMOUNT_BOX_HEIGHT_PP.0),
-                        width: Self::AMOUNT_BOX_WIDTH_PP,
-                        height: Self::AMOUNT_BOX_HEIGHT_PP,
-                    },
-                });
-            }
-        }
     }
-
 
     pub fn layout_payment_qr_section(&mut self) {
         self.ops.push(DrawOp::Box {
@@ -242,8 +212,7 @@ impl<'a> PaymentPartLayout<'a> {
         });
 
     }
-
-
+    
     // SPACING COMPUTATION
     pub fn compute_payment_part_spacing(&mut self) -> bool {
         let mut text_lines = 0usize;
