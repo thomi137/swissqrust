@@ -87,3 +87,20 @@ pub fn draw_box(
         },
     });
 }
+
+pub fn draw_text_at(
+    ops: &mut Vec<DrawOp>,
+    text: &str,
+    x: Mm,
+    y: Mm,
+    font_size: Pt,
+    bold: bool,
+) {
+    ops.push(DrawOp::Text {
+        text: text.into(),
+        at: Baseline { x, y },
+        size: font_size,
+        bold,
+    });
+}
+

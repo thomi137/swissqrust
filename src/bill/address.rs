@@ -124,4 +124,24 @@ impl Address {
             country: country_enum,
         })
     }
+     pub fn to_lines(&self) -> Vec<String> {
+        let mut lines = Vec::new();
+
+        lines.push(self.name.clone());
+
+        if let Some(street) = &self.street {
+            let mut street_line = street.clone();
+            if let Some(house) = &self.house_num {
+                street_line.push(' ');
+                street_line.push_str(house);
+            }
+            lines.push(street_line);
+        }
+
+        lines.push(format!("{} {}", self.plz, self.city));
+
+        lines.push(self.country.meta().alpha2.to_string());
+
+        lines
+    }
 }

@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-use std::fmt::{Display, Formatter, Write};
+use std::fmt::{Display, Formatter};
 use qrcodegen::{QrCode, QrCodeEcc};
 use thiserror::Error;
 use crate::{Address, BillData, ReferenceType};
@@ -33,7 +33,6 @@ impl LineSeparator {
         }
     }
 }
-
 impl Display for LineSeparator {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
@@ -67,13 +66,11 @@ pub struct Version {
     pub major: u8,
     pub minor: u8,
 }
-
 impl Version {
     pub fn qr_code_version(&self) -> String {
         format!("{:02}{:02}", self.major, self.minor)
     }
 }
-
 impl Display for Version {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.qr_code_version())
@@ -86,12 +83,11 @@ const CODING_TYPE: &'static str = "1";
 const TRAILER_EPD: &str = "EPD";
 
 pub struct QrBill {
-    bill_data: BillData,
+    pub bill_data: BillData,
     qr_type: String,
     version: String,
     coding_type: String,
 }
-
 impl QrBill {
     pub fn new(
         bill_data: BillData,
@@ -122,7 +118,7 @@ impl QrBill {
         qr_text.append_person(Some(&self.bill_data.creditor_address));
         // UltmtCdtr - Has to be there, has to be empty
         qr_text.append_person(None);
-        qr_text.append_data_field(Some(&self.bill_data.amount));
+        qr_text.append_data_field(self.bill_data.amount.as_deref());
         qr_text.append_data_field(Some(&self.bill_data.currency.to_string()));
 
         // UltmtDbtr - Debtor

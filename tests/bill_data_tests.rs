@@ -57,7 +57,7 @@ fn bill_data() -> BillData {
         Some(debtor_address),
         QRCountry::CH,
         Currency::CHF,
-        amount,
+        Some(amount),
         ReferenceType::QrRef(String::from("000008207791225857421286694")),
         Some(String::from("Premium calculation July 2020")),
         None
@@ -76,7 +76,7 @@ fn bill_data_no_debtor_no_amount() -> BillData {
         None,
         QRCountry::CH,
         Currency::CHF,
-        amount,
+        Some(amount),
         ReferenceType::QrRef(String::from("000008207791225857421286694")),
         Some(String::from("Premium calculation July 2020")),
         None

@@ -34,7 +34,7 @@ let bill_data = BillData::new(
     Some(debtor),
     QRCountry::CH,
     Currency::CHF,
-    String::from("111.00"),
+    Some(String::from("111.00")),
     ReferenceType::infer("000008207791225857421286694")?,
     Some(String::from("Premium calculation July 2020")),
     None

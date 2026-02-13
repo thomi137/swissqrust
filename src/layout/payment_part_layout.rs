@@ -3,22 +3,20 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{label, Language};
+use crate::{label, BillData, Language, ReferenceType};
 use crate::layout::draw::*;
 use crate::layout::geometry::*;
 use crate::layout::spacing::*;
 use crate::constants::*;
 
 pub struct PaymentPartLayout<'a> {
-
-    // output
-    pub ops: Vec<DrawOp>,
+    pub bill_data: &'a BillData,
 
     // geometry
     pub horizontal_offset: Mm,
     pub top_start: Mm,
 
-    // Label language.
+    // language
     pub language: Language,
 
     // typography
@@ -27,29 +25,22 @@ pub struct PaymentPartLayout<'a> {
     pub label_ascender: Mm,
     pub text_ascender: Mm,
 
-    // spacing
+    // spacing (computed)
     pub line_spacing: Mm,
     pub extra_spacing: Mm,
-
-    // content
-    pub payable_to_lines: &'a [String],
-    pub reference: Option<&'a str>,
-    pub payable_by_lines: Option<&'a [String]>,
-    pub currency: &'a str,
-    pub amount: Option<&'a str>,
-    pub additional_information: Option<&'a [String]>,
 }
 
 impl<'a> PaymentPartLayout<'a> {
-   
+
     // INFORMATION SECTION
-    pub fn layout_payment_part_information_section(&mut self) {
+    pub fn layout_payment_part_information_section(&mut self, ops: &mut Vec<DrawOp>) {
         let mut y = Mm(self.top_start.0 - self.label_ascender.0);
         let x = self.horizontal_offset;
 
+        let creditor_lines = self.bill_data.creditor_address.to_lines();
         // Account / Payable to
         draw_label(
-            &mut self.ops,
+            ops,
             label!(AccountPayableTo, self.language),
             x,
             &mut y,
@@ -58,8 +49,8 @@ impl<'a> PaymentPartLayout<'a> {
         );
 
         draw_text_lines(
-            &mut self.ops,
-            self.payable_to_lines,
+            ops,
+            &creditor_lines,
             x,
             &mut y,
             self.text_font_size,
@@ -68,42 +59,21 @@ impl<'a> PaymentPartLayout<'a> {
         );
 
         // Reference
-        if let Some(reference) = &self.reference {
-            draw_label(
-                &mut self.ops,
-                label!(Reference, self.language),
-                x,
-                &mut y,
-                self.label_font_size,
-                self.line_spacing,
-            );
-
-            draw_single_line(
-                &mut self.ops,
-                reference,
-                x,
-                &mut y,
-                self.text_font_size,
-                self.line_spacing,
-                self.extra_spacing,
-            );
-        }
-
-        // Payable by
-        match &self.payable_by_lines {
-            Some(lines) => {
+        match &self.bill_data.reference_type {
+            ReferenceType::QrRef(reference)
+            | ReferenceType::Creditor(reference) => {
                 draw_label(
-                    &mut self.ops,
-                    "Payable by",
+                    ops,
+                    label!(Reference, self.language),
                     x,
                     &mut y,
                     self.label_font_size,
                     self.line_spacing,
                 );
 
-                draw_text_lines(
-                    &mut self.ops,
-                    lines,
+                draw_single_line(
+                    ops,
+                    reference,
                     x,
                     &mut y,
                     self.text_font_size,
@@ -111,10 +81,33 @@ impl<'a> PaymentPartLayout<'a> {
                     self.extra_spacing,
                 );
             }
-            None => {
+            _ => {}
+        }
+
+        // Payable by
+        if let Some(debtor) = &self.bill_data.debtor_address {
                 draw_label(
-                    &mut self.ops,
-                    "Payable by (name/address)",
+                    ops,
+                    label!(PayableBy, self.language),
+                    x,
+                    &mut y,
+                    self.label_font_size,
+                    self.line_spacing,
+                );
+
+                draw_text_lines(
+                    ops,
+                    &debtor.to_lines(),
+                    x,
+                    &mut y,
+                    self.text_font_size,
+                    self.line_spacing,
+                    self.extra_spacing,
+                );
+            } else {
+                draw_label(
+                    ops,
+                    label!(PayableBy, self.language),
                     x,
                     &mut y,
                     self.label_font_size,
@@ -123,7 +116,7 @@ impl<'a> PaymentPartLayout<'a> {
 
                 y = Mm(y.0 - DEBTOR_BOX_HEIGHT.0);
 
-                self.ops.push(DrawOp::Box {
+                ops.push(DrawOp::Box {
                     rect: QRLayoutRect {
                         x,
                         y,
@@ -134,37 +127,37 @@ impl<'a> PaymentPartLayout<'a> {
 
                 y = Mm(y.0 - self.extra_spacing.0);
             }
+
+        if let Some(info_lines) = &self.bill_data.additional_information {
+            if !info_lines.is_empty() {
+                draw_label(
+                    ops,
+                    label!(AdditionalInformation, self.language),
+                    x,
+                    &mut y,
+                    self.label_font_size,
+                    self.line_spacing,
+                );
+
+                draw_single_line(
+                    ops,
+                    info_lines,
+                    x,
+                    &mut y,
+                    self.text_font_size,
+                    self.line_spacing,
+                    self.extra_spacing,
+                );
+            }
         }
-
-        if let Some(info_lines) = &self.additional_information {
-            draw_label(
-                &mut self.ops,
-                label!(AdditionalInformation, self.language),
-                x,
-                &mut y,
-                self.label_font_size,
-                self.line_spacing,
-            );
-
-            draw_text_lines(
-                &mut self.ops,
-                info_lines,
-                x,
-                &mut y,
-                self.text_font_size,
-                self.line_spacing,
-                self.extra_spacing,
-            );
-        }
-
     }
 
     // AMOUNT SECTION
-    pub fn layout_payment_part_amount_section(&mut self, section_top: Mm) {
+    pub fn layout_payment_part_amount_section(&mut self, ops: &mut Vec<DrawOp>, section_top: Mm) {
         let currency_label_y = Mm(section_top.0 - self.label_ascender.0);
 
         // Currency label
-        self.ops.push(DrawOp::Text {
+        ops.push(DrawOp::Text {
             text: label!(Currency, self.language).into(),
             at: Baseline {
                 x: self.horizontal_offset,
@@ -181,8 +174,8 @@ impl<'a> PaymentPartLayout<'a> {
         );
 
         // Currency value
-        self.ops.push(DrawOp::Text {
-            text: self.currency.to_string(),
+        ops.push(DrawOp::Text {
+            text: self.bill_data.currency.to_string(),
             at: Baseline {
                 x: self.horizontal_offset,
                 y: value_y,
@@ -192,8 +185,8 @@ impl<'a> PaymentPartLayout<'a> {
         });
     }
 
-    pub fn layout_payment_qr_section(&mut self) {
-        self.ops.push(DrawOp::Box {
+    pub fn layout_payment_qr_section(&mut self, ops: &mut Vec<DrawOp>) {
+        ops.push(DrawOp::Box {
             rect: QRLayoutRect {
                 x: Mm(5f32),
                 y: Mm(5f32),
@@ -212,18 +205,22 @@ impl<'a> PaymentPartLayout<'a> {
 
         // Account / Payable to
         text_lines += 1;
-        text_lines += self.payable_to_lines.len();
+        text_lines += self.bill_data.creditor_address.to_lines().len();
 
         // Reference
-        if self.reference.is_some() {
-            extra_blocks += 1;
-            text_lines += 2;
+        match &self.bill_data.reference_type {
+            ReferenceType::NoRef => {}
+            _ => {
+                extra_blocks += 1;
+                text_lines += 2; // label + value
+            }
         }
 
         extra_blocks += 1;
 
-        match &self.payable_by_lines {
-            Some(lines) => {
+        match &self.bill_data.debtor_address {
+            Some(address) => {
+                let lines = address.to_lines();
                 text_lines += 1 + lines.len();
             }
             None => {
@@ -247,4 +244,11 @@ impl<'a> PaymentPartLayout<'a> {
 
         spacing.extra_spacing.0 / spacing.line_spacing.0 < 0.8
     }
+
+    pub fn render(&mut self, ops: &mut Vec<DrawOp>) {
+        self.compute_payment_part_spacing();
+        self.layout_payment_part_information_section(ops);
+        self.layout_payment_part_amount_section(ops, AMOUNT_SECTION_TOP);
+    }
+
 }

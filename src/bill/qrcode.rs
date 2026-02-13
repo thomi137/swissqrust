@@ -3,7 +3,6 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use std::fmt::Display;
 
 /// QR Code Width
 pub const QR_CODE_WIDTH: u16 = 46;
