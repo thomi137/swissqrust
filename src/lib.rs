@@ -14,6 +14,7 @@ mod layout;
 pub use bill::*;
 pub use language::*;
 pub use layout::*;
+pub use pdf::*;
 
 pub mod constants {
     use crate::Mm;

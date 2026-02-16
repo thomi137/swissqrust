@@ -4,14 +4,16 @@
  * https://opensource.org/licenses/MIT
  */
 
-use pdf_writer::{Finish, Name, Pdf, Ref, Str};
-use pdf_writer::types::{CidFontType, FontFlags, SystemInfo};
+use pdf_writer::{Finish, Name, Pdf, Dict, Ref, Str, Stream, Filter};
+use pdf_writer::types::{CidFontType, FontFlags, SystemInfo, UnicodeCmap};
+use ttf_parser::{Face, GlyphId};
+use miniz_oxide::deflate::compress_to_vec_zlib;
 
-const LIBERATION_SANS_REGULAR_TTF: &[u8] =
-    include_bytes!("../../assets/fonts/LiberationSans-Regular.ttf");
+pub const LIBERATION_SANS_REGULAR_TTF: &[u8] =
+    include_bytes!("../../assets/fonts/LiberationSansRegular.ttf");
 
-const LIBERATION_SANS_BOLD_TTF: &[u8] =
-    include_bytes!("../../assets/fonts/LiberationSans-Bold.ttf");
+pub const LIBERATION_SANS_BOLD_TTF: &[u8] =
+    include_bytes!("../../assets/fonts/LiberationSansBold.ttf");
 
 const SYSTEM_INFO: SystemInfo = SystemInfo {
     registry: Str(b"Adobe"),
@@ -19,112 +21,99 @@ const SYSTEM_INFO: SystemInfo = SystemInfo {
     supplement: 0,
 };
 
-pub struct Fonts {
-    pub regular: Ref,
-    pub bold: Ref,
+pub struct EmbeddedFont {
+    pub type0_ref: Ref,
 }
 
-pub fn embed_fonts(pdf: &mut Pdf) -> Fonts {
-    // Object IDs (fixed on purpose)
-    let reg_file = Ref::new(20);
-    let reg_desc = Ref::new(21);
-    let reg_cid  = Ref::new(22);
-    let reg_font = Ref::new(23);
+//noinspection ALL
+pub fn embed_ttf_font(pdf: &mut Pdf, next_id: &mut Ref, custom_font_name: Name, font_data: &[u8]) -> EmbeddedFont {
 
-    let bold_file = Ref::new(24);
-    let bold_desc = Ref::new(25);
-    let bold_cid  = Ref::new(26);
-    let bold_font = Ref::new(27);
+    let face = Face::parse(font_data, 0).expect("Invalid font data");
 
-    let reg_tounicode = Ref::new(28);
-    let bold_tounicode = Ref::new(29);
+    // Allocate IDs
+    let type0_ref = next_id.bump();
+    let cid_ref = next_id.bump();
+    let desc_ref = next_id.bump();
+    let stream_ref = next_id.bump();
+    let cmap_ref = next_id.bump();
 
-    pdf.stream(reg_file, LIBERATION_SANS_REGULAR_TTF);
-    pdf.stream(bold_file, LIBERATION_SANS_BOLD_TTF);
+    // Extract unicode cmap from .ttf
+    let mut cmap = UnicodeCmap::<u16>::new(Name(b"Custom"), SYSTEM_INFO);
+    for subtable in face
+        .tables()
+        .cmap
+        .iter()
+        .flat_map(|c| c.subtables) {
+            if subtable.is_unicode() {
+                subtable.codepoints(|cp| {
+                    if let (Some(c), Some(gid)) = (char::from_u32(cp), subtable.glyph_index(cp)) {
+                        cmap.pair(gid.0, c);
+                    }
+                });
+                break;
+            }
+    }
+    pdf.stream(cmap_ref, &cmap.finish());
 
-    pdf.stream(reg_tounicode, TO_UNICODE_CMAP);
-    pdf.stream(bold_tounicode, TO_UNICODE_CMAP);
+    let units_per_em = face.units_per_em();
 
+    // Widths
+    // PDF CIDFont widths are: [first_gid [w1 w2 w3]]
+    let mut widths = Vec::new();
+    for gid in 0..face.number_of_glyphs() {
+        let width = face.glyph_hor_advance(GlyphId(gid)).unwrap_or(0);
+        let pdf_width = (width as f32 * 1000.0) / units_per_em as f32;
+        widths.push(pdf_width as f32);
+    }
 
-    pdf.font_descriptor(reg_desc)
-        .flags(FontFlags::NON_SYMBOLIC)
-        .ascent(800f32)
-        .descent(-200f32)
-        .cap_height(700f32)
-        .italic_angle(0f32)
-        .stem_v(80f32)
-        .font_file2(reg_file)
-        .finish();
+    let compressed = compress_to_vec_zlib(font_data, 6);
+    let mut stream: Stream = pdf.stream(stream_ref, &compressed);
+    stream.pair(Name(b"Length1"), font_data.len() as i32);
+    stream.filter(Filter::FlateDecode);
+    stream.finish();
 
-    pdf.font_descriptor(bold_desc)
-        .flags(FontFlags::NON_SYMBOLIC | FontFlags::FORCE_BOLD)
-        .ascent(800f32)
-        .descent(-200f32)
-        .cap_height(700f32)
-        .italic_angle(0f32)
-        .stem_v(120f32)
-        .font_file2(bold_file)
-        .finish();
+    // Font Descriptor
+    // 1. Font Descriptor (Metadata)
+    let mut desc = pdf.font_descriptor(desc_ref);
+    let bbox = face.global_bounding_box();
+    desc.name(custom_font_name);
+    desc.bbox(pdf_writer::Rect::new(bbox.x_min as f32, bbox.y_min as f32, bbox.x_max as f32, bbox.y_max as f32));
+    desc.ascent(face.ascender() as f32);
+    desc.descent(face.descender() as f32);
+    desc.cap_height(face.capital_height().unwrap_or(700) as f32);
+    desc.italic_angle(face.italic_angle());
+    desc.flags(FontFlags::SYMBOLIC); // Adjust based on face.is_monospaced(), etc.
+    desc.stem_v(80.0);
+    if let Some(cap) = face.capital_height() {
+        desc.cap_height(cap as f32);
+    } else {
+        desc.cap_height(700.0); // Standard fallback
+    }
+    desc.font_file2(stream_ref);
+    desc.finish();
 
-    pdf.cid_font(reg_cid)
-        .subtype(CidFontType::Type2)
-        .base_font(Name(b"LiberationSans"))
-        .system_info(SYSTEM_INFO)
-        .font_descriptor(reg_desc)
-        .finish();
+    // CID Font
+    let mut cid = pdf.cid_font(cid_ref);
+    cid.subtype(CidFontType::Type2);
+    cid.base_font(custom_font_name);
+    cid.system_info(SYSTEM_INFO);
+    cid.font_descriptor(desc_ref);
+    // Add the Identity mapping manually here
+    cid.pair(Name(b"CIDToGIDMap"), Name(b"Identity"));
 
-    pdf.cid_font(bold_cid)
-        .subtype(CidFontType::Type2)
-        .base_font(Name(b"LiberationSans-Bold"))
-        .system_info(SYSTEM_INFO)
-        .font_descriptor(bold_desc)
-        .finish();
+    let mut w = cid.widths();
+    w.consecutive(0, widths);
+    w.finish();
+    cid.finish();
 
-    pdf.type0_font(reg_font)
-        .base_font(Name(b"LiberationSans"))
-        .encoding_predefined(Name(b"Identity-H"))
-        .descendant_font(reg_cid)
-        .to_unicode(reg_tounicode)
-        .finish();
+    let mut type0 = pdf.type0_font(type0_ref);
+    type0.base_font(custom_font_name);
+    type0.encoding_predefined(Name(b"Identity-H"));
+    type0.descendant_font(cid_ref);
+    type0.to_unicode(cmap_ref);
+    type0.finish();
 
-    pdf.type0_font(bold_font)
-        .base_font(Name(b"LiberationSans-Bold"))
-        .encoding_predefined(Name(b"Identity-H"))
-        .descendant_font(bold_cid)
-        .to_unicode(bold_tounicode)
-        .finish();
-
-    Fonts {
-        regular: reg_font,
-        bold: bold_font,
+    EmbeddedFont {
+        type0_ref
     }
 }
-
-const TO_UNICODE_CMAP: &[u8] = br#"
-/CIDInit /ProcSet findresource begin
-12 dict begin
-begincmap
-/CIDSystemInfo
-<< /Registry (Adobe)
-   /Ordering (UCS)
-   /Supplement 0
->> def
-/CMapName /LiberationSans-ToUnicode def
-/CMapType 2 def
-
-1 begincodespacerange
-<0000> <00FF>
-endcodespacerange
-
-1 beginbfrange
-<0020> <007E> <0020>
-endbfrange
-
-endcmap
-CMapName currentdict /CMap defineresource pop
-end
-end
-"#;
-
-
-

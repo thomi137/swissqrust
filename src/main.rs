@@ -1,10 +1,10 @@
 
 use swiss_qrust::cli::*;
 use clap::Parser;
-use swiss_qrust::{qr_bill, Address, Currency, QRCountry, ReferenceType};
+use swiss_qrust::{pdf, qr_bill, Address, Currency, QRCountry, ReferenceType};
 use swiss_qrust::BillData;
+use swiss_qrust::pdf::*;
 use swiss_qrust::qr_bill::QrBill;
-use swiss_qrust::render::render_svg_to_png;
 use swiss_qrust::svg::{add_swiss_cross, render_qr_svg};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -40,6 +40,9 @@ let bill_data = BillData::new(
     None
     ).unwrap();
 
+    pdf_builder::base_layout(&format!("{}/test_pdf.pdf", OUTPUT_PATH));
+    
+    /*
     let qr_bill = QrBill::new(bill_data).unwrap();
     let qr_text = QrBill::create_qr_text(&qr_bill).unwrap();
     let qr_code = qr_bill::encode_text_to_qr_code(&qr_text).unwrap();
@@ -47,6 +50,8 @@ let bill_data = BillData::new(
     let doc_cross = add_swiss_cross(doc);
     render_svg_to_png(&doc_cross, format!("{}/swiss_qr.png", OUTPUT_PATH))
         .expect("Failed to write File");
+
+     */
 
     Ok(())
 }
