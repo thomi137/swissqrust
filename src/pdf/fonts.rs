@@ -58,7 +58,6 @@ impl EmbeddedFont {
 pub fn embed_ttf_font(pdf: &mut Pdf, next_id: &mut Ref, custom_font_name: Name, font_data: &'static [u8]) -> EmbeddedFont {
 
     let face = Face::parse(font_data, 0).expect("Invalid font data");
-
     // Allocate IDs
     let type0_ref = next_id.bump();
     let cid_ref = next_id.bump();
@@ -92,8 +91,9 @@ pub fn embed_ttf_font(pdf: &mut Pdf, next_id: &mut Ref, custom_font_name: Name, 
     for gid in 0..face.number_of_glyphs() {
         let width = face.glyph_hor_advance(GlyphId(gid)).unwrap_or(0);
         let pdf_width = (width as f32 * 1000.0) / units_per_em as f32;
-        widths.push(pdf_width as f32);
+        widths.push(pdf_width.round());
     }
+
 
     let compressed = compress_to_vec_zlib(font_data, 6);
     let mut stream: Stream = pdf.stream(stream_ref, &compressed);

@@ -65,3 +65,65 @@ pub mod constants {
 
 }
 
+pub mod formatters {
+    pub trait SwissQRFormatter {
+        fn format_iban(&self) -> String;
+        fn format_qr_reference(&self) -> String;
+        fn format_scor_reference(&self) -> String;
+        fn format_amount(&self) -> String;
+    }
+
+    impl SwissQRFormatter for str {
+
+        ///
+        /// ```
+        /// # use swiss_qrust::formatters::SwissQRFormatter;
+        /// assert_eq!("CH6431961000004421557".format_iban(), "CH64 3196 1000 0044 2155 7")
+        /// ```
+        fn format_iban(&self) -> String {
+            let cleaned: String = self.chars().filter(|c| !c.is_whitespace()).collect();
+            cleaned.as_bytes()
+                .chunks(4)
+                .map(|c| std::str::from_utf8(c).unwrap())
+                .collect::<Vec<&str>>()
+                .join(" ")
+        }
+
+        fn format_qr_reference(&self) -> String {
+            let cleaned: String = self.chars().filter(|c| !c.is_whitespace()).collect();
+            cleaned.as_bytes()
+                .rchunks(5)
+                .rev()
+                .map(|c| std::str::from_utf8(c).unwrap())
+                .collect::<Vec<&str>>()
+                .join(" ")
+        }
+
+        fn format_scor_reference(&self) -> String {
+            let cleaned: String = self.chars().filter(|c| !c.is_whitespace()).collect();
+            cleaned.as_bytes()
+                .chunks(4)
+                .map(|c| std::str::from_utf8(c).unwrap())
+                .collect::<Vec<&str>>()
+                .join(" ")
+        }
+
+        fn format_amount(&self) -> String {
+            let parts: Vec<&str> = self.split('.').collect();
+            let int_part = parts[0];
+            let formatted_int = int_part.as_bytes()
+                .rchunks(3)
+                .rev()
+                .map(|c| std::str::from_utf8(c).unwrap())
+                .collect::<Vec<&str>>()
+                .join(" ");
+
+            let dec_part = if parts.len() > 1 { parts[1] } else { "00" };
+            format!("{}.{}", formatted_int, dec_part)
+        }
+
+    }
+
+}
+
+

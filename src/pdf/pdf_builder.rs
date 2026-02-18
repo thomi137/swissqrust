@@ -102,7 +102,6 @@ pub fn execute_receipt_ops(content: &mut Content, fonts: &FontLibrary, ops: Vec<
             DrawOp::Text { text, at, size, bold } => {
                 let style = if bold { FontStyle::Bold } else { FontStyle::Regular };
                 let font_obj = if bold { &fonts.bold } else { &fonts.regular };
-
                 // GID mapping happens ONLY here at the edge
                 let gids = font_obj.encode(&text);
 

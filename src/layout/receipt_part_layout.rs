@@ -8,6 +8,7 @@ use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRBillLayoutRect, label, 
 use crate::layout::draw::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines};
 use crate::constants::*;
 use crate::bill_data::Currency;
+use crate::formatters::SwissQRFormatter;
 
 pub struct ReceiptLayout<'a> {
 
@@ -60,7 +61,7 @@ impl<'a> ReceiptLayout<'a> {
 
         draw_single_line(
             ops,
-            &self.bill_data.iban,
+            &self.bill_data.iban.format_iban(),
             x,
             &mut y,
             self.text_font_size,
@@ -80,8 +81,9 @@ impl<'a> ReceiptLayout<'a> {
 
         // Reference / Creditor
         match &self.bill_data.reference_type {
-            ReferenceType::QrRef(reference)
-            | ReferenceType::Creditor(reference) => {
+
+            ReferenceType::QrRef(reference) => {
+
                 draw_label(
                     ops,
                     label!(Reference, self.language),
@@ -93,14 +95,39 @@ impl<'a> ReceiptLayout<'a> {
 
                 draw_single_line(
                     ops,
-                    reference,
+                    &reference.format_qr_reference(),
                     x,
                     &mut y,
                     self.text_font_size,
                     self.line_spacing,
                     self.extra_spacing,
                 );
-            }
+
+            },
+
+            ReferenceType::Creditor(reference) => {
+
+                draw_label(
+                    ops,
+                    label!(Reference, self.language),
+                    x,
+                    &mut y,
+                    self.label_font_size,
+                    self.line_spacing,
+                );
+
+                draw_single_line(
+                    ops,
+                    &reference.format_scor_reference(),
+                    x,
+                    &mut y,
+                    self.text_font_size,
+                    self.line_spacing,
+                    self.extra_spacing,
+                );
+
+            },
+
             _ => {}
         }
 
@@ -197,7 +224,7 @@ impl<'a> ReceiptLayout<'a> {
         match &self.bill_data.amount {
             Some(amount) => {
                 ops.push(DrawOp::Text {
-                    text: amount.clone(),
+                    text: amount.format_amount(),
                     at: Baseline {
                         x: amount_x,
                         y: value_y,
@@ -205,15 +232,17 @@ impl<'a> ReceiptLayout<'a> {
                     size: self.text_font_size,
                     bold: false,
                 });
-            }
+            },
+
             // TODO: Somehow it should be a box, but with special content
             None => {
-                    let rect = QRBillLayoutRect {
-                        x: amount_x,
-                        y: Mm(value_y.0 - AMOUNT_BOX_HEIGHT_RC.0 + self.text_ascender.0),
-                        width: AMOUNT_BOX_WIDTH_RC,
-                        height: AMOUNT_BOX_HEIGHT_RC,
-                    };
+
+                let rect = QRBillLayoutRect {
+                    x: amount_x,
+                    y: Mm(value_y.0 - AMOUNT_BOX_HEIGHT_RC.0 + self.text_ascender.0),
+                    width: AMOUNT_BOX_WIDTH_RC,
+                    height: AMOUNT_BOX_HEIGHT_RC,
+                };
 
                 draw_corner_marks(
                     ops,
@@ -221,7 +250,7 @@ impl<'a> ReceiptLayout<'a> {
                     CORNER_MARKS_AMOUNT_VIEWBOX,
                     CORNER_MARKS_AMOUNT_POLYLINES
                 )
-            }
+            },
         }
     }
 
