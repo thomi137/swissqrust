@@ -73,6 +73,29 @@ pub fn generate_svg_constants(
         })
         .collect();
 
+    // ---------------- Parse Polylines ----------
+
+    let polylines: Vec<Vec<(f64, f64)>> = svg
+        .descendants()
+        .filter(|n| n.has_tag_name("polyline"))
+        .map(|p| {
+            p.attribute("points")
+                .expect("Polyline missing points")
+                .split_whitespace()
+                .map(|pair| {
+                    let mut it = pair.split(',');
+                    (
+                        it.next().unwrap().parse::<f64>().unwrap(),
+                        it.next().unwrap().parse::<f64>().unwrap(),
+                    )
+                })
+                .collect::<Vec<(f64, f64)>>()
+        })
+        .collect();
+
+
+
+
     // ---------------- Emit Rust ----------------
 
     let name = const_prefix.to_uppercase();
@@ -93,22 +116,12 @@ pub fn generate_svg_constants(
 
     // ---- Runtime types (guaranteed to exist here) ----
     out.push_str(
-        "#[derive(Debug, Copy, Clone)]\n\
-         pub struct Rect {\n\
-         \tpub x: f64,\n\
-         \tpub y: f64,\n\
-         \tpub width: f64,\n\
-         \tpub height: f64,\n\
-         }\n\n\
-         #[derive(Debug)]\n\
-         pub struct Polygon {\n\
-         \tpub points: &'static [(f64, f64)],\n\
-         }\n\n",
+        "use crate::shapes::*;\n\n"
     );
 
     // ---- ViewBox ----
     out.push_str(&format!(
-        "pub const {name}_VIEWBOX: (f64, f64) = ({}, {});\n\n",
+        "pub const {name}_VIEWBOX: (f64, f64) = ({}f64, {}f64);\n\n",
         viewbox.0, viewbox.1
     ));
 
@@ -129,11 +142,23 @@ pub fn generate_svg_constants(
     for poly in polygons {
         out.push_str("    Polygon { points: &[\n");
         for (x, y) in poly {
-            out.push_str(&format!("        ({}, {}),\n", x, y));
+            out.push_str(&format!("        ({}f64, {}f64),\n", x, y));
         }
         out.push_str("    ]},\n");
     }
     out.push_str("];\n");
+
+    // Emit Polylines (they function like Polygons but are open-ended)
+    out.push_str(&format!("pub const {name}_POLYLINES: &[Polygon] = &[\n"));
+    for poly in polylines {
+        out.push_str("    Polygon { points: &[\n");
+        for (x, y) in poly {
+            out.push_str(&format!("        ({}f64, {}f64),\n", x, y));
+        }
+        out.push_str("    ]},\n");
+    }
+    out.push_str("];\n");
+
 
     fs::write(out_file, out)
         .expect("Failed to write generated Rust file");

@@ -72,7 +72,7 @@ pub struct Pt(pub f32);
 
 // Rectangular area
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct QRLayoutRect {
+pub struct QRBillLayoutRect {
     pub x: Mm,
     pub y: Mm,
     pub width: Mm,
@@ -112,7 +112,7 @@ pub enum DrawOp {
     },
 
     Box {
-        rect: QRLayoutRect,
+        rect: QRBillLayoutRect,
     },
 
     Line {

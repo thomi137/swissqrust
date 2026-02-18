@@ -4,9 +4,10 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRLayoutRect, label, Language, BillData, ReferenceType};
-use crate::layout::draw::{draw_label, draw_single_line, draw_text_lines};
+use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRBillLayoutRect, label, Language, BillData, ReferenceType, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYGONS, CORNER_MARKS_PAYABLE_BY_POLYLINES, FontLibrary, draw_text_at};
+use crate::layout::draw::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines};
 use crate::constants::*;
+use crate::bill_data::Currency;
 
 pub struct ReceiptLayout<'a> {
 
@@ -33,6 +34,16 @@ pub struct ReceiptLayout<'a> {
 
 impl<'a> ReceiptLayout<'a> {
 
+    pub fn layout_receipt_title_section(&mut self, ops: &mut Vec<DrawOp>) {
+        let y = Mm(105.0 - MARGIN.0 - 4.0); // Baseline approx 4mm from top margin
+        ops.push(DrawOp::Text {
+            text: label!(Receipt, self.language).into(),
+            at: Baseline { x: MARGIN, y },
+            size: Pt(11.0),
+            bold: true,
+        });
+    }
+
     pub fn layout_receipt_information_section(&mut self, ops: &mut Vec<DrawOp>) {
         let mut y = Mm(self.top_start.0 - self.label_ascender.0);
         let x = self.horizontal_offset;
@@ -47,6 +58,16 @@ impl<'a> ReceiptLayout<'a> {
             self.line_spacing,
         );
 
+        draw_single_line(
+            ops,
+            &self.bill_data.iban,
+            x,
+            &mut y,
+            self.text_font_size,
+            self.line_spacing,
+            Mm(0.0),
+        );
+
         draw_text_lines(
             ops,
             &self.bill_data.creditor_address.to_lines(),
@@ -57,7 +78,7 @@ impl<'a> ReceiptLayout<'a> {
             self.extra_spacing,
         );
 
-        // Reference
+        // Reference / Creditor
         match &self.bill_data.reference_type {
             ReferenceType::QrRef(reference)
             | ReferenceType::Creditor(reference) => {
@@ -94,14 +115,6 @@ impl<'a> ReceiptLayout<'a> {
         );
 
         if let Some(debtor) = &self.bill_data.debtor_address {
-            draw_label(
-                ops,
-                label!(PayableBy, self.language),
-                x,
-                &mut y,
-                self.label_font_size,
-                self.line_spacing,
-            );
 
             draw_text_lines(
                 ops,
@@ -113,57 +126,53 @@ impl<'a> ReceiptLayout<'a> {
                 self.extra_spacing,
             );
         } else {
-            draw_label(
-                ops,
-                label!(PayableBy, self.language),
-                x,
-                &mut y,
-                self.label_font_size,
-                self.line_spacing,
-            );
 
-            y = Mm(y.0 - DEBTOR_BOX_HEIGHT.0);
-
-            ops.push(DrawOp::Box {
-                rect: QRLayoutRect {
+            let rect = QRBillLayoutRect {
                     x,
                     y,
-                    width: DEBTOR_BOX_WIDTH_PP,
+                    width: DEBTOR_BOX_WIDTH_RC,
                     height: DEBTOR_BOX_HEIGHT,
-                },
-            });
+                };
 
-            y = Mm(y.0 - self.extra_spacing.0);
+            draw_corner_marks(
+                ops,
+                rect,
+                CORNER_MARKS_PAYABLE_BY_VIEWBOX,
+                CORNER_MARKS_PAYABLE_BY_POLYLINES
+            );
+
         }
+        y = Mm(y.0 - DEBTOR_BOX_HEIGHT.0);
+        y = Mm(y.0 - self.extra_spacing.0);
     }
 
     pub fn layout_receipt_amount_section(
-        &mut self,
-        ops: &mut Vec<DrawOp>,
-        section_top: Mm,
-    ) {
-        let currency_label_y = Mm(section_top.0 - self.label_ascender.0);
+            &mut self,
+            ops: &mut Vec<DrawOp>,
+            section_top: Mm,
+        ) {
+            let currency_label_y = Mm(section_top.0 - self.label_ascender.0);
 
-        // Currency label
-        ops.push(DrawOp::Text {
-            text: label!(Currency, self.language).into(),
-            at: Baseline {
-                x: self.horizontal_offset,
-                y: currency_label_y,
-            },
-            size: self.label_font_size,
-            bold: true,
-        });
+            // Currency label
+            ops.push(DrawOp::Text {
+                text: label!(Currency, self.language).into(),
+                at: Baseline {
+                    x: self.horizontal_offset,
+                    y: currency_label_y,
+                },
+                size: self.label_font_size,
+                bold: true,
+            });
 
-        let value_y = Mm(
-            currency_label_y.0
-                - self.line_spacing.0
-                - self.text_ascender.0,
-        );
+            let value_y = Mm(
+                currency_label_y.0
+                    - self.line_spacing.0
+                   // - self.text_ascender.0,
+            );
 
         // Currency value
         ops.push(DrawOp::Text {
-            text: label!(Currency, self.language).into(),
+            text: self.bill_data.currency.to_string(),
             at: Baseline {
                 x: self.horizontal_offset,
                 y: value_y,
@@ -175,16 +184,6 @@ impl<'a> ReceiptLayout<'a> {
         let amount_x = Mm(self.horizontal_offset.0 + CURRENCY_WIDTH.0);
 
         // Amount label
-        ops.push(DrawOp::Text {
-            text: label!(Amount, self.language).into(),
-            at: Baseline {
-                x: amount_x,
-                y: currency_label_y,
-            },
-            size: self.label_font_size,
-            bold: true,
-        });
-
         ops.push(DrawOp::Text {
             text: label!(Amount, self.language).into(),
             at: Baseline {
@@ -207,26 +206,34 @@ impl<'a> ReceiptLayout<'a> {
                     bold: false,
                 });
             }
+            // TODO: Somehow it should be a box, but with special content
             None => {
-                ops.push(DrawOp::Box {
-                    rect: QRLayoutRect {
+                    let rect = QRBillLayoutRect {
                         x: amount_x,
                         y: Mm(value_y.0 - AMOUNT_BOX_HEIGHT_RC.0 + self.text_ascender.0),
                         width: AMOUNT_BOX_WIDTH_RC,
                         height: AMOUNT_BOX_HEIGHT_RC,
-                    },
-                });
+                    };
+
+                draw_corner_marks(
+                    ops,
+                    rect,
+                    CORNER_MARKS_AMOUNT_VIEWBOX,
+                    CORNER_MARKS_AMOUNT_POLYLINES
+                )
             }
         }
     }
 
-    pub fn layout_receipt_acceptance_point(&mut self,  ops: &mut Vec<DrawOp>, text_width: Mm,) {
+    pub fn layout_receipt_acceptance_point(&mut self,  ops: &mut Vec<DrawOp>, fonts: &FontLibrary) {
         let y = Mm(ACCEPTANCE_POINT_SECTION_TOP.0 - self.label_ascender.0);
+        let text = label!(AcceptancePoint, self.language).into();
+        let text_width_mm = fonts.bold.measure(text, 6.0);
 
         ops.push(DrawOp::Text {
-            text: label!(AcceptancePoint, self.language).into(),
+            text: text.to_string(),
             at: Baseline {
-                x: Mm(self.horizontal_offset.0 + text_width.0),
+                x: Mm(RECEIPT_WIDTH.0 - MARGIN.0 - text_width_mm),
                 y,
             },
             size: self.label_font_size,
@@ -279,10 +286,12 @@ impl<'a> ReceiptLayout<'a> {
         spacing.extra_spacing.0 / spacing.line_spacing.0 < 0.8
     }
 
-    pub fn render(&mut self, ops: &mut Vec<DrawOp>) {
+    pub fn render(&mut self, ops: &mut Vec<DrawOp>, fonts: &FontLibrary) {
         self.compute_receipt_spacing();
+        self.layout_receipt_title_section(ops);
+        self.top_start = Mm(self.top_start.0 - 7.0);
         self.layout_receipt_information_section(ops);
         self.layout_receipt_amount_section(ops, AMOUNT_SECTION_TOP);
-        self.layout_receipt_acceptance_point(ops, RECEIPT_TEXT_WIDTH);
+        self.layout_receipt_acceptance_point(ops, fonts);
     }
 }

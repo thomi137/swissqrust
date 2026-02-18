@@ -4,8 +4,10 @@
  * https://opensource.org/licenses/MIT
  */
 
+use crate::CORNER_MARKS_AMOUNT_VIEWBOX;
 use crate::layout::geometry::{Baseline, Mm, Pt, DrawOp};
-use crate::QRLayoutRect;
+use crate::QRBillLayoutRect;
+use crate::shapes::Polygon;
 
 /// Draws a label and moves cursor down by line_spacing.
 pub fn draw_label(
@@ -23,7 +25,7 @@ pub fn draw_label(
         bold: true,
     });
 
-    *y = Mm(y.0 - line_spacing.0);
+    y.0 -= line_spacing.0;
 }
 
 /// Draws one text line + block spacing.
@@ -79,7 +81,7 @@ pub fn draw_box(
     height: Mm,
 ) {
     ops.push(DrawOp::Box {
-        rect: QRLayoutRect {
+        rect: QRBillLayoutRect {
             x,
             y,
             width,
@@ -104,3 +106,38 @@ pub fn draw_text_at(
     });
 }
 
+#[derive(Debug)]
+pub enum CornerMarksViewBox {
+    CMAmount,
+    CMPayableBy,
+}
+pub fn draw_corner_marks(
+    ops: &mut Vec<DrawOp>,
+    rect: QRBillLayoutRect,
+    viewbox: (f64, f64),
+    polylines: &[Polygon]
+) {
+    let scale_x = rect.width.0 / viewbox.0 as f32;
+    let scale_y = rect.height.0 / viewbox.1 as f32;
+
+    for poly in polylines {
+        for window in poly.points.windows(2) {
+            let p1 = window[0];
+            let p2 = window[1];
+
+            ops.push(DrawOp::Line {
+                // PDF Y is bottom-up, SVG Y is top-down: 
+                // We map SVG(x, y) to PDF(rect.x + x, (rect.y + rect.height) - y)
+                from: (
+                    Mm(rect.x.0 + (p1.0 as f32 * scale_x)),
+                    Mm(rect.y.0 + rect.height.0 - (p1.1 as f32 * scale_y)),
+                ),
+                to: (
+                    Mm(rect.x.0 + (p2.0 as f32 * scale_x)),
+                    Mm(rect.y.0 + rect.height.0 - (p2.1 as f32 * scale_y)),
+                ),
+                width: Mm(0.26), // 0.75pt
+            });
+        }
+    }
+}

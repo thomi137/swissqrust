@@ -1,5 +1,7 @@
 include!("generated/countries.rs");
 include!("generated/cross.rs");
+include!("generated/corner_marks_amount.rs");
+include!("generated/corner_marks_payable_by.rs");
 
 pub mod cli;
 pub mod validators;
@@ -9,12 +11,27 @@ pub mod language;
 pub mod svg;
 pub mod render;
 pub mod pdf;
-mod layout;
+pub mod layout;
 
 pub use bill::*;
 pub use language::*;
 pub use layout::*;
 pub use pdf::*;
+
+pub mod shapes {
+    #[derive(Debug, Copy, Clone)]
+    pub struct Rect {
+        pub x: f64,
+        pub y: f64,
+        pub width: f64,
+        pub height: f64,
+    }
+
+    #[derive(Debug)]
+    pub struct Polygon {
+        pub points: &'static [(f64, f64)],
+    }
+}
 
 pub mod constants {
     use crate::Mm;

@@ -8,6 +8,7 @@ use pdf_writer::{Finish, Name, Pdf, Dict, Ref, Str, Stream, Filter};
 use pdf_writer::types::{CidFontType, FontFlags, SystemInfo, UnicodeCmap};
 use ttf_parser::{Face, GlyphId};
 use miniz_oxide::deflate::compress_to_vec_zlib;
+use crate::{MM_PER_PT, PT_PER_MM};
 
 pub const LIBERATION_SANS_REGULAR_TTF: &[u8] =
     include_bytes!("../../assets/fonts/LiberationSansRegular.ttf");
@@ -23,10 +24,38 @@ const SYSTEM_INFO: SystemInfo = SystemInfo {
 
 pub struct EmbeddedFont {
     pub type0_ref: Ref,
+    pub face: Face<'static>, // Store this so we can encode/measure later
 }
 
+impl EmbeddedFont {
+    /// Maps a string to 2-byte Big-Endian Glyph IDs for pdf-writer
+    pub fn encode(&self, text: &str) -> Vec<u8> {
+        let mut bytes = Vec::with_capacity(text.len() * 2);
+        for c in text.chars() {
+            let gid = self.face.glyph_index(c).map(|g| g.0).unwrap_or(0);
+            bytes.push((gid >> 8) as u8);
+            bytes.push((gid & 0xFF) as u8);
+        }
+        bytes
+    }
+
+    /// Measures text width in PDF points for a given font size
+    pub fn measure(&self, text: &str, size: f32) -> f32 {
+        let mut width_units = 0.0;
+        for c in text.chars() {
+            let gid = self.face.glyph_index(c).unwrap_or(GlyphId(0));
+            width_units += self.face.glyph_hor_advance(gid).unwrap_or(0) as f32;
+        }
+        // (Width in units * size in pts) / UnitsPerEm
+        let width_pt = (width_units * size) / self.face.units_per_em() as f32;
+
+        width_pt * MM_PER_PT
+    }
+}
+
+
 //noinspection ALL
-pub fn embed_ttf_font(pdf: &mut Pdf, next_id: &mut Ref, custom_font_name: Name, font_data: &[u8]) -> EmbeddedFont {
+pub fn embed_ttf_font(pdf: &mut Pdf, next_id: &mut Ref, custom_font_name: Name, font_data: &'static [u8]) -> EmbeddedFont {
 
     let face = Face::parse(font_data, 0).expect("Invalid font data");
 
@@ -114,6 +143,7 @@ pub fn embed_ttf_font(pdf: &mut Pdf, next_id: &mut Ref, custom_font_name: Name, 
     type0.finish();
 
     EmbeddedFont {
-        type0_ref
+        type0_ref,
+        face,
     }
 }

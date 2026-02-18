@@ -6,7 +6,13 @@
 
 use pdf_writer::{Content, Finish, Name, Pdf, Rect, Ref, Str, TextStr};
 use pdf_writer::types::{ActionType, AnnotationType, BorderType};
-use crate::pdf::fonts::{embed_ttf_font, LIBERATION_SANS_BOLD_TTF, LIBERATION_SANS_REGULAR_TTF};
+use crate::{DrawOp, FontLibrary, FontStyle};
+use crate::pdf::fonts::{
+    embed_ttf_font,
+    LIBERATION_SANS_BOLD_TTF,
+    LIBERATION_SANS_REGULAR_TTF,
+};
+use crate::pdf::name;
 
 pub fn base_layout(path: &str) {
     let mut pdf = Pdf::new();
@@ -15,8 +21,6 @@ pub fn base_layout(path: &str) {
     let catalog_id = next_id.bump();
     let page_tree_id = next_id.bump();
     let page_id = next_id.bump();
-
-
 
     // let regular_font_id = fonts.regular;
     // let bold_font_id = fonts.bold;
@@ -91,3 +95,40 @@ pub fn base_layout(path: &str) {
     std::fs::write(path, buf).expect("TODO: panic message");
 
 }
+
+pub fn execute_receipt_ops(content: &mut Content, fonts: &FontLibrary, ops: Vec<DrawOp>) {
+    for op in ops {
+        match op {
+            DrawOp::Text { text, at, size, bold } => {
+                let style = if bold { FontStyle::Bold } else { FontStyle::Regular };
+                let font_obj = if bold { &fonts.bold } else { &fonts.regular };
+
+                // GID mapping happens ONLY here at the edge
+                let gids = font_obj.encode(&text);
+
+                content.begin_text();
+                content.set_font(name(style), size.0);
+                content.op("Td")
+                    .operand(at.x.to_pt().0)
+                    .operand(at.y.to_pt().0);
+
+                content.op("Tj").operand(pdf_writer::Str(&gids));
+                content.end_text();
+            }
+            DrawOp::Line { from, to, width } => {
+                content.set_line_width(width.to_pt().0);
+                content.move_to(from.0.to_pt().0, from.1.to_pt().0);
+                content.line_to(to.0.to_pt().0, to.1.to_pt().0);
+                content.stroke();
+            }
+            DrawOp::Box { rect } => {
+                content.set_line_width(0.5); // Hairline
+                content.rect(rect.x.to_pt().0, rect.y.to_pt().0, rect.width.to_pt().0, rect.height.to_pt().0);
+                content.stroke();
+            }
+            // Skip Image/QrCodeSpace for now as you requested
+            _ => {}
+        }
+    }
+}
+

@@ -117,7 +117,7 @@ impl<'a> PaymentPartLayout<'a> {
                 y = Mm(y.0 - DEBTOR_BOX_HEIGHT.0);
 
                 ops.push(DrawOp::Box {
-                    rect: QRLayoutRect {
+                    rect: QRBillLayoutRect {
                         x,
                         y,
                         width: DEBTOR_BOX_WIDTH_PP,
@@ -187,7 +187,7 @@ impl<'a> PaymentPartLayout<'a> {
 
     pub fn layout_payment_qr_section(&mut self, ops: &mut Vec<DrawOp>) {
         ops.push(DrawOp::Box {
-            rect: QRLayoutRect {
+            rect: QRBillLayoutRect {
                 x: Mm(5f32),
                 y: Mm(5f32),
                 width: Mm(46f32),
