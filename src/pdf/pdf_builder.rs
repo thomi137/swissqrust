@@ -14,6 +14,12 @@ use crate::pdf::fonts::{
 };
 use crate::pdf::name;
 
+/// ⚠️
+/// pdf_writer is pretty low level, so what is coded here
+/// is best understood with some PDF know how. A good introduction
+/// can be found (here)[https://medium.com/@jberkenbilt/text-in-pdf-introduction-df3dd3dfa9ea]
+/// and there is also a (cheat sheet)[https://pdfa.org/wp-content/uploads/2023/08/PDF-Operators-CheatSheet.pdf]
+
 pub fn base_layout(path: &str) {
     let mut pdf = Pdf::new();
     let mut next_id = Ref::new(1);
@@ -102,16 +108,25 @@ pub fn execute_receipt_ops(content: &mut Content, fonts: &FontLibrary, ops: Vec<
             DrawOp::Text { text, at, size, bold } => {
                 let style = if bold { FontStyle::Bold } else { FontStyle::Regular };
                 let font_obj = if bold { &fonts.bold } else { &fonts.regular };
-                // GID mapping happens ONLY here at the edge
+
+                // GID mapping happens ONLY here at the edge.
+                // The Tj operator shows text, encoded in glyph ids. So we encode.
                 let gids = font_obj.encode(&text);
 
+                // Then, we set the font we'd like to use and the size.
                 content.begin_text();
                 content.set_font(name(style), size.0);
+
+                // The Td operator moves to the next line
+                // the two values passed are the start relative
+                // to the previous line.
                 content.op("Td")
                     .operand(at.x.to_pt().0)
                     .operand(at.y.to_pt().0);
 
-                content.op("Tj").operand(pdf_writer::Str(&gids));
+                content.op("Tj")
+                    .operand(pdf_writer::Str(&gids));
+
                 content.end_text();
             }
             DrawOp::Line { from, to, width } => {

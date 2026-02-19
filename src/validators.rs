@@ -34,6 +34,8 @@ impl Display for SPSCharsetError {
 impl std::error::Error for SPSCharsetError {}
 
 /// IBAN Errors
+///
+// TODO: Make a thiserror enum.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum IbanError{
     IncorrectLength{expected: usize, actual: usize},
@@ -122,15 +124,14 @@ impl std::error::Error for ReferenceError {}
 ///
 /// Valid IBAN:
 ///```
-/// use swiss_qrust::validators::is_valid_iban;
+/// # use swiss_qrust::validators::is_valid_iban;
 /// const  IBAN: &str = "CH93 0076 2011 6238 5295 7";
 /// assert!(is_valid_iban(IBAN).is_ok());
 ///```
 ///
 /// Invalid IBAN:
 ///```
-///use swiss_qrust::validators::is_valid_iban;
-///
+/// # use swiss_qrust::validators::is_valid_iban;
 ///const IBAN: &str = "CH44 0871 0000 0033 1272 0007";
 ///let result = is_valid_iban(IBAN);
 ///assert!(result.is_err(), "Expected '{}' to be invalid, but got true", IBAN);
@@ -138,8 +139,8 @@ impl std::error::Error for ReferenceError {}
 ///
 /// Another invalid IBAN:
 ///```
+/// # use swiss_qrust::validators::{is_valid_iban, IbanError};
 /// pub const CNT_ERR: &str = "IBAN must pertain to Switzerland or Liechtenstein";
-/// use swiss_qrust::validators::{is_valid_iban, IbanError};
 ///
 /// const IBAN: &str = "GB33BUKB20201555555555";
 /// let err = is_valid_iban(IBAN).unwrap_err();

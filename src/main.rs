@@ -6,10 +6,11 @@ use swiss_qrust::{pdf, qr_bill, Address, Currency, Language, QRCountry, Referenc
 use swiss_qrust::BillData;
 use swiss_qrust::pdf::*;
 use swiss_qrust::layout::*;
+use swiss_qrust::constants::*;
 use swiss_qrust::pdf_builder::execute_receipt_ops;
 use swiss_qrust::qr_bill::QrBill;
 use swiss_qrust::receipt_part_layout::ReceiptLayout;
-use swiss_qrust::svg::{add_swiss_cross, render_qr_svg};
+use swiss_qrust::qr_renderers::{add_swiss_cross, render_qr_svg};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -65,9 +66,23 @@ pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
     let zapf_id = next_id.bump();
     pdf.type1_font(zapf_id).base_font(pdf_writer::Name(b"ZapfDingbats"));
 
-    // 2. Generate Layout Ops
+    // Generate Layout Ops
     let mut ops = Vec::new();
-    let mut layout = ReceiptLayout {
+
+    let mut payment_part_layout = PaymentPartLayout {
+        bill_data,
+        horizontal_offset: Mm(5.0),
+        top_start: Mm(100.0),
+        label_font_size: PP_LABEL_PREF_FONT_SIZE,
+        text_font_size: PP_TEXT_PREF_FONT_SIZE,
+        label_ascender: Mm(2.1), // Derived from ttf-parser
+        text_ascender: Mm(2.8),
+        language: Language::De,
+        line_spacing: Mm(3.5),
+        extra_spacing: Mm(2.0),
+    };
+
+    let mut receipt_layout = ReceiptLayout {
         bill_data,
         horizontal_offset: Mm(5.0),
         top_start: Mm(100.0), // 105mm total - 5mm margin
@@ -79,17 +94,24 @@ pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
         line_spacing: Mm(3.5),
         extra_spacing: Mm(2.0),
     };
-    layout.render(&mut ops, &fonts);
+    receipt_layout.render(&mut ops, &fonts);
 
-    // 3. Write Page and Resources
+    // Write Page and Resources
     pdf.catalog(catalog_id).pages(page_tree_id);
     pdf.pages(page_tree_id).kids([page_id]).count(1);
 
+    // Create A4 Page
     let mut page = pdf.page(page_id);
     page.media_box(Rect::new(0.0, 0.0, 595.28, 842.89)); // A4
     page.parent(page_tree_id);
     page.contents(content_id);
 
+    // Put fonts into resources.
+    // Note that you can use
+    // Arial or Helvetica for QR Bills, too, in which case you
+    // don't need the embed logic but can proceed as shown with
+    // Zapf Dingbats, whih is in fact one of the 14 base fonts
+    // every PDF reader must support. As are Helvetica and Arial.
     let mut res = page.resources();
     let mut f_dict = res.fonts();
     f_dict.pair(pdf_writer::Name(b"Zapf"), zapf_id);
@@ -99,7 +121,6 @@ pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
     res.finish();
     page.finish();
 
-    //  Execute Ops to Content Stream
     let mut content = Content::new();
 
     // 1. Horizontal Perforation (Top of Bill)
@@ -131,7 +152,7 @@ pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
     execute_receipt_ops(&mut content, &fonts, ops);
     pdf.stream(content_id, &content.finish());
 
-    // 5. Finalize with Catalog at Ref(1)
+    // Finalize and write.
     std::fs::write(path, pdf.finish()).expect("Failed to write PDF");
 }
 
