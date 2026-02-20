@@ -43,12 +43,17 @@ pub mod constants {
 
     const PAYMENT_PART_WIDTH: u32 = 148; // mm
     pub const QR_CODE_HEIGHT: f32 = 46f32;
+    pub const QR_CODE_WIDTH: Mm = Mm(46f32);
     const PP_AMOUNT_SECTION_WIDTH: u32 = 46; // mm
+    pub const PP_INFO_SECTION_HORI_OFFSET: Mm = Mm(56f32);
+    pub const PP_AMOUNT_SECTION_TOP: Mm = Mm(37f32);
     const PP_INFO_SECTION_WIDTH: u32 = 87; // mm
     const BOX_TOP_PADDING: f32= 2f32 * MM_PER_PT; // mm
 
+    pub const PAYMENT_PART_HORI_OFFSET: Mm = Mm(62f32);
 
     pub const CURRENCY_WIDTH: Mm = Mm(12f32);
+    pub const CURRENCY_WIDTH_PP: Mm = Mm(15f32);
 
     // General payment slip measurments
     pub const SLIP_WIDTH: Mm = Mm(210f32);
@@ -135,6 +140,22 @@ pub mod formatters {
         }
 
     }
+
+    pub trait SliceExt<T> {
+    fn all_but_last(&self) -> &[T];
+}
+
+    impl<T> SliceExt<T> for [T] {
+        fn all_but_last(&self) -> &[T] {
+            if self.is_empty() {
+                &[]
+            } else {
+                &self[..self.len() - 1]
+            }
+        }
+    }
+    
+    
 
 }
 

@@ -74,7 +74,7 @@ pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) {
 
     let mut payment_part_layout = PaymentPartLayout {
         bill_data,
-        horizontal_offset: Mm(5.0),
+        horizontal_offset: PAYMENT_PART_HORI_OFFSET,
         top_start: Mm(100.0),
         label_font_size: PP_LABEL_PREF_FONT_SIZE,
         text_font_size: PP_TEXT_PREF_FONT_SIZE,

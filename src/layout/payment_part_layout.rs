@@ -3,13 +3,13 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use std::ops::{Add, Sub};
-use crate::{label, BillData, FontLibrary, Language, ReferenceType};
+use std::ops::Mul;
+use crate::{label, BillData, FontLibrary, Language, ReferenceType, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX};
 use crate::layout::draw::*;
 use crate::layout::geometry::*;
 use crate::layout::spacing::*;
 use crate::constants::*;
-use crate::qr_bill::QrBill;
+use crate::formatters::{SliceExt, SwissQRFormatter};
 
 pub struct PaymentPartLayout<'a> {
     pub bill_data: &'a BillData,
@@ -30,6 +30,14 @@ pub struct PaymentPartLayout<'a> {
     // spacing (computed)
     pub line_spacing: Mm,
     pub extra_spacing: Mm,
+}
+
+impl Mul<Mm> for i32 {
+    type Output = ();
+
+    fn mul(self, rhs: Mm) -> Self::Output {
+        todo!()
+    }
 }
 
 impl<'a> PaymentPartLayout<'a> {
@@ -55,43 +63,83 @@ impl<'a> PaymentPartLayout<'a> {
     }
 
     pub fn layout_payment_part_amount_section(&mut self, ops: &mut Vec<DrawOp>, section_top: Mm) {
-        let currency_label_y = Mm(section_top.0 - self.label_ascender.0);
+        let y = Mm(section_top.0 - self.label_ascender.0);
 
         // Currency label
         ops.push(DrawOp::Text {
             text: label!(Currency, self.language).into(),
             at: Baseline {
-                x: self.horizontal_offset,
-                y: currency_label_y,
+                x: self.horizontal_offset + MARGIN,
+                y,
             },
             size: self.label_font_size,
             bold: true,
         });
 
-        let value_y = Mm(
-            currency_label_y.0
-                - self.text_ascender.0
-                - Pt(3.0).to_mm().0,
-        );
+        let value_y = y
+            - self.text_ascender
+            - self.label_font_size.to_mm();
 
         // Currency value
         ops.push(DrawOp::Text {
             text: self.bill_data.currency.to_string(),
             at: Baseline {
-                x: self.horizontal_offset,
+                x: self.horizontal_offset + MARGIN,
                 y: value_y,
             },
             size: self.text_font_size,
             bold: false,
         });
+
+        // Amount Label
+        let amount_x = self.horizontal_offset + MARGIN + CURRENCY_WIDTH_PP;
+        ops.push(DrawOp::Text {
+            text: label!(Amount, self.language).into(),
+            at: Baseline {
+                x: amount_x,
+                y,
+            },
+            size: self.label_font_size,
+            bold: true,
+        });
+
+        match &self.bill_data.amount {
+            Some(amount) => {
+                ops.push(DrawOp::Text {
+                    text: amount.format_amount(),
+                    at: Baseline {
+                        x: amount_x,
+                        y: value_y,
+                    },
+                    size: self.text_font_size,
+                    bold: false,
+                });
+            },
+
+            // TODO: Somehow it should be a box, but with special content
+            None => {
+                let rect = QRBillLayoutRect {
+                    x: amount_x,
+                    y: Mm(value_y.0 - AMOUNT_BOX_HEIGHT_RC.0 + self.text_ascender.0),
+                    width: AMOUNT_BOX_WIDTH_PP,
+                    height: AMOUNT_BOX_HEIGHT_PP,
+                };
+
+                draw_corner_marks(
+                    ops,
+                    rect,
+                    CORNER_MARKS_AMOUNT_VIEWBOX,
+                    CORNER_MARKS_AMOUNT_POLYLINES
+                )
+            },
+        }
     }
 
     // INFORMATION SECTION
     pub fn layout_payment_part_information_section(&mut self, ops: &mut Vec<DrawOp>) {
         let mut y = Mm(self.top_start.0 - self.label_ascender.0);
-        let x = self.horizontal_offset;
+        let x = self.horizontal_offset + PP_INFO_SECTION_HORI_OFFSET;
 
-        let creditor_lines = self.bill_data.creditor_address.to_lines();
         // Account / Payable to
         draw_label(
             ops,
@@ -102,9 +150,19 @@ impl<'a> PaymentPartLayout<'a> {
             self.line_spacing,
         );
 
+        draw_single_line(
+            ops,
+            &self.bill_data.iban.format_iban(),
+            x,
+            &mut y,
+            self.text_font_size,
+            self.line_spacing,
+            Mm(0.0),
+        );
+
         draw_text_lines(
             ops,
-            &creditor_lines,
+            &self.bill_data.creditor_address.to_lines().all_but_last(),
             x,
             &mut y,
             self.text_font_size,
@@ -114,8 +172,28 @@ impl<'a> PaymentPartLayout<'a> {
 
         // Reference
         match &self.bill_data.reference_type {
-            ReferenceType::QrRef(reference)
-            | ReferenceType::Creditor(reference) => {
+            ReferenceType::QrRef(reference) => {
+                    draw_label(
+                        ops,
+                        label!(Reference, self.language),
+                        x,
+                        &mut y,
+                        self.label_font_size,
+                        self.line_spacing,
+                    );
+
+                    draw_single_line(
+                        ops,
+                        &reference.format_qr_reference(),
+                        x,
+                        &mut y,
+                        self.text_font_size,
+                        self.line_spacing,
+                        self.extra_spacing,
+                    );
+            },
+
+            ReferenceType::Creditor(reference) => {
                 draw_label(
                     ops,
                     label!(Reference, self.language),
@@ -127,14 +205,14 @@ impl<'a> PaymentPartLayout<'a> {
 
                 draw_single_line(
                     ops,
-                    reference,
+                    &reference.format_scor_reference(),
                     x,
                     &mut y,
                     self.text_font_size,
                     self.line_spacing,
                     self.extra_spacing,
                 );
-            }
+            },
             _ => {}
         }
 
@@ -151,7 +229,7 @@ impl<'a> PaymentPartLayout<'a> {
 
                 draw_text_lines(
                     ops,
-                    &debtor.to_lines(),
+                    &debtor.to_lines().all_but_last(),
                     x,
                     &mut y,
                     self.text_font_size,
@@ -260,6 +338,8 @@ impl<'a> PaymentPartLayout<'a> {
         self.compute_payment_part_spacing();
         self.layout_payment_part_title_section(ops);
         self.draw_swiss_qr_code(ops);
+        self.layout_payment_part_amount_section(ops, PP_AMOUNT_SECTION_TOP);
+        self.layout_payment_part_information_section(ops);
     }
 
 }

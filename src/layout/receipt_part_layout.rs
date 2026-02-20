@@ -7,7 +7,7 @@ use std::ops::Mul;
 use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRBillLayoutRect, label, Language, BillData, ReferenceType, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYGONS, CORNER_MARKS_PAYABLE_BY_POLYLINES, FontLibrary, draw_text_at, MM_PER_PT};
 use crate::layout::draw::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines};
 use crate::constants::*;
-use crate::formatters::SwissQRFormatter;
+use crate::formatters::{SliceExt, SwissQRFormatter};
 
 pub struct ReceiptLayout<'a> {
 
@@ -71,7 +71,7 @@ impl<'a> ReceiptLayout<'a> {
 
         draw_text_lines(
             ops,
-            &self.bill_data.creditor_address.to_lines(),
+            &self.bill_data.creditor_address.to_lines().all_but_last(),
             x,
             &mut y,
             self.text_font_size,
@@ -145,7 +145,7 @@ impl<'a> ReceiptLayout<'a> {
 
             draw_text_lines(
                 ops,
-                &debtor.to_lines(),
+                &debtor.to_lines().all_but_last(),
                 x,
                 &mut y,
                 self.text_font_size,

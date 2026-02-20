@@ -14,7 +14,10 @@ const MODULE_MM: f64 = 0.4;
 const QUIET_ZONE_MODULES: usize = 4;
 const QR_MM: f64 = 46.0;
 const CROSS_MM: f64 = 7.0;
-const QUIET_MM: f64 = 1.6f64;
+
+// Spec is a little misleading it talks about a quiet
+// zone of 4 modules (1.6 mm) but extends it to 5 mm.
+const QUIET_MM: f64 = 0f64;
 const CROSS_VIEWBOX: (f64, f64) = (19.8, 19.8);
 
 
