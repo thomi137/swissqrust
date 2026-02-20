@@ -8,7 +8,6 @@ pub mod validators;
 pub mod utils;
 pub mod bill;
 pub mod language;
-pub mod qr_renderers;
 pub mod render;
 pub mod pdf;
 pub mod layout;
@@ -34,12 +33,18 @@ pub mod shapes {
 }
 
 pub mod constants {
-    use crate::{Mm, Pt};
+    use crate::{Mm, Pt, MM_PER_PT};
 
     pub const FONT_SIZE_TITLE: Pt = Pt(11f32);
     pub const PP_LABEL_PREF_FONT_SIZE: Pt = Pt(8f32); // pt
     pub const PP_TEXT_PREF_FONT_SIZE: Pt = Pt(10f32); // pt
     pub const PP_TEXT_MIN_FONT_SIZE: Pt = Pt(8f32); // pt
+
+
+    const PAYMENT_PART_WIDTH: u32 = 148; // mm
+    const PP_AMOUNT_SECTION_WIDTH: u32 = 46; // mm
+    const PP_INFO_SECTION_WIDTH: u32 = 87; // mm
+    const BOX_TOP_PADDING: f32= 2f32 * MM_PER_PT; // mm
 
 
     pub const CURRENCY_WIDTH: Mm = Mm(12f32);

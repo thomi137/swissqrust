@@ -10,7 +10,6 @@ mod qr_bill_layout;
 pub mod receipt_part_layout;
 mod spacing;
 mod draw;
-mod slip_layout;
 
 pub use qr_bill_layout::*;
 pub use geometry::*;

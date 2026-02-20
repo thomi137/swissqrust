@@ -3,7 +3,5 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
-mod canvas;
-mod render_svg_to_pdf;
-
+pub mod qr_renderers;
+pub mod png_renderers;

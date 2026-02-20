@@ -27,14 +27,6 @@ pub const QR_BILL_PC_WIDTH: u16 = 148; // mm
 /// QR Width in mm
 pub const QR_CODE_OVERALL_WIDTH: u16 = 148;
 
-// Payment Part Font Sizes
-const PP_LABEL_PREF_FONT_SIZE: u8 = 8; // pt
-const PP_TEXT_PREF_FONT_SIZE: u8 = 10; // pt
-const PP_TEXT_MIN_FONT_SIZE: u8 = 8; // pt
-
-const RC_LABEL_PREF_FONT_SIZE: u8 = 6; // pt
-const RC_TEXT_PREF_FONT_SIZE: u8 = 8; // pt
-
 /// Constants to convert mms to pts and vv.
 ///
 /// 1 point = 1/72 inch
@@ -86,29 +78,14 @@ pub struct Baseline {
     pub y: Mm,
 }
 
-const FONT_SIZE_TITLE: u32 = 11; // pt
-const RECEIPT_TEXT_WIDTH: u32 = 52; // mm
-const PAYMENT_PART_WIDTH: u32 = 148; // mm
-const PP_AMOUNT_SECTION_WIDTH: u32 = 46; // mm
-const PP_INFO_SECTION_WIDTH: u32 = 87; // mm
-const BOX_TOP_PADDING: f32= 2f32 * MM_PER_PT; // mm
-const DEBTOR_BOX_WIDTH_RC: u32 = 52; // mm
-const DEBTOR_BOX_HEIGHT_RC: u32 = 20; // mm
-
-// Drawing operations
+// Drawing operations definition. Eliminated Text Lines.
+// This can be achieved by pushing a DrawOp::Text multiple times.
 pub enum DrawOp {
     Text {
         text: String,
         at: Baseline,
         size: Pt,
         bold: bool,
-    },
-
-    TextLines {
-        lines: Vec<String>,
-        start: Baseline,
-        size: Pt,
-        leading: Mm,
     },
 
     Box {
@@ -122,7 +99,7 @@ pub enum DrawOp {
     },
 
     QrCodeSpace {
-        at: (Mm, Mm),
+        at: Baseline,
         size: Mm,
     },
 }

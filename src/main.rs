@@ -1,20 +1,20 @@
+/*
+ * Copyright (c) 2026 Thomas Prosser
+ * Licensed under MIT License
+ * https://opensource.org/licenses/MIT
+ */
 
-use swiss_qrust::cli::*;
-use clap::Parser;
 use pdf_writer::{Content, Pdf, Rect, Ref, Finish};
-use swiss_qrust::{pdf, qr_bill, Address, Currency, Language, QRCountry, ReferenceType};
+
+use swiss_qrust::{Address, Currency, Language, QRCountry, ReferenceType};
 use swiss_qrust::BillData;
 use swiss_qrust::pdf::*;
 use swiss_qrust::layout::*;
 use swiss_qrust::constants::*;
-use swiss_qrust::pdf_builder::execute_receipt_ops;
-use swiss_qrust::qr_bill::QrBill;
+use swiss_qrust::pdf_builder::{execute_bill_ops};
 use swiss_qrust::receipt_part_layout::ReceiptLayout;
-use swiss_qrust::qr_renderers::{add_swiss_cross, render_qr_svg};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-
-    const OUTPUT_PATH: &str = "examples/";
 
     let  creditor = Address::new(
         "Health insurance fit&kicking",
@@ -45,13 +45,13 @@ let bill_data = BillData::new(
     None
     ).unwrap();
 
-    create_test_receipt_pdf("./examples/test_receipt.pdf", &bill_data);
+    create_test_slip_pdf("./examples/test_receipt.pdf", &bill_data);
 
 
     Ok(())
 }
 
-pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
+pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) {
     let mut pdf = Pdf::new();
     let mut next_id = Ref::new(1);
 
@@ -69,7 +69,7 @@ pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
     // Generate Layout Ops
     let mut ops = Vec::new();
 
-    let mut payment_part_layout = PaymentPartLayout {
+    let payment_part_layout = PaymentPartLayout {
         bill_data,
         horizontal_offset: Mm(5.0),
         top_start: Mm(100.0),
@@ -106,12 +106,14 @@ pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
     page.parent(page_tree_id);
     page.contents(content_id);
 
-    // Put fonts into resources.
-    // Note that you can use
-    // Arial or Helvetica for QR Bills, too, in which case you
-    // don't need the embed logic but can proceed as shown with
-    // Zapf Dingbats, whih is in fact one of the 14 base fonts
-    // every PDF reader must support. As are Helvetica and Arial.
+    /*
+     * Put fonts into resources.
+     * Note that you can use
+     * Arial or Helvetica for QR Bills, too, in which case you
+     * don't need the embed logic but can proceed as shown with
+     * Zapf Dingbats, whih is in fact one of the 14 base fonts
+     * every PDF reader must support. As are Helvetica and Arial.
+     */
     let mut res = page.resources();
     let mut f_dict = res.fonts();
     f_dict.pair(pdf_writer::Name(b"Zapf"), zapf_id);
@@ -149,7 +151,7 @@ pub fn create_test_receipt_pdf(path: &str, bill_data: &BillData) {
     draw_scissors_official(&mut content, x_sep, 80.0 * PT_PER_MM, 90.0);
     content.restore_state();
 
-    execute_receipt_ops(&mut content, &fonts, ops);
+    execute_bill_ops(&mut content, &fonts, ops, None);
     pdf.stream(content_id, &content.finish());
 
     // Finalize and write.
