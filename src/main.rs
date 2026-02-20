@@ -12,6 +12,7 @@ use swiss_qrust::pdf::*;
 use swiss_qrust::layout::*;
 use swiss_qrust::constants::*;
 use swiss_qrust::pdf_builder::{execute_bill_ops};
+use swiss_qrust::qr_bill::{encode_text_to_qr_code, QrBill};
 use swiss_qrust::receipt_part_layout::ReceiptLayout;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -62,6 +63,8 @@ pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) {
 
     // 1. Initialize Fonts
     let fonts = FontLibrary::new(&mut pdf, &mut next_id);
+    let regular_ascender = fonts.regular.face.ascender() as f32 / fonts.regular.face.units_per_em() as f32;
+    let bold_ascender = fonts.bold.face.ascender() as f32 / fonts.bold.face.units_per_em() as f32;
 
     let zapf_id = next_id.bump();
     pdf.type1_font(zapf_id).base_font(pdf_writer::Name(b"ZapfDingbats"));
@@ -69,18 +72,19 @@ pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) {
     // Generate Layout Ops
     let mut ops = Vec::new();
 
-    let payment_part_layout = PaymentPartLayout {
+    let mut payment_part_layout = PaymentPartLayout {
         bill_data,
         horizontal_offset: Mm(5.0),
         top_start: Mm(100.0),
         label_font_size: PP_LABEL_PREF_FONT_SIZE,
         text_font_size: PP_TEXT_PREF_FONT_SIZE,
-        label_ascender: Mm(2.1), // Derived from ttf-parser
-        text_ascender: Mm(2.8),
+        label_ascender: Mm(bold_ascender),
+        text_ascender: Mm(regular_ascender),
         language: Language::De,
         line_spacing: Mm(3.5),
         extra_spacing: Mm(2.0),
     };
+    payment_part_layout.render(&mut ops, &fonts);
 
     let mut receipt_layout = ReceiptLayout {
         bill_data,
@@ -88,8 +92,8 @@ pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) {
         top_start: Mm(100.0), // 105mm total - 5mm margin
         label_font_size: Pt(6.0),
         text_font_size: Pt(8.0),
-        label_ascender: Mm(2.1), // Derived from ttf-parser
-        text_ascender: Mm(2.8),
+        label_ascender: Mm(bold_ascender),
+        text_ascender: Mm(regular_ascender),
         language: Language::De,
         line_spacing: Mm(3.5),
         extra_spacing: Mm(2.0),
@@ -151,7 +155,12 @@ pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) {
     draw_scissors_official(&mut content, x_sep, 80.0 * PT_PER_MM, 90.0);
     content.restore_state();
 
-    execute_bill_ops(&mut content, &fonts, ops, None);
+    let qr_code = QrBill::new(bill_data)
+        .and_then(|b| b.create_qr_text())
+        .and_then(|txt| encode_text_to_qr_code(&txt))
+        .ok();
+
+    execute_bill_ops(&mut content, &fonts, ops, qr_code.as_ref());
     pdf.stream(content_id, &content.finish());
 
     // Finalize and write.

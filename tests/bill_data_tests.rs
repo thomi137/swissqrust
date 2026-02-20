@@ -19,7 +19,7 @@ fn test_address_data() {
 fn test_bill_data() {
     let expected = include_str!("fixtures/Nr. 1 Datenschema englisch.txt");
     let bill = bill_data();
-    let qr_bill = QrBill::new(bill).unwrap();
+    let qr_bill = QrBill::new(&bill).unwrap();
 
     assert_eq!(qr_bill.create_qr_text().unwrap(), expected);
 }

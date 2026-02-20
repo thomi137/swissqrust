@@ -3,11 +3,10 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
-use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRBillLayoutRect, label, Language, BillData, ReferenceType, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYGONS, CORNER_MARKS_PAYABLE_BY_POLYLINES, FontLibrary, draw_text_at};
+use std::ops::Mul;
+use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRBillLayoutRect, label, Language, BillData, ReferenceType, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYGONS, CORNER_MARKS_PAYABLE_BY_POLYLINES, FontLibrary, draw_text_at, MM_PER_PT};
 use crate::layout::draw::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines};
 use crate::constants::*;
-use crate::bill_data::Currency;
 use crate::formatters::SwissQRFormatter;
 
 pub struct ReceiptLayout<'a> {
@@ -33,10 +32,11 @@ pub struct ReceiptLayout<'a> {
 
 }
 
+
 impl<'a> ReceiptLayout<'a> {
 
     pub fn layout_receipt_title_section(&mut self, ops: &mut Vec<DrawOp>) {
-        let y = Mm(105.0 - MARGIN.0 - 4.0); // Baseline approx 4mm from top margin
+        let y = SLIP_HEIGHT - MARGIN - self.label_ascender * FONT_SIZE_TITLE.to_mm() * Mm(MM_PER_PT); // Baseline approx 4mm from top margin
         ops.push(DrawOp::Text {
             text: label!(Receipt, self.language).into(),
             at: Baseline { x: MARGIN, y },
@@ -170,7 +170,6 @@ impl<'a> ReceiptLayout<'a> {
 
         }
         y = Mm(y.0 - DEBTOR_BOX_HEIGHT.0);
-        y = Mm(y.0 - self.extra_spacing.0);
     }
 
     pub fn layout_receipt_amount_section(
@@ -318,7 +317,7 @@ impl<'a> ReceiptLayout<'a> {
     pub fn render(&mut self, ops: &mut Vec<DrawOp>, fonts: &FontLibrary) {
         self.compute_receipt_spacing();
         self.layout_receipt_title_section(ops);
-        self.top_start = Mm(self.top_start.0 - 7.0);
+        self.top_start = self.top_start - Mm(7f32);
         self.layout_receipt_information_section(ops);
         self.layout_receipt_amount_section(ops, AMOUNT_SECTION_TOP);
         self.layout_receipt_acceptance_point(ops, fonts);

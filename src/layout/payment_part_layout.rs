@@ -3,11 +3,13 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{label, BillData, Language, ReferenceType};
+use std::ops::{Add, Sub};
+use crate::{label, BillData, FontLibrary, Language, ReferenceType};
 use crate::layout::draw::*;
 use crate::layout::geometry::*;
 use crate::layout::spacing::*;
 use crate::constants::*;
+use crate::qr_bill::QrBill;
 
 pub struct PaymentPartLayout<'a> {
     pub bill_data: &'a BillData,
@@ -31,6 +33,58 @@ pub struct PaymentPartLayout<'a> {
 }
 
 impl<'a> PaymentPartLayout<'a> {
+
+    pub fn layout_payment_part_title_section(&mut self, ops: &mut Vec<DrawOp>) {
+            let x_start = RECEIPT_WIDTH + MARGIN;
+            let y = SLIP_HEIGHT - MARGIN - (self.label_ascender * FONT_SIZE_TITLE.to_mm() * Mm(MM_PER_PT));
+            ops.push(DrawOp::Text {
+                text: label!(PaymentPart, self.language).into(),
+                at: Baseline { x: x_start, y },
+                size: Pt(11.0),
+                bold: true,
+            });
+    }
+
+    pub fn draw_swiss_qr_code(&mut self, ops: &mut Vec<DrawOp>) {
+        let x_start = RECEIPT_WIDTH + MARGIN;
+        let y = SLIP_HEIGHT - MARGIN - Mm(7f32) - MARGIN - Mm(QR_CODE_HEIGHT);
+        ops.push(DrawOp::QrCodeSpace {
+            at: Baseline { x: x_start, y },
+            size: Mm(46.0),
+        });
+    }
+
+    pub fn layout_payment_part_amount_section(&mut self, ops: &mut Vec<DrawOp>, section_top: Mm) {
+        let currency_label_y = Mm(section_top.0 - self.label_ascender.0);
+
+        // Currency label
+        ops.push(DrawOp::Text {
+            text: label!(Currency, self.language).into(),
+            at: Baseline {
+                x: self.horizontal_offset,
+                y: currency_label_y,
+            },
+            size: self.label_font_size,
+            bold: true,
+        });
+
+        let value_y = Mm(
+            currency_label_y.0
+                - self.text_ascender.0
+                - Pt(3.0).to_mm().0,
+        );
+
+        // Currency value
+        ops.push(DrawOp::Text {
+            text: self.bill_data.currency.to_string(),
+            at: Baseline {
+                x: self.horizontal_offset,
+                y: value_y,
+            },
+            size: self.text_font_size,
+            bold: false,
+        });
+    }
 
     // INFORMATION SECTION
     pub fn layout_payment_part_information_section(&mut self, ops: &mut Vec<DrawOp>) {
@@ -152,51 +206,7 @@ impl<'a> PaymentPartLayout<'a> {
         }
     }
 
-    // AMOUNT SECTION
-    pub fn layout_payment_part_amount_section(&mut self, ops: &mut Vec<DrawOp>, section_top: Mm) {
-        let currency_label_y = Mm(section_top.0 - self.label_ascender.0);
 
-        // Currency label
-        ops.push(DrawOp::Text {
-            text: label!(Currency, self.language).into(),
-            at: Baseline {
-                x: self.horizontal_offset,
-                y: currency_label_y,
-            },
-            size: self.label_font_size,
-            bold: true,
-        });
-
-        let value_y = Mm(
-            currency_label_y.0
-                - self.text_ascender.0
-                - Pt(3.0).to_mm().0,
-        );
-
-        // Currency value
-        ops.push(DrawOp::Text {
-            text: self.bill_data.currency.to_string(),
-            at: Baseline {
-                x: self.horizontal_offset,
-                y: value_y,
-            },
-            size: self.text_font_size,
-            bold: false,
-        });
-    }
-
-    pub fn layout_payment_qr_section(&mut self, ops: &mut Vec<DrawOp>) {
-        ops.push(DrawOp::Box {
-            rect: QRBillLayoutRect {
-                x: Mm(5f32),
-                y: Mm(5f32),
-                width: Mm(46f32),
-                height: Mm(46f32),
-            },
-        });
-
-    }
-    
     // SPACING COMPUTATION
     pub fn compute_payment_part_spacing(&mut self) -> bool {
         let mut text_lines = 0usize;
@@ -233,7 +243,8 @@ impl<'a> PaymentPartLayout<'a> {
         extra_blocks += 1;
 
         let spacing = compute_spacing(
-            PAYMENT_PART_MAX_HEIGHT,            fixed_height,
+            PAYMENT_PART_MAX_HEIGHT,
+            fixed_height,
             text_lines,
             extra_blocks,
             self.line_spacing,
@@ -245,10 +256,10 @@ impl<'a> PaymentPartLayout<'a> {
         spacing.extra_spacing.0 / spacing.line_spacing.0 < 0.8
     }
 
-    pub fn render(&mut self, ops: &mut Vec<DrawOp>) {
+    pub fn render(&mut self, ops: &mut Vec<DrawOp>, fonts: &FontLibrary) {
         self.compute_payment_part_spacing();
-        self.layout_payment_part_information_section(ops);
-        self.layout_payment_part_amount_section(ops, AMOUNT_SECTION_TOP);
+        self.layout_payment_part_title_section(ops);
+        self.draw_swiss_qr_code(ops);
     }
 
 }

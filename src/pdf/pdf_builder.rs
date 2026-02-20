@@ -4,15 +4,9 @@
  * https://opensource.org/licenses/MIT
  */
 
-use pdf_writer::{Content, Finish, Name, Pdf, Rect, Ref, Str, TextStr};
-use pdf_writer::types::{ActionType, AnnotationType, BorderType};
+use pdf_writer::{Content};
 use qrcodegen::QrCode;
 use crate::{DrawOp, FontLibrary, FontStyle};
-use crate::pdf::fonts::{
-    embed_ttf_font,
-    LIBERATION_SANS_BOLD_TTF,
-    LIBERATION_SANS_REGULAR_TTF,
-};
 use crate::pdf::name;
 use crate::render::qr_renderers::render_qr_pdf;
 /*
@@ -23,22 +17,6 @@ use crate::render::qr_renderers::render_qr_pdf;
  * and there is also a (cheat sheet)[https://pdfa.org/wp-content/uploads/2023/08/PDF-Operators-CheatSheet.pdf]
  */
 
-pub fn slip_setup() {
-    let mut pdf = Pdf::new();
-    let mut next_id = Ref::new(1);
-    let catalog_id = next_id.bump();
-    let page_tree_id = next_id.bump();
-    let page_id = next_id.bump();
-
-    let content_id = next_id.bump();
-
-    // 1. Initialize Fonts
-    let fonts = FontLibrary::new(&mut pdf, &mut next_id);
-
-    let zapf_id = next_id.bump();
-    pdf.type1_font(zapf_id).base_font(pdf_writer::Name(b"ZapfDingbats"));
-
-}
 
 pub fn execute_bill_ops (
     content: &mut Content,

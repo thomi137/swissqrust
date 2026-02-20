@@ -11,7 +11,6 @@ pub mod receipt_part_layout;
 mod spacing;
 mod draw;
 
-pub use qr_bill_layout::*;
 pub use geometry::*;
 pub use spacing::*;
 pub use draw::*;

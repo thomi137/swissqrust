@@ -82,15 +82,16 @@ const VERSION: Version = Version { major: 2, minor: 0 };
 const CODING_TYPE: &'static str = "1";
 const TRAILER_EPD: &str = "EPD";
 
-pub struct QrBill {
-    pub bill_data: BillData,
+pub struct QrBill<'a> {
+    pub bill_data: &'a BillData,
     qr_type: String,
     version: String,
     coding_type: String,
 }
-impl QrBill {
+impl<'a> QrBill
+<'a> {
     pub fn new(
-        bill_data: BillData,
+        bill_data: &'a BillData,
     ) -> Result<Self, QRBillError> {
         let qr_type = QR_TYPE.to_string();
         let version = VERSION.to_string();
@@ -194,5 +195,6 @@ pub fn encode_text_to_qr_code(qr_text: &str) -> Result<QrCode, QRBillError> {
     QrCode::encode_text(qr_text, QrCodeEcc::Medium)
         .map_err(|_| QRBillError::QrEncodingFailed)
 }
+
 
 

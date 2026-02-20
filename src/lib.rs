@@ -42,6 +42,7 @@ pub mod constants {
 
 
     const PAYMENT_PART_WIDTH: u32 = 148; // mm
+    pub const QR_CODE_HEIGHT: f32 = 46f32;
     const PP_AMOUNT_SECTION_WIDTH: u32 = 46; // mm
     const PP_INFO_SECTION_WIDTH: u32 = 87; // mm
     const BOX_TOP_PADDING: f32= 2f32 * MM_PER_PT; // mm

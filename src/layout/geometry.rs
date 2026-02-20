@@ -3,6 +3,7 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
+use std::ops::{Add, Mul, Sub};
 
 /// A4 Width in mm
 pub const A4_PORTRAIT_WIDTH: f32 = 210f32;
@@ -47,6 +48,30 @@ impl Mm {
 
     pub fn to_pt(self) -> Pt {
         Pt(self.0 * PT_PER_MM)
+    }
+}
+
+impl Add for Mm {
+    type Output = Mm;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Mm(self.0 + rhs.0)
+    }
+}
+
+impl Sub for Mm {
+    type Output = Mm;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Mm(self.0 - rhs.0)
+    }
+}
+
+impl Mul for Mm {
+    type Output = Mm;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Mm(self.0 * rhs.0)
     }
 }
 
