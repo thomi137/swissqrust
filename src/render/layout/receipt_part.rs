@@ -4,14 +4,13 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::formatters::SliceExt;
 use crate::{Baseline, label, Language, BillData, ReferenceType, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYGONS, CORNER_MARKS_PAYABLE_BY_POLYLINES, FontLibrary};
 use crate::render::layout::draw::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines};
 use crate::render::layout::geometry::*;
 use crate::render::layout::spacing::*;
 use crate::render::types::DrawOp;
 use crate::constants::*;
-use crate::formatters::SwissQRFormatter;
+use crate::support::traits::{SwissQRFormatter, SliceExt};
 
 
 pub struct ReceiptLayout<'a> {

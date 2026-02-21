@@ -116,7 +116,7 @@ pub fn generate_svg_constants(
 
     // ---- Runtime types (guaranteed to exist here) ----
     out.push_str(
-        "use crate::shapes::*;\n\n"
+        "use crate::generated::shapes::*;\n\n"
     );
 
     // ---- ViewBox ----

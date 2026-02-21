@@ -7,7 +7,7 @@
 use serde::{Serialize, Deserialize};
 use thiserror::Error;
 use crate::Country;
-use crate::validators::is_valid_iso_3661_1_country;
+use crate::support::validators::is_valid_iso_3661_1_country;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub enum AddressIdentity {

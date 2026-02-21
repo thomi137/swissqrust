@@ -10,8 +10,8 @@ use crate::render::layout::geometry::*;
 use crate::render::layout::spacing::*;
 use crate::render::types::DrawOp;
 use crate::constants::*;
-use crate::formatters::SwissQRFormatter;
-use crate::utils::SliceExt;
+use crate::support::traits::SwissQRFormatter;
+use crate::support::traits::SliceExt;
 
 pub struct PaymentPartLayout<'a> {
     pub bill_data: &'a BillData,

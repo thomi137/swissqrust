@@ -8,7 +8,7 @@
 * ------------------------------------------------------------------
 */
 
-use crate::shapes::*;
+use crate::generated::shapes::*;
 
 pub const CORNER_MARKS_PAYABLE_BY_VIEWBOX: (f64, f64) = (148.2f64, 57.5f64);
 

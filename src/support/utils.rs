@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Thomas Prosser
+ * Copyright (c) 2026 Thomas Prosser 
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
@@ -18,7 +18,7 @@ const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 /// the performance should not increase that much, though.
 ///
 /// ```
-/// use swiss_qrust::utils::remove_whitespace;
+/// use swiss_qrust::support::utils::remove_whitespace;
 /// let mut s = String::from("This has whitespace");
 /// remove_whitespace(&mut s);
 /// assert_eq!(s, "Thishaswhitespace");
@@ -34,16 +34,16 @@ pub fn remove_whitespace(s: &mut String) {
 /// to make sure there is also a QR Reference on the bill
 ///
 /// ```
-/// use swiss_qrust::validators::is_valid_iban;
-/// use swiss_qrust::utils::is_qr_iban;
+/// use swiss_qrust::support::validators::is_valid_iban;
+/// use swiss_qrust::support::utils::is_qr_iban;
 /// let qr_iban = "CH4331999000001265789";
 /// assert!(is_valid_iban(qr_iban).is_ok());
 /// assert_eq!(is_qr_iban(qr_iban), true);
 /// ```
 ///
 /// ```
-/// use swiss_qrust::validators::is_valid_iban;
-/// use swiss_qrust::utils::is_qr_iban;
+/// use swiss_qrust::support::validators::is_valid_iban;
+/// use swiss_qrust::support::utils::is_qr_iban;
 /// let not_qr_iban = "CH9300762011623852957";
 /// assert!(is_valid_iban(not_qr_iban).is_ok());
 /// assert_eq!(is_qr_iban(not_qr_iban), false);
@@ -75,7 +75,7 @@ pub fn is_qr_iban(s: &str) -> bool {
 /// character
 ///
 /// ```
-/// use swiss_qrust::utils::qr_ref_is_numeric;
+/// use swiss_qrust::support::utils::qr_ref_is_numeric;
 /// assert_eq!(qr_ref_is_numeric("210000000003139471430009017"), true)
 /// ```
 /// Note that the string needs to be clear of whitespace.
@@ -83,7 +83,7 @@ pub fn is_qr_iban(s: &str) -> bool {
 /// is not numeric:
 ///
 /// ```
-/// use swiss_qrust::utils::qr_ref_is_numeric;
+/// use swiss_qrust::support::utils::qr_ref_is_numeric;
 /// assert_eq!(qr_ref_is_numeric("21 00000 00003 13947 14300 0901 7"), false)
 /// ```
 pub fn qr_ref_is_numeric(s: &str) -> bool {
@@ -108,11 +108,11 @@ pub fn qr_ref_is_numeric(s: &str) -> bool {
 ///  * € – (EURO SIGN, Unicodepoint U+20AC)
 ///
 /// ```
-/// use swiss_qrust::utils::is_in_extended_sps_charset;
+/// use swiss_qrust::support::utils::is_in_extended_sps_charset;
 /// assert_eq!(is_in_extended_sps_charset('ț' as u32), true)
 /// ```
 /// ```
-/// use swiss_qrust::utils::is_in_extended_sps_charset;
+/// use swiss_qrust::support::utils::is_in_extended_sps_charset;
 /// assert_eq!(is_in_extended_sps_charset('🍷' as u32), false)
 /// ```
 pub fn is_in_extended_sps_charset(ch: u32) -> bool {
@@ -164,21 +164,4 @@ pub fn mod10(reference: &str) -> bool {
     }
 
     ((10 - carry) % 10) == 0
-}
-
-// Add to existing utils.rs
-
-pub trait SliceExt<T> {
-    fn all_but_last(&self) -> &[T];
-    fn all_but_first(&self) -> &[T];
-}
-
-impl<T> SliceExt<T> for [T] {
-    fn all_but_last(&self) -> &[T] {
-        self.get(..self.len().saturating_sub(1)).unwrap_or(&[])
-    }
-
-    fn all_but_first(&self) -> &[T] {
-        self.get(1..).unwrap_or(&[])
-    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026. Thomas Prosser
+ * Copyright (c) 2026 Thomas Prosser 
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
@@ -7,10 +7,11 @@
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use thiserror::Error;
-use crate::{utils, Country};
-use crate::utils::{is_in_extended_sps_charset,
-                   qr_ref_is_numeric,
-                   remove_whitespace
+use crate::Country;
+use crate::support::utils;
+use crate::support::utils::{is_in_extended_sps_charset,
+                            qr_ref_is_numeric,
+                            remove_whitespace
 };
 
 
@@ -124,14 +125,14 @@ impl std::error::Error for ReferenceError {}
 ///
 /// Valid IBAN:
 ///```
-/// # use swiss_qrust::validators::is_valid_iban;
+/// # use swiss_qrust::support::validators::is_valid_iban;
 /// const  IBAN: &str = "CH93 0076 2011 6238 5295 7";
 /// assert!(is_valid_iban(IBAN).is_ok());
 ///```
 ///
 /// Invalid IBAN:
 ///```
-/// # use swiss_qrust::validators::is_valid_iban;
+/// # use swiss_qrust::support::validators::is_valid_iban;
 ///const IBAN: &str = "CH44 0871 0000 0033 1272 0007";
 ///let result = is_valid_iban(IBAN);
 ///assert!(result.is_err(), "Expected '{}' to be invalid, but got true", IBAN);
@@ -139,7 +140,7 @@ impl std::error::Error for ReferenceError {}
 ///
 /// Another invalid IBAN:
 ///```
-/// # use swiss_qrust::validators::{is_valid_iban, IbanError};
+/// # use swiss_qrust::support::validators::{is_valid_iban, IbanError};
 /// pub const CNT_ERR: &str = "IBAN must pertain to Switzerland or Liechtenstein";
 ///
 /// const IBAN: &str = "GB33BUKB20201555555555";
@@ -198,7 +199,7 @@ pub fn is_valid_iban(iban: &str) -> Result<(), IbanError>  {
 ///
 /// Valid QR Reference:
 /// ```
-/// use swiss_qrust::validators::is_valid_qr_reference;
+/// use swiss_qrust::support::validators::is_valid_qr_reference;
 /// const REF: &str = "21 00000 00003 13947 14300 0901 7";
 /// assert!(is_valid_qr_reference(REF).is_ok());
 /// ```

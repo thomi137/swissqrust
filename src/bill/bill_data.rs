@@ -10,7 +10,7 @@ use regex::Regex;
 use thiserror::Error;
 use crate::Address;
 use crate::bill::reference_type::ReferenceType;
-use crate::validators::*;
+use crate::support::validators::*;
 
 pub static AMOUNT_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"^\d{1,9}\.\d{2}$").unwrap());

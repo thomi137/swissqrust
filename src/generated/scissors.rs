@@ -8,7 +8,7 @@
 * ------------------------------------------------------------------
 */
 
-use crate::shapes::*;
+use crate::generated::shapes::*;
 
 pub const SCISSORS_VIEWBOX: (f64, f64) = (595.3f64, 31f64);
 

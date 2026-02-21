@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-use swiss_qrust::validators::is_valid_iban;
+use swiss_qrust::support::validators::is_valid_iban;
 use swiss_qrust::bill::*;
 
 #[test]

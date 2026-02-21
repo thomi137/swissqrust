@@ -8,7 +8,7 @@
 * ------------------------------------------------------------------
 */
 
-use crate::shapes::*;
+use crate::generated::shapes::*;
 
 pub const CORNER_MARKS_AMOUNT_VIEWBOX: (f64, f64) = (85.8f64, 29f64);
 
