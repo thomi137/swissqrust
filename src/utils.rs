@@ -165,3 +165,20 @@ pub fn mod10(reference: &str) -> bool {
 
     ((10 - carry) % 10) == 0
 }
+
+// Add to existing utils.rs
+
+pub trait SliceExt<T> {
+    fn all_but_last(&self) -> &[T];
+    fn all_but_first(&self) -> &[T];
+}
+
+impl<T> SliceExt<T> for [T] {
+    fn all_but_last(&self) -> &[T] {
+        self.get(..self.len().saturating_sub(1)).unwrap_or(&[])
+    }
+
+    fn all_but_first(&self) -> &[T] {
+        self.get(1..).unwrap_or(&[])
+    }
+}

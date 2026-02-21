@@ -207,7 +207,7 @@ impl<'a> ReceiptLayout<'a> {
             bold: false,
         });
 
-        let amount_x = Mm(self.horizontal_offset.0 + CURRENCY_WIDTH.0);
+        let amount_x = Mm(self.horizontal_offset.0 + CURRENCY_WIDTH_RC.0);
 
         // Amount label
         ops.push(DrawOp::Text {

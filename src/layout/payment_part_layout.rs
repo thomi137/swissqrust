@@ -92,7 +92,7 @@ impl<'a> PaymentPartLayout<'a> {
         });
 
         // Amount Label
-        let amount_x = self.horizontal_offset + MARGIN + CURRENCY_WIDTH_PP;
+        let amount_x = self.horizontal_offset + MARGIN + CUCCENCY_WIDTH_PP;
         ops.push(DrawOp::Text {
             text: label!(Amount, self.language).into(),
             at: Baseline {

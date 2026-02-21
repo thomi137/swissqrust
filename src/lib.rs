@@ -11,11 +11,14 @@ pub mod language;
 pub mod render;
 pub mod pdf;
 pub mod layout;
+pub mod constants;
 
 pub use bill::*;
 pub use language::*;
 pub use layout::*;
 pub use pdf::*;
+pub use constants::*;
+pub use utils::SliceExt;
 
 pub mod shapes {
     #[derive(Debug, Copy, Clone)]
@@ -30,56 +33,6 @@ pub mod shapes {
     pub struct Polygon {
         pub points: &'static [(f64, f64)],
     }
-}
-
-pub mod constants {
-    use crate::{Mm, Pt, MM_PER_PT};
-
-    pub const FONT_SIZE_TITLE: Pt = Pt(11f32);
-    pub const PP_LABEL_PREF_FONT_SIZE: Pt = Pt(8f32); // pt
-    pub const PP_TEXT_PREF_FONT_SIZE: Pt = Pt(10f32); // pt
-    pub const PP_TEXT_MIN_FONT_SIZE: Pt = Pt(8f32); // pt
-
-
-    const PAYMENT_PART_WIDTH: u32 = 148; // mm
-    pub const QR_CODE_HEIGHT: f32 = 46f32;
-    pub const QR_CODE_WIDTH: Mm = Mm(46f32);
-    const PP_AMOUNT_SECTION_WIDTH: u32 = 46; // mm
-    pub const PP_INFO_SECTION_HORI_OFFSET: Mm = Mm(56f32);
-    pub const PP_AMOUNT_SECTION_TOP: Mm = Mm(37f32);
-    const PP_INFO_SECTION_WIDTH: u32 = 87; // mm
-    const BOX_TOP_PADDING: f32= 2f32 * MM_PER_PT; // mm
-
-    pub const PAYMENT_PART_HORI_OFFSET: Mm = Mm(62f32);
-
-    pub const CURRENCY_WIDTH: Mm = Mm(12f32);
-    pub const CURRENCY_WIDTH_PP: Mm = Mm(15f32);
-
-    // General payment slip measurments
-    pub const SLIP_WIDTH: Mm = Mm(210f32);
-    pub const SLIP_HEIGHT: Mm = Mm(105f32);
-    pub const RECEIPT_WIDTH: Mm = Mm(62f32);// Payment Part
-    pub const MARGIN: Mm = Mm(5f32);
-    pub const DEBTOR_BOX_WIDTH_PP: Mm = Mm(65f32);
-    pub const DEBTOR_BOX_HEIGHT: Mm = Mm(25f32);
-
-    pub const AMOUNT_BOX_WIDTH_PP: Mm = Mm(51f32);
-    pub const AMOUNT_BOX_HEIGHT_PP: Mm = Mm(22f32);
-    pub const PAYMENT_PART_MAX_HEIGHT: Mm = Mm(95f32);
-    // Receipt
-    pub const CURRENCY_WIDTH_RC: Mm = Mm(12f32);
-    pub const RECEIPT_MAX_HEIGHT: Mm = Mm(95f32);
-    pub const RECEIPT_TEXT_WIDTH: Mm = Mm(52f32);
-    
-    pub const AMOUNT_BOX_WIDTH_RC: Mm = Mm(30f32); // mm
-    pub const  AMOUNT_BOX_HEIGHT_RC: Mm = Mm(10f32); // mm
-    pub const AMOUNT_SECTION_TOP: Mm = Mm(37f32);
-
-
-    pub const DEBTOR_BOX_WIDTH_RC: Mm = Mm(52f32);
-    pub const DEBTOR_BOX_HEIGHT_RC: Mm = Mm(20f32);
-    pub const ACCEPTANCE_POINT_SECTION_TOP: Mm = Mm(23f32);
-
 }
 
 pub mod formatters {
