@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Thomas Prosser
+ * Copyright (c) 2026 Thomas Prosser 
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
@@ -11,10 +11,10 @@ use miniz_oxide::deflate::compress_to_vec_zlib;
 use crate::{MM_PER_PT, PT_PER_MM};
 
 pub const LIBERATION_SANS_REGULAR_TTF: &[u8] =
-    include_bytes!("../../assets/fonts/LiberationSansRegular.ttf");
+    include_bytes!("../../../../assets/fonts/LiberationSansRegular.ttf");
 
 pub const LIBERATION_SANS_BOLD_TTF: &[u8] =
-    include_bytes!("../../assets/fonts/LiberationSansBold.ttf");
+    include_bytes!("../../../../assets/fonts/LiberationSansBold.ttf");
 
 const SYSTEM_INFO: SystemInfo = SystemInfo {
     registry: Str(b"Adobe"),

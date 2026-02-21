@@ -1,23 +1,27 @@
+/*
+ * Copyright (c) 2026 Thomas Prosser 
+ * Licensed under MIT License
+ * https://opensource.org/licenses/MIT
+ */
+
 include!("generated/countries.rs");
 include!("generated/cross.rs");
 include!("generated/corner_marks_amount.rs");
 include!("generated/corner_marks_payable_by.rs");
+include!("generated/scissors.rs");
 
-pub mod cli;
-pub mod validators;
-pub mod utils;
 pub mod bill;
-pub mod language;
 pub mod render;
-pub mod pdf;
-pub mod layout;
 pub mod constants;
+pub mod language;
+pub mod utils;
+pub mod validators;
+pub mod cli;
 
 pub use bill::*;
-pub use language::*;
-pub use layout::*;
-pub use pdf::*;
+pub use render::*;
 pub use constants::*;
+pub use language::*;
 pub use utils::SliceExt;
 
 pub mod shapes {

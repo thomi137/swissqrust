@@ -3,5 +3,12 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-pub mod qr_renderers;
-pub mod png_renderers;
+
+pub mod layout;
+pub mod engines;
+pub mod types;
+// Re-export shared types
+
+pub use layout::*;
+pub use engines::*;
+pub use types::*;

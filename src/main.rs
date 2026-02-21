@@ -8,12 +8,12 @@ use pdf_writer::{Content, Pdf, Rect, Ref, Finish};
 
 use swiss_qrust::{Address, Currency, Language, QRCountry, ReferenceType};
 use swiss_qrust::BillData;
-use swiss_qrust::pdf::*;
-use swiss_qrust::layout::*;
+use swiss_qrust::render::engines::pdf::*;
+use swiss_qrust::render::layout::*;
 use swiss_qrust::constants::*;
-use swiss_qrust::pdf_builder::{execute_bill_ops};
+use swiss_qrust::render::engines::pdf::builder::execute_bill_ops;
 use swiss_qrust::qr_bill::{encode_text_to_qr_code, QrBill};
-use swiss_qrust::receipt_part_layout::ReceiptLayout;
+use swiss_qrust::render::layout::receipt_part::ReceiptLayout;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 

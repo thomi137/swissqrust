@@ -5,11 +5,13 @@
  */
 use std::ops::Mul;
 use crate::{label, BillData, FontLibrary, Language, ReferenceType, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX};
-use crate::layout::draw::*;
-use crate::layout::geometry::*;
-use crate::layout::spacing::*;
+use crate::render::layout::draw::*;
+use crate::render::layout::geometry::*;
+use crate::render::layout::spacing::*;
+use crate::render::types::DrawOp;
 use crate::constants::*;
-use crate::formatters::{SliceExt, SwissQRFormatter};
+use crate::formatters::SwissQRFormatter;
+use crate::utils::SliceExt;
 
 pub struct PaymentPartLayout<'a> {
     pub bill_data: &'a BillData,

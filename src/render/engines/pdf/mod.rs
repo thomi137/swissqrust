@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2026 Thomas Prosser 
+ * Copyright (c) 2026 Thomas Prosser
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
 
-mod fonts;
-pub mod pdf_builder;
+pub mod fonts;
+pub mod builder;
 
 use pdf_writer::{Name, Pdf, Ref};
 use fonts::*;

@@ -6,7 +6,10 @@
 
 use pdf_writer::Content;
 use qrcodegen::QrCode;
-use crate::{DrawOp, FontLibrary};
+use crate::render::types::DrawOp;
+use crate::render::engines::pdf::FontLibrary;
+use crate::render::engines::pdf::FontStyle;
+use crate::render::engines::pdf::name;
 
 /*
  * ⚠️ pdf-writer is not for the faint of heart
@@ -66,7 +69,7 @@ impl DrawOpHandler for QrCodeHandler {
     fn handle(&self, content: &mut Content, op: &DrawOp, qr_data: Option<&QrCode>, _: &FontLibrary) {
         if let DrawOp::QrCodeSpace { at, .. } = op {
             if let Some(qr) = qr_data {
-                crate::render::qr_renderers::render_qr_pdf(content, qr, at.x.to_pt().0, at.y.to_pt().0);
+                crate::render::engines::qr_renderers::render_qr_pdf(content, qr, at.x.to_pt().0, at.y.to_pt().0);
             }
         }
     }

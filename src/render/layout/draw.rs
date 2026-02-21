@@ -5,7 +5,8 @@
  */
 
 use crate::CORNER_MARKS_AMOUNT_VIEWBOX;
-use crate::layout::geometry::{Baseline, Mm, Pt, DrawOp};
+use crate::render::layout::geometry::{Baseline, Mm, Pt};
+use crate::render::types::DrawOp;
 use crate::QRBillLayoutRect;
 use crate::shapes::Polygon;
 

@@ -3,11 +3,16 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use std::ops::Mul;
-use crate::{Baseline, DrawOp, Mm, compute_spacing, Pt, QRBillLayoutRect, label, Language, BillData, ReferenceType, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYGONS, CORNER_MARKS_PAYABLE_BY_POLYLINES, FontLibrary, draw_text_at, MM_PER_PT};
-use crate::layout::draw::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines};
+
+use crate::formatters::SliceExt;
+use crate::{Baseline, label, Language, BillData, ReferenceType, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYGONS, CORNER_MARKS_PAYABLE_BY_POLYLINES, FontLibrary};
+use crate::render::layout::draw::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines};
+use crate::render::layout::geometry::*;
+use crate::render::layout::spacing::*;
+use crate::render::types::DrawOp;
 use crate::constants::*;
-use crate::formatters::{SliceExt, SwissQRFormatter};
+use crate::formatters::SwissQRFormatter;
+
 
 pub struct ReceiptLayout<'a> {
 
