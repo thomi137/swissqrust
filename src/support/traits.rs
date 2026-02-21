@@ -18,7 +18,7 @@ impl SwissQRFormatter for str {
 
     ///
     /// ```
-    /// # use swiss_qrust::formatters::SwissQRFormatter;
+    /// # use swiss_qrust::traits::SwissQRFormatter;
     /// assert_eq!("CH6431961000004421557".format_iban(), "CH64 3196 1000 0044 2155 7")
     /// ```
     fn format_iban(&self) -> String {

@@ -9,6 +9,7 @@ pub mod spacing;
 pub mod draw;
 pub mod payment_part;
 pub mod receipt_part;
+mod bill_layout;
 
 pub use geometry::*;
 pub use spacing::*;
