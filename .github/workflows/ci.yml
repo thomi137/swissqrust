@@ -30,8 +30,8 @@ jobs:
       - name: Install cargo-nextest
         run: cargo install cargo-nextest --locked
 
-      - name: Install cargo-llvm-cov
-        run: cargo install cargo-llvm-cov --locked
+      #- name: Install cargo-llvm-cov
+      #  run: cargo install cargo-llvm-cov --locked
 
       # ----------------------------
       # Run tests (JUnit output)
@@ -41,42 +41,41 @@ jobs:
         run: |
           cargo nextest run \
             --all-features \
-            --profile ci \
-            --message-format junit > junit.xml
+            --profile ci
 
       - name: Upload test report
         if: always()
         uses: dorny/test-reporter@v1
         with:
           name: Rust Tests
-          path: junit.xml
+          path: target/nextest/ci/junit.xml
           reporter: java-junit
 
       # ----------------------------
       # Generate coverage
       # ----------------------------
 
-      - name: Generate coverage (HTML + LCOV)
-        run: |
-          cargo llvm-cov \
-            --all-features \
-            --workspace \
-            --lcov \
-            --output-path lcov.info \
-            --html
+      #- name: Generate coverage (HTML + LCOV)
+      #  run: |
+      #    cargo llvm-cov \
+      #      --all-features \
+      #      --workspace \
+      #      --lcov \
+       #     --output-path lcov.info \
+       #     --html
 
-      - name: Upload coverage HTML artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: target/llvm-cov/html
+      #- name: Upload coverage HTML artifact
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: coverage-html
+      #    path: target/llvm-cov/html
 
       # ----------------------------
       # Upload coverage to Codecov
       # ----------------------------
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: lcov.info
-          fail_ci_if_error: true
+      #- name: Upload coverage to Codecov
+      #  uses: codecov/codecov-action@v4
+      #  with:
+      #    files: lcov.info
+      #    fail_ci_if_error: true
