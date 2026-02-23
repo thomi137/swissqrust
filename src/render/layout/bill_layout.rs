@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::{label, BillData, Language, ReferenceType};
+use crate::{label, BillData, Language, ReferenceType, CORNER_MARKS_PAYABLE_BY_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX};
 use crate::language::*;
 use crate::render::layout::draw::*;
 use crate::render::layout::geometry::*;
@@ -13,6 +13,16 @@ use crate::render::types::DrawOp;
 use crate::constants::*;
 use crate::generated::{CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX};
 use crate::support::traits::{SwissQRFormatter, SliceExt};
+
+///
+/// This is a module specific trait.
+/// It may depend on the `support::traits` module
+/// but it does not feel right to hand imports back and forth.
+/// maybe some later refactoring will fix this.
+///
+pub trait InfoBlock {
+    fn render(&self, layout: &BillLayout, x_offset: Mm, y_start: Mm) -> (Vec<DrawOp>, Mm);
+}
 
 /// Configuration for which sections to render.
 pub struct BillLayoutConfig {
@@ -147,9 +157,7 @@ impl<'a> BillLayout<'a> {
         } else {
             draw_label(ops, label!(PayableBy, self.language), x, &mut y, self.label_font_size, self.line_spacing);
             y = Mm(y.0 - self.config.debtor_box_height.0);
-            ops.push(DrawOp::Box {
-                rect: QRBillLayoutRect { x, y, width: DEBTOR_BOX_WIDTH_PP, height: self.config.debtor_box_height },
-            });
+            draw_corner_marks(ops, QRBillLayoutRect {x, y, width: Mm(65f32), height: Mm(25f32)  }, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYLINES);
             y = Mm(y.0 - self.extra_spacing.0);
         }
 

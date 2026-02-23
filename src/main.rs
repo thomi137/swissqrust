@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bill_data = BillData::new(
         "CH64 3196 1000 0044 2155 7".to_string(),
         creditor,
-        Some(debtor),
+        None,//Some(debtor),
         QRCountry::CH,
         Currency::CHF,
         Some(String::from("32111.00")),

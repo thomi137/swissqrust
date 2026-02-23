@@ -121,12 +121,17 @@ pub fn draw_corner_marks(
     let scale_y = rect.height.0 / viewbox.1 as f32;
 
     for poly in polylines {
+        // Draw each polyline as a series of connected lines
+        if poly.points.len() < 2 {
+            continue;
+        }
+
         for window in poly.points.windows(2) {
             let p1 = window[0];
             let p2 = window[1];
 
             ops.push(DrawOp::Line {
-                // PDF Y is bottom-up, SVG Y is top-down: 
+                // PDF Y is bottom-up, SVG Y is top-down:
                 // We map SVG(x, y) to PDF(rect.x + x, (rect.y + rect.height) - y)
                 from: (
                     Mm(rect.x.0 + (p1.0 as f32 * scale_x)),
@@ -136,7 +141,7 @@ pub fn draw_corner_marks(
                     Mm(rect.x.0 + (p2.0 as f32 * scale_x)),
                     Mm(rect.y.0 + rect.height.0 - (p2.1 as f32 * scale_y)),
                 ),
-                width: Mm(0.26), // 0.75pt
+                width: Mm(0.21), // 0.75pt ≈ 0.21mm
             });
         }
     }

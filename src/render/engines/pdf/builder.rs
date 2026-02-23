@@ -75,6 +75,13 @@ impl DrawOpHandler for QrCodeHandler {
     }
 }
 
+struct CornerMarksHandler;
+impl DrawOpHandler for CornerMarksHandler {
+    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, _: &FontLibrary) {
+        todo!()
+    }
+}
+
 pub fn execute_bill_ops(
     content: &mut Content,
     fonts: &FontLibrary,
