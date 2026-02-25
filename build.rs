@@ -4,7 +4,6 @@
  * https://opensource.org/licenses/MIT
  */
 
-
 mod build_functions;
 
 fn main() {

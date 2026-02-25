@@ -75,7 +75,7 @@ pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) -> Result<(), Box<
     let mut payment_part_layout = PaymentPartLayout::new(
         bill_data,
         PAYMENT_PART_HORI_OFFSET + MARGIN,
-        Mm(100.0),
+        Mm(95.0),
         Language::De,
         PP_LABEL_PREF_FONT_SIZE,
         PP_TEXT_PREF_FONT_SIZE,
@@ -89,7 +89,7 @@ pub fn create_test_slip_pdf(path: &str, bill_data: &BillData) -> Result<(), Box<
     let mut receipt_layout = ReceiptLayout::new(
         bill_data,
         Mm(5.0),
-        Mm(100.0),
+        Mm(95.0),
         Language::De,
         Pt(6.0),
         Pt(8.0),

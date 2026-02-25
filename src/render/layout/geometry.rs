@@ -104,33 +104,3 @@ pub struct Baseline {
     pub x: Mm,
     pub y: Mm,
 }
-
-// Drawing operations definition. Eliminated Text Lines.
-// This can be achieved by pushing a DrawOp::Text multiple times.
-pub enum DrawOp {
-    Text {
-        text: String,
-        at: Baseline,
-        size: Pt,
-        bold: bool,
-    },
-
-    Box {
-        rect: QRBillLayoutRect,
-    },
-
-    Line {
-        from: (Mm, Mm),
-        to: (Mm, Mm),
-        width: Mm,
-    },
-
-    QrCodeSpace {
-        at: Baseline,
-        size: Mm,
-    },
-}
-
-pub struct Layout {
-    pub ops: Vec<DrawOp>,
-}

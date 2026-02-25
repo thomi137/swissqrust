@@ -10,9 +10,12 @@ pub mod draw;
 pub mod payment_part;
 pub mod receipt_part;
 mod bill_layout;
+mod blocks;
+mod block;
 
 pub use geometry::*;
 pub use spacing::*;
 pub use draw::*;
 pub use payment_part::*;
 pub use receipt_part::*;
+use bill_layout::*;

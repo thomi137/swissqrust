@@ -4,15 +4,11 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::{label, BillData, Language, ReferenceType, CORNER_MARKS_PAYABLE_BY_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX};
+use crate::{BillData, Language, ReferenceType};
 use crate::language::*;
-use crate::render::layout::draw::*;
 use crate::render::layout::geometry::*;
 use crate::render::layout::spacing::*;
-use crate::render::types::DrawOp;
-use crate::constants::*;
-use crate::generated::{CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX};
-use crate::support::traits::{SwissQRFormatter, SliceExt};
+pub(crate) use crate::layout::block::{Column, LayoutBlock};
 
 ///
 /// This is a module specific trait.
@@ -20,13 +16,15 @@ use crate::support::traits::{SwissQRFormatter, SliceExt};
 /// but it does not feel right to hand imports back and forth.
 /// maybe some later refactoring will fix this.
 ///
-pub trait InfoBlock {
-    fn render(&self, layout: &BillLayout, x_offset: Mm, y_start: Mm) -> (Vec<DrawOp>, Mm);
+
+
+pub struct LayoutCursor {
+    pub x: Mm,
+    pub y: Mm,
 }
 
 /// Configuration for which sections to render.
 pub struct BillLayoutConfig {
-    pub has_qr_code: bool,
     pub has_acceptance_point: bool,
     pub max_height: Mm,
     pub debtor_box_height: Mm,
@@ -57,118 +55,6 @@ pub struct BillLayout<'a> {
 }
 
 impl<'a> BillLayout<'a> {
-    pub fn layout_title_section(&mut self, ops: &mut Vec<DrawOp>, label_key: LabelKey, x_offset: Mm) {
-        let y = SLIP_HEIGHT - MARGIN - (self.label_ascender * FONT_SIZE_TITLE.to_mm() * Mm(MM_PER_PT));
-
-        // small detour because title is only available when running.
-        let label_text = label(label_key, self.language)
-            .unwrap_or("");
-        ops.push(DrawOp::Text {
-            text: label_text.to_string(),
-            at: Baseline { x: x_offset, y },
-            size: Pt(11.0),
-            bold: true,
-        });
-    }
-
-    pub fn layout_amount_section(&mut self, ops: &mut Vec<DrawOp>, section_top: Mm, x_offset: Mm, amount_box_width: Mm, amount_box_height: Mm) {
-        let y = Mm(section_top.0 - self.label_ascender.0);
-
-        // Currency label
-        ops.push(DrawOp::Text {
-            text: label!(Currency, self.language).into(),
-            at: Baseline { x: x_offset, y },
-            size: self.label_font_size,
-            bold: true,
-        });
-
-        let value_y = y - self.text_ascender - self.label_font_size.to_mm();
-
-        // Currency value
-        ops.push(DrawOp::Text {
-            text: self.bill_data.currency.to_string(),
-            at: Baseline { x: x_offset, y: value_y },
-            size: self.text_font_size,
-            bold: false,
-        });
-
-        // Amount Label
-        let amount_x = x_offset + MARGIN + CUCCENCY_WIDTH_PP;
-        ops.push(DrawOp::Text {
-            text: label!(Amount, self.language).into(),
-            at: Baseline { x: amount_x, y },
-            size: self.label_font_size,
-            bold: true,
-        });
-
-        match &self.bill_data.amount {
-            Some(amount) => {
-                ops.push(DrawOp::Text {
-                    text: amount.format_amount(),
-                    at: Baseline { x: amount_x, y: value_y },
-                    size: self.text_font_size,
-                    bold: false,
-                });
-            }
-            None => {
-                let rect = QRBillLayoutRect {
-                    x: amount_x,
-                    y: Mm(value_y.0 - amount_box_height.0 + self.text_ascender.0),
-                    width: amount_box_width,
-                    height: amount_box_height,
-                };
-
-                draw_corner_marks(
-                    ops,
-                    rect,
-                    CORNER_MARKS_AMOUNT_VIEWBOX,
-                    CORNER_MARKS_AMOUNT_POLYLINES
-                )
-            }
-        }
-    }
-
-    pub fn layout_information_section(&mut self, ops: &mut Vec<DrawOp>, x_offset: Mm) {
-        let mut y = Mm(self.top_start.0 - self.label_ascender.0);
-        let x = x_offset;
-
-        // Account / Payable to
-        draw_label(ops, label!(AccountPayableTo, self.language), x, &mut y, self.label_font_size, self.line_spacing);
-        draw_single_line(ops, &self.bill_data.iban.format_iban(), x, &mut y, self.text_font_size, self.line_spacing, Mm(0.0));
-        draw_text_lines(ops, &self.bill_data.creditor_address.to_lines().all_but_last(), x, &mut y, self.text_font_size, self.line_spacing, self.extra_spacing);
-
-        // Reference
-        match &self.bill_data.reference_type {
-            ReferenceType::QrRef(reference) => {
-                draw_label(ops, label!(Reference, self.language), x, &mut y, self.label_font_size, self.line_spacing);
-                draw_single_line(ops, &reference.format_qr_reference(), x, &mut y, self.text_font_size, self.line_spacing, self.extra_spacing);
-            }
-            ReferenceType::Creditor(reference) => {
-                draw_label(ops, label!(Reference, self.language), x, &mut y, self.label_font_size, self.line_spacing);
-                draw_single_line(ops, &reference.format_scor_reference(), x, &mut y, self.text_font_size, self.line_spacing, self.extra_spacing);
-            }
-            _ => {}
-        }
-
-        // Payable by
-        if let Some(debtor) = &self.bill_data.debtor_address {
-            draw_label(ops, label!(PayableBy, self.language), x, &mut y, self.label_font_size, self.line_spacing);
-            draw_text_lines(ops, &debtor.to_lines().all_but_last(), x, &mut y, self.text_font_size, self.line_spacing, self.extra_spacing);
-        } else {
-            draw_label(ops, label!(PayableBy, self.language), x, &mut y, self.label_font_size, self.line_spacing);
-            y = Mm(y.0 - self.config.debtor_box_height.0);
-            draw_corner_marks(ops, QRBillLayoutRect {x, y, width: Mm(65f32), height: Mm(25f32)  }, CORNER_MARKS_PAYABLE_BY_VIEWBOX, CORNER_MARKS_PAYABLE_BY_POLYLINES);
-            y = Mm(y.0 - self.extra_spacing.0);
-        }
-
-        if let Some(info_lines) = &self.bill_data.additional_information {
-            if !info_lines.is_empty() {
-                draw_label(ops, label!(AdditionalInformation, self.language), x, &mut y, self.label_font_size, self.line_spacing);
-                draw_single_line(ops, info_lines, x, &mut y, self.text_font_size, self.line_spacing, self.extra_spacing);
-            }
-        }
-    }
-
     pub fn compute_spacing(&mut self) -> bool {
         let mut text_lines = 0usize;
         let mut extra_blocks = 0usize;
