@@ -6,6 +6,7 @@
 use std::fmt::{Display, Formatter};
 use std::fmt;
 use once_cell::sync::Lazy;
+use qrcodegen::QrCode;
 use regex::Regex;
 use thiserror::Error;
 use crate::Address;
@@ -60,7 +61,7 @@ impl Display for QRCountry {
         }
     }
 }
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct BillData {
     pub iban: String,
     pub creditor_address: Address,
@@ -71,6 +72,7 @@ pub struct BillData {
     pub reference_type: ReferenceType,
     pub unstructured_message: Option<String>,
     pub additional_information: Option<String>,
+    pub qr_code: Option<QrCode>,
 } impl BillData {
     pub fn new (
         iban: String,
@@ -109,6 +111,7 @@ pub struct BillData {
             reference_type,
             unstructured_message,
             additional_information,
+            qr_code: None,
         })
     }
 }

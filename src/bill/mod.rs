@@ -3,6 +3,7 @@ pub mod address;
 pub mod reference_type;
 pub mod qr_bill;
 mod qrcode;
+pub mod build_bill;
 
 pub use bill_data::*;
 pub use address::Address;

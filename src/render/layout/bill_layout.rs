@@ -8,7 +8,7 @@ use crate::{BillData, Language, ReferenceType};
 use crate::language::*;
 use crate::render::layout::geometry::*;
 use crate::render::layout::spacing::*;
-pub(crate) use crate::layout::block::{Column, LayoutBlock};
+use crate::block::{LayoutBlock};
 
 ///
 /// This is a module specific trait.
@@ -31,27 +31,21 @@ pub struct BillLayoutConfig {
     pub amount_section_top: Mm,
 }
 
-/// Base layout engine shared by Payment Part and Receipt
+/// Base layout information shared by Payment Part and Receipt Part
 pub struct BillLayout<'a> {
     pub bill_data: &'a BillData,
     pub config: BillLayoutConfig,
-
-    // geometry
-    pub horizontal_offset: Mm,
-    pub top_start: Mm,
-
-    // language
     pub language: Language,
 
     // typography
     pub label_font_size: Pt,
     pub text_font_size: Pt,
-    pub label_ascender: Mm,
-    pub text_ascender: Mm,
 
     // spacing (computed)
     pub line_spacing: Mm,
     pub extra_spacing: Mm,
+    pub label_ascender: Mm,
+    pub text_ascender: Mm
 }
 
 impl<'a> BillLayout<'a> {

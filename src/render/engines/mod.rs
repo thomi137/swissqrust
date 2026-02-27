@@ -5,6 +5,9 @@
  */
 
 pub mod pdf;
-mod qr_renderers;
+
+pub mod png_renderers;
+pub mod qr_renderers;
 
 pub use pdf::*;
+

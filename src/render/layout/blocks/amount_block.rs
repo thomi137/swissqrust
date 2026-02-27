@@ -5,9 +5,9 @@
  */
 
 
-use crate::layout::bill_layout::{BillLayout, Column, LayoutBlock, LayoutCursor};
-use crate::{draw_corner_marks, label, Baseline, DrawOp, Mm, QRBillLayoutRect, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX, CUCCENCY_WIDTH_PP, MARGIN};
-use crate::layout::block::ColumnCursor;
+use crate::bill_layout::{BillLayout};
+use crate::{draw_corner_marks, label, Baseline, Column, DrawOp, LayoutBlock, Mm, QRBillLayoutRect, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX, CUCCENCY_WIDTH_PP, MARGIN};
+use crate::block::ColumnCursor;
 use crate::support::traits::SwissQRFormatter;
 
 pub struct AmountBlock{
@@ -73,7 +73,7 @@ impl LayoutBlock for AmountBlock {
                 CORNER_MARKS_AMOUNT_POLYLINES
             )
         }
-        
+
         cursor.y = y;
     }
 }

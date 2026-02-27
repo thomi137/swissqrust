@@ -4,11 +4,11 @@
  * https://opensource.org/licenses/MIT
  */
 
-use pdf_writer::{Finish, Name, Pdf, Dict, Ref, Str, Stream, Filter};
+use pdf_writer::{Finish, Name, Pdf, Ref, Str, Stream, Filter};
 use pdf_writer::types::{CidFontType, FontFlags, SystemInfo, UnicodeCmap};
 use ttf_parser::{Face, GlyphId};
 use miniz_oxide::deflate::compress_to_vec_zlib;
-use crate::{MM_PER_PT, PT_PER_MM};
+use crate::{MM_PER_PT};
 
 pub const LIBERATION_SANS_REGULAR_TTF: &[u8] =
     include_bytes!("../../../../assets/fonts/LiberationSansRegular.ttf");

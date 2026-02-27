@@ -4,8 +4,8 @@
  * https://opensource.org/licenses/MIT
  */
 use crate::support::traits::SwissQRFormatter;
-use crate::layout::bill_layout::{BillLayout };
-use crate::layout::block::{Column, ColumnCursor, LayoutBlock};
+use crate::bill_layout::{BillLayout };
+use crate::block::{Column, ColumnCursor, LayoutBlock};
 use crate::{draw_corner_marks, draw_label, draw_single_line, draw_text_lines, label, DrawOp, Mm, QRBillLayoutRect, ReferenceType, CORNER_MARKS_PAYABLE_BY_POLYLINES, CORNER_MARKS_PAYABLE_BY_VIEWBOX};
 use crate::support::traits::SliceExt;
 
@@ -20,7 +20,7 @@ impl LayoutBlock for InformationBlock {
     }
 
     fn render(&self, layout: &mut BillLayout, ops: &mut Vec<DrawOp>, cursor: &mut ColumnCursor) {
-        let x = cursor.x + self.offset;
+        let x = cursor.x;
         let mut y = cursor.y;
 
         // Account / Payable to

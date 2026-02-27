@@ -196,5 +196,12 @@ pub fn encode_text_to_qr_code(qr_text: &str) -> Result<QrCode, QRBillError> {
         .map_err(|_| QRBillError::QrEncodingFailed)
 }
 
+/*
+ " let qr_code = QrBill::new(bill_data)
+ * .and_then(|b| b.create_qr_text())
+ * .and_then(|txt| encode_text_to_qr_code(&txt))
+ * .ok();
+*/
+
 
 

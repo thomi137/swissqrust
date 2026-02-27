@@ -4,9 +4,8 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::layout::geometry::{Baseline, Mm, Pt};
 use crate::render::types::DrawOp;
-use crate::QRBillLayoutRect;
+use crate::{Baseline, Mm, Pt, QRBillLayoutRect};
 use crate::shapes::Polygon;
 
 /// Draws a label and moves cursor down by line_spacing.

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2026 Thomas Prosser 
+ * Copyright (c) 2026 Thomas Prosser
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
 
 use crate::{Mm, DrawOp};
-use crate::layout::bill_layout::BillLayout;
+use crate::bill_layout::BillLayout;
 
 pub enum Column {
     Left,

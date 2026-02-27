@@ -4,17 +4,17 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
+use pdf_writer::types::TextAlign;
 use crate::language::LabelKey;
-use crate::{BillData, FontLibrary, Language};
+use crate::{BillData, FontLibrary, FontStyle, Language};
 use crate::render::layout::bill_layout::{BillLayout, BillLayoutConfig};
 use crate::render::layout::geometry::*;
 use crate::render::types::DrawOp;
 use crate::constants::*;
-use crate::layout::block::{ColumnCursor, LayoutBlock};
-use crate::layout::blocks::amount_block::AmountBlock;
-use crate::layout::blocks::information_block::InformationBlock;
-use crate::layout::blocks::title_block::TitleBlock;
+use crate::block::{ColumnCursor, LayoutBlock};
+use crate::blocks::amount_block::AmountBlock;
+use crate::blocks::information_block::InformationBlock;
+use crate::blocks::title_block::TitleBlock;
 
 pub struct ReceiptLayout<'a>{
     layout: BillLayout<'a>,
@@ -24,15 +24,13 @@ pub struct ReceiptLayout<'a>{
 impl<'a> ReceiptLayout<'a> {
     pub fn new(
         bill_data: &'a BillData,
-        horizontal_offset: Mm,
-        top_start: Mm,
         language: Language,
         label_font_size: Pt,
         text_font_size: Pt,
-        label_ascender: Mm,
-        text_ascender: Mm,
         line_spacing: Mm,
         extra_spacing: Mm,
+        label_ascender: Mm,
+        text_ascender: Mm,
     ) -> Self {
             let layout = BillLayout {
             bill_data,
@@ -42,16 +40,14 @@ impl<'a> ReceiptLayout<'a> {
                 debtor_box_height: DEBTOR_BOX_HEIGHT_RC,
                 amount_section_top: AMOUNT_SECTION_TOP,
             },
-             horizontal_offset,
-            top_start,
-            language,
-            label_font_size,
-            text_font_size,
-            label_ascender,
-            text_ascender,
-            line_spacing,
-            extra_spacing,
-        };
+                language,
+                label_font_size,
+                text_font_size,
+                line_spacing,
+                extra_spacing,
+                label_ascender,
+                text_ascender,
+            };
         Self{
             layout,
             blocks: vec![
@@ -64,7 +60,7 @@ impl<'a> ReceiptLayout<'a> {
     }
 
     pub fn layout_acceptance_point(&mut self, ops: &mut Vec<DrawOp>, fonts: &FontLibrary) {
-        let y = ACCEPTANCE_POINT_SECTION_TOP - self.layout.label_ascender;
+        let y = ACCEPTANCE_POINT_SECTION_TOP - fonts.ascender_mm(FontStyle::Bold, RC_LABEL_PREF_FONT_SIZE);
         let label_text = crate::language::label(LabelKey::AcceptancePoint, self.layout.language)
             .unwrap_or("Acceptance point");
         let text_width_mm = fonts.bold.measure(label_text, 6.0);
@@ -84,15 +80,15 @@ impl<'a> ReceiptLayout<'a> {
 
         self.layout.compute_spacing();
 
-
         let mut main_cursor = ColumnCursor::new(
-            self.layout.horizontal_offset,
-            self.layout.top_start,
+            MARGIN,
+            SLIP_HEIGHT-MARGIN,
         );
 
         for block in &self.blocks {
             block.render(&mut self.layout, ops, &mut main_cursor)
         }
+
         self.layout_acceptance_point(ops, fonts);
     }
 }
