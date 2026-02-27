@@ -9,9 +9,6 @@ use svg::Document;
 use svg::node::element::{Rectangle, Polygon as SvgPolygon};
 use crate::{CROSS_POLYGONS, CROSS_RECTS, PT_PER_MM};
 
-const PX_PER_MM: f64 = 3.543307;
-const MODULE_MM: f64 = 0.4;
-const QUIET_ZONE_MODULES: usize = 4;
 const QR_MM: f64 = 46.0;
 const CROSS_MM: f64 = 7.0;
 
@@ -114,10 +111,6 @@ pub fn render_qr_svg(qr: QrCode) -> Document {
 
             let x = QUIET_MM + col as f64 * module_mm;
             let y = QUIET_MM + row as f64 * module_mm;
-
-            // module center in mm
-            let cx = x + module_mm / 2.0;
-            let cy = y + module_mm / 2.0;
 
             doc = doc.add(
                 Rectangle::new()

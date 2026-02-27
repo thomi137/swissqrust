@@ -5,8 +5,7 @@
  */
 
 // pdf_state.rs
-use pdf_writer::{Content, Pdf, Ref};
-use pdf_writer::writers::Page;
+use pdf_writer::{Pdf, Ref};
 use crate::{DrawOp, FontLibrary};
 
 pub struct PdfState {
