@@ -8,8 +8,6 @@ use pdf_writer::Content;
 use qrcodegen::QrCode;
 use crate::render::types::DrawOp;
 use crate::render::engines::pdf::FontLibrary;
-use crate::render::engines::pdf::FontStyle;
-use crate::render::engines::pdf::name;
 
 /*
  * ⚠️ pdf-writer is not for the faint of heart
@@ -72,13 +70,6 @@ impl DrawOpHandler for QrCodeHandler {
                 crate::render::engines::qr_renderers::render_qr_pdf(content, qr, at.x.to_pt().0, at.y.to_pt().0);
             }
         }
-    }
-}
-
-struct CornerMarksHandler;
-impl DrawOpHandler for CornerMarksHandler {
-    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, _: &FontLibrary) {
-        todo!()
     }
 }
 
