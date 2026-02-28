@@ -4,11 +4,14 @@
  * https://opensource.org/licenses/MIT
  */
 
+
+use std::path::Path;
 use pdf_writer::Finish;
 use pdf_writer::{Content, Ref, Rect, Pdf};
 use anyhow::Result;
 
-use crate::{name, BillData, BillLayout, DrawOp, FontLibrary, FontStyle, Language, Mm, PP_LABEL_PREF_FONT_SIZE, PP_TEXT_PREF_FONT_SIZE, PT_PER_MM};
+use crate::{name, BillData, DrawOp, FontLibrary, FontStyle, Mm, PT_PER_MM};
+use crate::render_bill::render_bill_to_pdf;
 
 pub struct PdfPainter<'a> {
     pub content: &'a mut Content,
@@ -49,7 +52,7 @@ impl PDFBuilder {
         let catalog_id = self.next_id.bump();
         let page_tree_id = self.next_id.bump();
         let page_id = self.next_id.bump();
-        let content_id = self.next_id.bump();
+        //let content_id = self.next_id.bump();
 
         // I will have to use Zapf Dingbats for Scissors Symbol
         let zapf_id = self.next_id.bump();
@@ -72,8 +75,11 @@ impl PDFBuilder {
         // Create A4 Page
         page.media_box(Rect::new(0.0, 0.0, 595.28, 842.89)); // A4
         page.parent(page_tree_id);
-        page.contents(content_id);
+        page.contents(self.content_id);
         page.finish();
+
+        self.draw_perforation_horizonal();
+        self.draw_perforation_vertical();
 
         Ok(())
      }
@@ -88,7 +94,7 @@ impl PDFBuilder {
         self.content.line_to(210.0 * PT_PER_MM, y_sep);
         self.content.stroke();
 
-        draw_scissors_official(&mut self.content, 64.8, y_sep, 180.0);
+        draw_scissors_official(&mut self.content, Mm(5f32).to_pt().0, y_sep, 180.0);
         self.content.restore_state();
     }
 
@@ -102,7 +108,7 @@ impl PDFBuilder {
         self.content.line_to(x_sep, 105.0 * PT_PER_MM);
         self.content.stroke();
 
-        draw_scissors_official(&mut self.content, x_sep, 80.0 * PT_PER_MM, 90.0);
+        draw_scissors_official(&mut self.content, x_sep, Mm(100f32).to_pt().0, 90.0);
         self.content.restore_state();
 
     }
@@ -116,18 +122,9 @@ impl PDFBuilder {
 
  }
 
-// Rendering pipeline (DO NOT REORDER):
-// 1. setup_pdf()
-// 2. compute layout spacing
-// 3. layout blocks → Vec<DrawOp>
-// 4. execute DrawOps into Content
-// 5. attach content stream
-// 6. write PDF
-
 pub fn create_pdf(path: &str, bill_data: &BillData) -> anyhow::Result<()> {
-
-
-    Ok(())
+    let path = Path::new(path);
+    render_bill_to_pdf(bill_data, path)
 }
 
 fn draw_scissors_official(content: &mut Content, x: f32, y: f32, rotation_deg: f32) {

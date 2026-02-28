@@ -78,6 +78,7 @@ impl<'a> ReceiptLayout<'a> {
 
     pub fn render(&mut self, ops: &mut Vec<DrawOp>, fonts: &FontLibrary) {
 
+        println!("Rendering Receipt");
         self.layout.compute_spacing();
 
         let mut main_cursor = ColumnCursor::new(

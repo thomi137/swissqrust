@@ -60,15 +60,19 @@ impl<'a> PaymentPartLayout<'a> {
 
     pub fn render(&mut self, ops: &mut Vec<DrawOp>) {
 
+        println!("Rendering Payment Part");
+
         self.layout.compute_spacing();
 
-       let mut left_cursor = ColumnCursor {
-           x: RECEIPT_WIDTH + MARGIN,
-           y: SLIP_HEIGHT - MARGIN,
-       };
+        let base_x = RECEIPT_WIDTH + MARGIN;
+
+        let mut left_cursor = ColumnCursor::new(
+            base_x,
+            SLIP_HEIGHT - MARGIN,
+        );
 
         let mut right_cursor = ColumnCursor::new(
-            RECEIPT_WIDTH + MARGIN + PP_INFO_SECTION_HORI_OFFSET,
+            base_x + PP_INFO_SECTION_HORI_OFFSET,
             SLIP_HEIGHT - MARGIN,
         );
 

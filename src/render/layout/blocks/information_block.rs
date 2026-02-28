@@ -26,7 +26,7 @@ impl LayoutBlock for InformationBlock {
         // Account / Payable to
         draw_label(ops, label!(AccountPayableTo, layout.language), x, &mut y, layout.label_font_size, layout.line_spacing);
         draw_single_line(ops, &*layout.bill_data.iban.format_iban(), x, &mut y, layout.text_font_size, layout.line_spacing, Mm(0.0));
-        draw_text_lines(ops, &layout.bill_data.creditor_address.to_lines().all_but_first(), x, &mut y, layout.text_font_size, layout.line_spacing, layout.extra_spacing);
+        draw_text_lines(ops, &layout.bill_data.creditor_address.to_lines().all_but_last(), x, &mut y, layout.text_font_size, layout.line_spacing, layout.extra_spacing);
 
         // Reference
         match &layout.bill_data.reference_type {

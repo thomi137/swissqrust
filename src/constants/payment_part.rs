@@ -6,7 +6,7 @@
 use crate::Mm;
 
 pub const PAYMENT_PART_HORI_OFFSET: Mm = Mm(62f32);
-pub const QR_CODE_HEIGHT: f32 = 46f32;
+pub const QR_CODE_HEIGHT: Mm = Mm(46f32);
 pub const QR_CODE_WIDTH: Mm = Mm(46f32);
 pub const PP_INFO_SECTION_HORI_OFFSET: Mm = Mm(51f32);
 pub const RC_INFO_SECTION_HORI_OFFSET: Mm = Mm(5f32);

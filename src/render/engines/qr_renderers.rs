@@ -19,6 +19,7 @@ const CROSS_VIEWBOX: (f64, f64) = (19.8, 19.8);
 
 
 pub fn render_qr_pdf(content: &mut Content, qr: &QrCode, x_off: f32, y_off: f32) {
+
         let modules = qr.size();
         let drawable_pt = (QR_MM - 2.0 * QUIET_MM) as f32 * PT_PER_MM;
         let module_pt = drawable_pt / modules as f32;
@@ -39,6 +40,7 @@ pub fn render_qr_pdf(content: &mut Content, qr: &QrCode, x_off: f32, y_off: f32)
             }
         }
         content.fill_nonzero(); // Draw all modules at once for efficiency
+        content.restore_state();
 
         content.save_state();
         content.set_fill_rgb(1.0, 1.0, 1.0);

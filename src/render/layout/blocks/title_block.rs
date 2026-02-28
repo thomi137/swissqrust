@@ -20,19 +20,16 @@ impl LayoutBlock for TitleBlock {
         let x = cursor.x;
         let y = cursor.y;
 
-        let baseline_y = cursor.y;
-
         let baseline_y = y ;
 
         let title_height = Mm(7f32);
-        let pdf_y = SLIP_HEIGHT  - baseline_y;
 
         // small detour because title is only available when running.
         let label_text = label(self.label, layout.language)
             .unwrap_or("");
         ops.push(DrawOp::Text {
             text: label_text.to_string(),
-            at: Baseline { x, y: pdf_y },
+            at: Baseline { x, y },
             size: FONT_SIZE_TITLE,
             bold: true,
         });

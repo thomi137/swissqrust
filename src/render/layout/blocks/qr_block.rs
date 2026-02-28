@@ -3,7 +3,7 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{Baseline, DrawOp, LayoutBlock, Mm, MARGIN, QR_CODE_HEIGHT, RECEIPT_WIDTH, SLIP_HEIGHT};
+use crate::{Baseline, DrawOp, LayoutBlock, Mm, A4_PAGE_HEIGHT, MARGIN, QR_CODE_HEIGHT, RECEIPT_WIDTH, SLIP_HEIGHT};
 use crate::bill_layout::{BillLayout};
 use crate::block::{Column, ColumnCursor};
 
@@ -16,7 +16,7 @@ impl LayoutBlock for QrBlock {
 
     fn render(&self, _: &mut BillLayout, ops: &mut Vec<DrawOp>,  _: &mut ColumnCursor) {
         let x_start = RECEIPT_WIDTH + MARGIN;
-        let y = SLIP_HEIGHT - MARGIN - Mm(7f32) - MARGIN - Mm(QR_CODE_HEIGHT);
+        let y = A4_PAGE_HEIGHT - Mm(209f32);
         ops.push(DrawOp::QrCodeSpace {
             at: Baseline { x: x_start, y },
             size: Mm(46.0),

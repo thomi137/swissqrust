@@ -3,9 +3,11 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
+
 use std::path::Path;
 use anyhow::Result;
-use crate::{execute_bill_ops, BillData, FontStyle, Language, Mm, PDFBuilder, PaymentPartLayout, ReceiptLayout, PP_LABEL_PREF_FONT_SIZE, PP_TEXT_PREF_FONT_SIZE, RC_LABEL_PREF_FONT_SIZE, RC_TEXT_PREF_FONT_SIZE};
+use crate::{execute_bill_ops, BillData, DrawOp, FontStyle, Language, Mm, PDFBuilder, PaymentPartLayout, QRBillLayoutRect, ReceiptLayout, A4_PAGE_HEIGHT, PP_LABEL_PREF_FONT_SIZE, PP_TEXT_PREF_FONT_SIZE, RC_LABEL_PREF_FONT_SIZE, RC_TEXT_PREF_FONT_SIZE};
+use crate::pdf::coords::layout_y_to_pdf_y;
 
 pub fn render_bill_to_pdf(bill: &BillData, path: &Path,) -> Result<()> {
 
@@ -34,7 +36,6 @@ pub fn render_bill_to_pdf(bill: &BillData, path: &Path,) -> Result<()> {
         pp_label_ascender,
         pp_text_ascender,
     );
-
     payment_part.render(&mut builder.ops);
 
     // --- 4. Layout: Receipt ---
@@ -48,10 +49,28 @@ pub fn render_bill_to_pdf(bill: &BillData, path: &Path,) -> Result<()> {
         rc_label_ascender,
         rc_text_ascender,
     );
-
     receipt.render(&mut builder.ops, &builder.fonts);
 
     // --- 5. Render DrawOps into PDF content ---
+
+    for op in &mut builder.ops {
+        match op {
+            DrawOp::Text { at, .. } => {
+                at.y = layout_y_to_pdf_y(at.y, A4_PAGE_HEIGHT);
+            }
+            DrawOp::Line { from, to, .. } => {
+                from.1 = layout_y_to_pdf_y(from.1, A4_PAGE_HEIGHT);
+                to.1   = layout_y_to_pdf_y(to.1, A4_PAGE_HEIGHT);
+            }
+            DrawOp::Box { rect } => {
+                rect.y = layout_y_to_pdf_y(rect.y, A4_PAGE_HEIGHT);
+            }
+            DrawOp::QrCodeSpace { at, .. } => {
+                at.y = layout_y_to_pdf_y(at.y, A4_PAGE_HEIGHT);
+            }
+        }
+    }
+
     execute_bill_ops(
         &mut builder.content,
         &builder.fonts,

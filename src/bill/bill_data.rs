@@ -11,6 +11,7 @@ use regex::Regex;
 use thiserror::Error;
 use crate::Address;
 use crate::bill::reference_type::ReferenceType;
+use crate::qr_bill::{encode_text_to_qr_code, QrBill};
 use crate::support::validators::*;
 
 pub static AMOUNT_REGEX: Lazy<Regex> =
@@ -101,7 +102,7 @@ pub struct BillData {
                 .filter(|s| !s.is_whitespace())
                 .collect();
 
-        Ok(BillData{
+        let mut bill =  BillData{
             iban,
             creditor_address,
             debtor_address,
@@ -111,7 +112,14 @@ pub struct BillData {
             reference_type,
             unstructured_message,
             additional_information,
-            qr_code: None,
-        })
+            qr_code: None
+        };
+
+         bill.qr_code = QrBill::new(&bill)
+            .and_then(|b| b.create_qr_text())
+            .and_then(|txt| encode_text_to_qr_code(&txt))
+            .ok();
+
+        Ok(bill)
     }
 }
