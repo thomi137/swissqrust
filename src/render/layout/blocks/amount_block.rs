@@ -34,7 +34,7 @@ impl LayoutBlock for AmountBlock {
         });
 
         // Amount label
-        let mut amount_x = match self.part {
+        let amount_x = match self.part {
             SlipPart::PaymentPart => x + CURRENCY_WIDTH_PP,
             SlipPart::Receipt => x + CURRENCY_WIDTH_RC,
         };
@@ -87,7 +87,6 @@ impl LayoutBlock for AmountBlock {
             )
         }
     }
-
 
 fn amount_box_geometry(
     part: SlipPart,
