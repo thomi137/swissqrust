@@ -34,7 +34,11 @@ impl LayoutBlock for AmountBlock {
         });
 
         // Amount label
-        let mut amount_x = if self.part == SlipPart::PaymentPart { x + CURRENCY_WIDTH_PP } else { x + CURRENCY_WIDTH_RC };
+        let mut amount_x = match self.part {
+            SlipPart::PaymentPart => x + CURRENCY_WIDTH_PP,
+            SlipPart::Receipt => x + CURRENCY_WIDTH_RC,
+        };
+
         ops.push(DrawOp::Text {
             text: label!(Amount, layout.language).into(),
             at: Baseline { x: amount_x, y: LayoutY(y) },
@@ -45,8 +49,8 @@ impl LayoutBlock for AmountBlock {
         // update vertical cursor
         // TODO: Verify this is correct
         cursor.advance(layout.line_spacing);
-
         let mut y = cursor.y;
+
         // Currency text
         ops.push(DrawOp::Text {
             text: layout.bill_data.currency.to_string(),
@@ -63,20 +67,17 @@ impl LayoutBlock for AmountBlock {
                 size: layout.text_font_size,
                 bold: false,
             });
-        } else if self.part == SlipPart::Receipt {
-            amount_x = amount_x + Mm(10f32);
-            y = Mm(260f32);
-        } else if self.part == SlipPart::PaymentPart {
-            amount_x = amount_x - CURRENCY_WIDTH_PP + Mm(11f32);
-            y = Mm(260f32) + layout.line_spacing;
-        } else { panic!("Invalid slip part. Only Receipt and PaymentPart are allowed.")}
+            return;
+        }
 
-        let rect = QRBillLayoutRect {
-            x: amount_x,
+        let rect = amount_box_geometry(
+            self.part,
+            x,
             y,
-            width: self.amount_box_width,
-            height: self.amount_box_height,
-        };
+            layout,
+            self.amount_box_width,
+            self.amount_box_height,
+        );
 
         draw_corner_marks(
                 ops,
@@ -87,3 +88,32 @@ impl LayoutBlock for AmountBlock {
         }
     }
 
+
+fn amount_box_geometry(
+    part: SlipPart,
+    base_x: Mm,
+    base_y: Mm,
+    layout: &BillLayout,
+    amount_box_width: Mm,
+    amount_box_height: Mm,
+) -> QRBillLayoutRect {
+    match part {
+        SlipPart::Receipt => QRBillLayoutRect {
+            x: base_x + CURRENCY_WIDTH_RC + Mm(10.0),
+
+            // TODO: Make const out of this.
+            y: Mm(260f32),
+            width: amount_box_width,
+            height: amount_box_height,
+        },
+
+        SlipPart::PaymentPart => QRBillLayoutRect {
+            x: base_x + Mm(11.0),
+
+            //TODO: Make const out of this.
+            y: Mm(260f32) + layout.line_spacing,
+            width: amount_box_width,
+            height: amount_box_height,
+        },
+    }
+}
