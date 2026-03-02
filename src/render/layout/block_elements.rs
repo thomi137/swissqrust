@@ -7,6 +7,13 @@
 use crate::{Mm, DrawOp};
 use crate::bill_layout::BillLayout;
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub enum SlipPart {
+    PaymentPart,
+    Receipt,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Column {
     Left,
     Right,
@@ -24,7 +31,7 @@ impl ColumnCursor {
     }
 
     pub fn advance(&mut self, dy: Mm) {
-        self.y = self.y - dy;
+        self.y = self.y + dy;
     }
 }
 

@@ -29,7 +29,7 @@ pub fn buid_bill()  -> Result<BillData> {
     let bill_data = BillData::new(
         "CH64 3196 1000 0044 2155 7".to_string(),
         creditor,
-        None,//Some(debtor),
+        Some(debtor),
         QRCountry::CH,
         Currency::CHF,
         Some(String::from("32111.00")),

@@ -6,7 +6,7 @@
 
 use pdf_writer::Content;
 use qrcodegen::QrCode;
-use crate::{Mm, A4_PAGE_HEIGHT, QR_CODE_HEIGHT};
+use crate::{Mm, MARGIN, QR_CODE_HEIGHT};
 use crate::render::types::DrawOp;
 use crate::render::engines::pdf::FontLibrary;
 
@@ -31,10 +31,13 @@ impl DrawOpHandler for TextHandler {
             let style = if *bold { crate::pdf::FontStyle::Bold } else { crate::pdf::FontStyle::Regular };
             let font_obj = if *bold { &fonts.bold } else { &fonts.regular };
             let gids = font_obj.encode(text);
-            let y_pdf = A4_PAGE_HEIGHT - at.y;
+
+            let pdf_y = at.y.to_pdf().0;
+
             content.begin_text();
             content.set_font(crate::pdf::name(style), size.0);
-            content.set_text_matrix([1.0, 0.0, 0.0, 1.0, at.x.to_pt().0, y_pdf.to_pt().0]);
+            content.set_text_matrix([1.0, 0.0, 0.0, 1.0,
+                at.x.to_pt().0, pdf_y.to_pt().0]);
             content.show(pdf_writer::Str(&gids));
             content.end_text();
         }
@@ -46,8 +49,8 @@ impl DrawOpHandler for LineHandler {
     fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, _: &FontLibrary) {
         if let DrawOp::Line { from, to, width } = op {
 
-            let fy = A4_PAGE_HEIGHT - from.1;
-            let ty = A4_PAGE_HEIGHT - to.1;
+            let fy = from.1.to_pdf().0;
+            let ty = to.1.to_pdf().0;
 
             content.set_line_width(width.to_pt().0);
             content.move_to(from.0.to_pt().0, fy.to_pt().0);
@@ -74,11 +77,11 @@ impl DrawOpHandler for QrCodeHandler {
 
         if let DrawOp::QrCodeSpace { at, .. } = op {
 
-            let pdf_y =
-                A4_PAGE_HEIGHT - at.y - QR_CODE_HEIGHT;
+            let mut y = at.y.to_pdf().0;
+            //y = y - QR_CODE_HEIGHT; // anchor from top
 
             if let Some(qr) = qr_data {
-                crate::render::engines::qr_renderers::render_qr_pdf(content, qr, at.x.to_pt().0, pdf_y.to_pt().0);
+                crate::render::engines::qr_renderers::render_qr_pdf(content, qr, at.x.to_pt().0, y.to_pt().0);
             }
         }
     }
@@ -91,7 +94,7 @@ pub fn execute_bill_ops(
     qr_data: Option<&QrCode>,
 ) {
 
-    for op in ops.iter().rev() {
+    for op in ops.iter() {
 
         match &op {
             DrawOp::Text { .. } => TextHandler.handle(content, &op, qr_data, fonts),

@@ -4,6 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 use std::ops::{Add, Mul, Sub};
+use crate::coords::LayoutY;
 
 /// A4 Width in mm
 pub const A4_PORTRAIT_WIDTH: f32 = 210f32;
@@ -28,10 +29,11 @@ pub const QR_BILL_PC_WIDTH: u16 = 148; // mm
 /// QR Width in mm
 pub const QR_CODE_OVERALL_WIDTH: u16 = 148;
 
-/// Constants to convert mms to pts and vv.
+/// Constants to convert mms to pts and vice versa.
 ///
 /// 1 point = 1/72 inch
 /// 1 inch = 25.4 mm
+/// so a point is 1/72 of an inch and an inch has 25.4 mm's
 pub const MM_PER_PT: f32 = 25.4 / 72.0;
 pub const PT_PER_MM: f32 = 72.0 / 25.4;
 
@@ -39,7 +41,7 @@ pub const PT_PER_MM: f32 = 72.0 / 25.4;
 /// Conversion structs. We use const fns to
 /// do compile time evaluation and structs to
 /// facilitate type checking up front.
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Mm(pub f32);
 impl Mm {
     pub const fn new(v: f32) -> Self {
@@ -77,7 +79,7 @@ impl Mul for Mm {
 
 
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, PartialOrd)]
 pub struct Pt(pub f32);
     impl Pt {
         pub const fn new(v: f32) -> Self {
@@ -88,6 +90,14 @@ pub struct Pt(pub f32);
             Mm(self.0 * MM_PER_PT)
         }
     }
+
+impl Add for Pt {
+    type Output = Pt;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Pt(self.0 + rhs.0)
+    }
+}
 
 // Rectangular area
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -102,5 +112,5 @@ pub struct QRBillLayoutRect {
 #[derive(Copy, Clone, Debug)]
 pub struct Baseline {
     pub x: Mm,
-    pub y: Mm,
+    pub y: LayoutY,
 }

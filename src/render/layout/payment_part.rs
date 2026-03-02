@@ -3,22 +3,24 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
+use std::ops::Mul;
 use crate::render::layout::bill_layout::{BillLayout, BillLayoutConfig};
 use crate::render::layout::geometry::*;
 use crate::render::types::DrawOp;
-use crate::{BillData, Column, Language};
+use crate::{BillData, Column, Language, SlipPart};
 use crate::constants::*;
-use crate::block::{ColumnCursor, LayoutBlock};
+use crate::block_elements::{ColumnCursor, LayoutBlock};
 use crate::blocks::amount_block::AmountBlock;
 use crate::blocks::information_block::InformationBlock;
 use crate::blocks::qr_block::QrBlock;
 use crate::blocks::title_block::TitleBlock;
+use crate::spacer_block::SpacerBlock;
 
 pub struct PaymentPartLayout<'a> {
     layout: BillLayout<'a>,
     blocks: Vec<Box<dyn LayoutBlock>>
 }
+
 
 impl<'a> PaymentPartLayout<'a> {
     pub fn new(
@@ -28,6 +30,7 @@ impl<'a> PaymentPartLayout<'a> {
         text_font_size: Pt,
         line_spacing: Mm,
         extra_spacing: Mm,
+        title_ascender: Mm,
         label_ascender: Mm,
         text_ascender: Mm
     ) -> Self {
@@ -44,6 +47,7 @@ impl<'a> PaymentPartLayout<'a> {
             text_font_size,
             line_spacing,
             extra_spacing,
+            title_ascender,
             label_ascender,
             text_ascender,
         };
@@ -51,29 +55,28 @@ impl<'a> PaymentPartLayout<'a> {
             layout,
             blocks: vec![
                 Box::new(TitleBlock { label: crate::LabelKey::PaymentPart }),
-                Box::new(InformationBlock {offset: PP_INFO_SECTION_HORI_OFFSET, payable_box_width: DEBTOR_BOX_WIDTH_PP, payable_box_height: DEBTOR_BOX_HEIGHT}),
-                Box::new(AmountBlock{amount_box_width: AMOUNT_BOX_WIDTH_PP, amount_box_height: AMOUNT_BOX_HEIGHT_PP}),
+                Box::new(InformationBlock {part: SlipPart::PaymentPart, offset: PP_INFO_SECTION_HORI_OFFSET, payable_box_width: DEBTOR_BOX_WIDTH_PP, payable_box_height: DEBTOR_BOX_HEIGHT}),
                 Box::new( QrBlock ),
+                Box::new(SpacerBlock{min_height: Mm(260f32)}),
+                Box::new(AmountBlock{amount_box_width: AMOUNT_BOX_WIDTH_PP, amount_box_height: AMOUNT_BOX_HEIGHT_PP}),
             ] }
 
     }
 
     pub fn render(&mut self, ops: &mut Vec<DrawOp>) {
 
-        println!("Rendering Payment Part");
-
-        self.layout.compute_spacing();
+       // self.layout.compute_spacing();
 
         let base_x = RECEIPT_WIDTH + MARGIN;
 
         let mut left_cursor = ColumnCursor::new(
             base_x,
-            SLIP_HEIGHT - MARGIN,
+            (A4_PAGE_HEIGHT - Mm(100f32)),
         );
 
         let mut right_cursor = ColumnCursor::new(
             base_x + PP_INFO_SECTION_HORI_OFFSET,
-            SLIP_HEIGHT - MARGIN,
+            (A4_PAGE_HEIGHT - Mm(100f32) + self.layout.label_ascender),
         );
 
         for block in &self.blocks {

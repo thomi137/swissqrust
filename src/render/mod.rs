@@ -7,7 +7,7 @@
 pub mod layout;
 pub mod engines;
 pub mod types;
-// Re-export shared types
+mod debug_overlay;
 
 pub use layout::*;
 pub use engines::*;

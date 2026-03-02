@@ -4,7 +4,6 @@
  * https://opensource.org/licenses/MIT
  */
 
-
 use std::path::Path;
 use pdf_writer::Finish;
 use pdf_writer::{Content, Ref, Rect, Pdf};
@@ -58,6 +57,9 @@ impl PDFBuilder {
         let zapf_id = self.next_id.bump();
         self.pdf.type1_font(zapf_id).base_font(pdf_writer::Name(b"ZapfDingbats"));
 
+        let courier_id = self.next_id.bump();
+        self.pdf.type1_font(courier_id).base_font(pdf_writer::Name(b"Courier-Bold"));
+
         self.pdf.catalog(catalog_id).pages(page_tree_id);
         self.pdf.pages(page_tree_id).kids([page_id]).count(1);
         let mut page = self.pdf.page(page_id);
@@ -67,6 +69,7 @@ impl PDFBuilder {
         let mut res = page.resources();
         let mut f_dict = res.fonts();
         f_dict.pair(pdf_writer::Name(b"Zapf"), zapf_id);
+        f_dict.pair(pdf_writer::Name(b"Courier"), courier_id);
         f_dict.pair(name(FontStyle::Regular), self.fonts.regular.type0_ref);
         f_dict.pair(name(FontStyle::Bold), self.fonts.bold.type0_ref);
         f_dict.finish();

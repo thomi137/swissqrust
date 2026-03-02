@@ -11,14 +11,24 @@ use crate::{DrawOp, Mm, A4_PAGE_HEIGHT};
 /// the origin at the conventional position bottom left.
 ///
 /// This flips y so the layout layer can stay regardless of what the renderer does.
-/// ```
-/// use swiss_qrust::support::utils::top_down_y;
-/// use swiss_qrust::Mm;
-/// assert_eq!(top_down_y(Mm(10.0)), Mm(287.0));
-/// ```
 /// So this converts from top down to a bottom up position
 ///
-#[inline]
-pub fn layout_y_to_pdf_y(y_from_top: Mm, page_height: Mm) -> Mm {
-    page_height - y_from_top
+/// Distance from top of the layout area.
+
+#[derive(Copy, Clone, Debug)]
+pub struct LayoutY(pub Mm);
+
+impl LayoutY {
+
+    #[inline]
+    pub fn to_pdf(self) -> PdfY {
+        PdfY(A4_PAGE_HEIGHT - self.0)
+    }
+
+    pub fn to_pdf_with_height(self, page_height: Mm, obj_height: Mm) -> Mm {
+        page_height - self.0 - obj_height
+    }
 }
+
+#[derive(Copy, Clone, Debug)]
+pub struct PdfY(pub Mm);

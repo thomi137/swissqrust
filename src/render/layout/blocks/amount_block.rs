@@ -7,7 +7,8 @@
 
 use crate::bill_layout::{BillLayout};
 use crate::{draw_corner_marks, label, Baseline, Column, DrawOp, LayoutBlock, Mm, QRBillLayoutRect, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX, CUCCENCY_WIDTH_PP, MARGIN};
-use crate::block::ColumnCursor;
+use crate::block_elements::ColumnCursor;
+use crate::coords::LayoutY;
 use crate::support::traits::SwissQRFormatter;
 
 pub struct AmountBlock{
@@ -21,12 +22,12 @@ impl LayoutBlock for AmountBlock {
 
     fn render(&self, layout: &mut BillLayout, ops: &mut Vec<DrawOp>, cursor: &mut ColumnCursor) {
         let x = cursor.x;
-        let mut y = cursor.y;
+        let y = cursor.y;
 
         // Currency label
         ops.push(DrawOp::Text {
             text: label!(Currency, layout.language).into(),
-            at: Baseline { x, y },
+            at: Baseline { x, y: LayoutY(y) },
             size: layout.label_font_size,
             bold: true,
         });
@@ -34,18 +35,20 @@ impl LayoutBlock for AmountBlock {
         let amount_x = x + MARGIN + CUCCENCY_WIDTH_PP;
         ops.push(DrawOp::Text {
             text: label!(Amount, layout.language).into(),
-            at: Baseline { x: amount_x, y },
+            at: Baseline { x: amount_x, y: LayoutY(y) },
             size: layout.label_font_size,
             bold: true,
         });
 
         // update vertical cursor
-        y = y - layout.text_ascender - layout.label_font_size.to_mm();
+        // TODO: Verify this is correct
+        cursor.advance(layout.line_spacing);
 
+        let y = cursor.y;
         // Currency text
         ops.push(DrawOp::Text {
             text: layout.bill_data.currency.to_string(),
-            at: Baseline { x, y},
+            at: Baseline { x, y: LayoutY(y) },
             size: layout.text_font_size,
             bold: false,
         });
@@ -54,7 +57,7 @@ impl LayoutBlock for AmountBlock {
         if let Some(amount) = &layout.bill_data.amount{
             ops.push(DrawOp::Text {
                 text: amount.format_amount(),
-                at: Baseline { x: amount_x, y },
+                at: Baseline { x: amount_x, y: LayoutY(y) },
                 size: layout.text_font_size,
                 bold: false,
             });
@@ -73,8 +76,6 @@ impl LayoutBlock for AmountBlock {
                 CORNER_MARKS_AMOUNT_POLYLINES
             )
         }
-
-        cursor.y = y;
     }
 }
 

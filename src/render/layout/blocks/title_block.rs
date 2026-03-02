@@ -5,7 +5,8 @@
  */
 use crate::{label, Baseline, Column, DrawOp, LabelKey, LayoutBlock, Mm, FONT_SIZE_TITLE, MARGIN, SLIP_HEIGHT};
 use crate::bill_layout::{BillLayout};
-use crate::block::ColumnCursor;
+use crate::block_elements::ColumnCursor;
+use crate::coords::LayoutY;
 
 pub struct TitleBlock {
     pub label: LabelKey,
@@ -20,8 +21,6 @@ impl LayoutBlock for TitleBlock {
         let x = cursor.x;
         let y = cursor.y;
 
-        let baseline_y = y ;
-
         let title_height = Mm(7f32);
 
         // small detour because title is only available when running.
@@ -29,11 +28,12 @@ impl LayoutBlock for TitleBlock {
             .unwrap_or("");
         ops.push(DrawOp::Text {
             text: label_text.to_string(),
-            at: Baseline { x, y },
+            at: Baseline { x, y: LayoutY(y + layout.title_ascender) },
             size: FONT_SIZE_TITLE,
             bold: true,
         });
 
-        cursor.advance(title_height);
+        // TODO: Smell. Actually, this should be done in the layout.
+        cursor.advance(title_height + layout.label_ascender);
     }
 }

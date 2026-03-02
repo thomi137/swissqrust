@@ -8,7 +8,7 @@ use crate::{BillData, Language, ReferenceType};
 use crate::language::*;
 use crate::render::layout::geometry::*;
 use crate::render::layout::spacing::*;
-use crate::block::{LayoutBlock};
+use crate::block_elements::{LayoutBlock};
 
 ///
 /// This is a module specific trait.
@@ -44,6 +44,7 @@ pub struct BillLayout<'a> {
     // spacing (computed)
     pub line_spacing: Mm,
     pub extra_spacing: Mm,
+    pub title_ascender: Mm,
     pub label_ascender: Mm,
     pub text_ascender: Mm
 }

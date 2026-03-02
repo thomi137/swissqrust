@@ -9,7 +9,7 @@ pub mod draw_op_handler;
 pub mod pdf_helpers;
 pub mod pdf_state;
 pub mod render_bill;
-mod coords;
+pub mod coords;
 
 use pdf_writer::{Name, Pdf, Ref};
 pub use fonts::*;

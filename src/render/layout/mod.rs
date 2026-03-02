@@ -12,7 +12,7 @@ pub mod receipt_part;
 
 pub mod bill_layout;
 pub mod blocks;
-pub mod block;
+pub mod block_elements;
 
 pub use geometry::*;
 pub use spacing::*;
@@ -21,4 +21,4 @@ pub use payment_part::*;
 pub use receipt_part::*;
 pub use bill_layout::*;
 pub use blocks::*;
-pub use block::*;
+pub use block_elements::*;
