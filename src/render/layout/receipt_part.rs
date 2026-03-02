@@ -58,7 +58,7 @@ impl<'a> ReceiptLayout<'a> {
                 Box::new(TitleBlock { label: LabelKey::Receipt }),
                 Box::new(InformationBlock {part: SlipPart::Receipt, offset: Mm(0f32), payable_box_width: DEBTOR_BOX_WIDTH_RC, payable_box_height: DEBTOR_BOX_HEIGHT_RC}),
                 Box::new(SpacerBlock { min_height: Mm(260f32) }),
-                Box::new(AmountBlock{amount_box_width: AMOUNT_BOX_WIDTH_RC, amount_box_height: AMOUNT_BOX_HEIGHT_RC}),
+                Box::new(AmountBlock{part: SlipPart::Receipt, amount_box_width: AMOUNT_BOX_WIDTH_RC, amount_box_height: AMOUNT_BOX_HEIGHT_RC}),
             ]
         }
 

@@ -58,7 +58,7 @@ impl<'a> PaymentPartLayout<'a> {
                 Box::new(InformationBlock {part: SlipPart::PaymentPart, offset: PP_INFO_SECTION_HORI_OFFSET, payable_box_width: DEBTOR_BOX_WIDTH_PP, payable_box_height: DEBTOR_BOX_HEIGHT}),
                 Box::new( QrBlock ),
                 Box::new(SpacerBlock{min_height: Mm(260f32)}),
-                Box::new(AmountBlock{amount_box_width: AMOUNT_BOX_WIDTH_PP, amount_box_height: AMOUNT_BOX_HEIGHT_PP}),
+                Box::new(AmountBlock{part: SlipPart::PaymentPart, amount_box_width: AMOUNT_BOX_WIDTH_PP, amount_box_height: AMOUNT_BOX_HEIGHT_PP}),
             ] }
 
     }
