@@ -3,7 +3,7 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use std::ops::Mul;
+
 use crate::render::layout::bill_layout::{BillLayout, BillLayoutConfig};
 use crate::render::layout::geometry::*;
 use crate::render::types::DrawOp;
@@ -71,12 +71,12 @@ impl<'a> PaymentPartLayout<'a> {
 
         let mut left_cursor = ColumnCursor::new(
             base_x,
-            (A4_PAGE_HEIGHT - Mm(100f32)),
+            A4_PAGE_HEIGHT - Mm(100f32),
         );
 
         let mut right_cursor = ColumnCursor::new(
             base_x + PP_INFO_SECTION_HORI_OFFSET,
-            (A4_PAGE_HEIGHT - Mm(100f32) + self.layout.label_ascender),
+            A4_PAGE_HEIGHT - Mm(100f32) + self.layout.label_ascender,
         );
 
         for block in &self.blocks {

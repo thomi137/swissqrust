@@ -6,8 +6,9 @@
 
 
 use crate::bill_layout::{BillLayout};
-use crate::{draw_corner_marks, label, Baseline, Column, DrawOp, LayoutBlock, Mm, QRBillLayoutRect, SlipPart, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX, CURRENCY_WIDTH_PP, CURRENCY_WIDTH_RC};
+use crate::{draw_corner_marks, label, Baseline, Column, DrawOp, LayoutBlock, Mm, QRBillLayoutRect, SlipPart, CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX};
 use crate::block_elements::ColumnCursor;
+use crate::constants::{CURRENCY_WIDTH_PP, CURRENCY_WIDTH_RC};
 use crate::coords::LayoutY;
 use crate::support::traits::SwissQRFormatter;
 
@@ -49,7 +50,7 @@ impl LayoutBlock for AmountBlock {
         // update vertical cursor
         // TODO: Verify this is correct
         cursor.advance(layout.line_spacing);
-        let mut y = cursor.y;
+        let y = cursor.y;
 
         // Currency text
         ops.push(DrawOp::Text {
@@ -73,7 +74,6 @@ impl LayoutBlock for AmountBlock {
         let rect = amount_box_geometry(
             self.part,
             x,
-            y,
             layout,
             self.amount_box_width,
             self.amount_box_height,
@@ -91,7 +91,6 @@ impl LayoutBlock for AmountBlock {
 fn amount_box_geometry(
     part: SlipPart,
     base_x: Mm,
-    base_y: Mm,
     layout: &BillLayout,
     amount_box_width: Mm,
     amount_box_height: Mm,

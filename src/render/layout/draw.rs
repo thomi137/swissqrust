@@ -16,7 +16,6 @@ pub fn draw_label(
     x: Mm,
     y: &mut Mm,
     font_size: Pt,
-    line_spacing: Mm,
 ) {
     ops.push(DrawOp::Text {
         text: text.into(),
@@ -52,7 +51,6 @@ pub fn draw_text_lines(
     y: &mut Mm,
     font_size: Pt,
     line_spacing: Mm,
-    extra_spacing: Mm,
 ) {
     for line in lines {
         ops.push(DrawOp::Text {

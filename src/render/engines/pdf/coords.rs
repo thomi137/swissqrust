@@ -3,7 +3,8 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{DrawOp, Mm, A4_PAGE_HEIGHT};
+use crate::constants::A4_PAGE_HEIGHT;
+use crate::Mm;
 
 ///
 /// Flips y coordinate. In the TV age, x,y started top left.

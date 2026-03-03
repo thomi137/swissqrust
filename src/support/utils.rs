@@ -3,7 +3,6 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{DrawOp, Mm, A4_PAGE_HEIGHT};
 
 /// Damm Table for testing QR Reference against mod-10
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];

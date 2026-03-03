@@ -30,10 +30,10 @@ impl PDFBuilder {
      pub fn new() -> Self {
 
          let mut pdf = Pdf::new();
-         let mut ops: Vec<DrawOp> = Vec::new();
+         let ops: Vec<DrawOp> = Vec::new();
          let mut next_id = Ref::new(1);
          let content_id = next_id.bump();
-         let mut content = Content::new();
+         let content = Content::new();
          let fonts = FontLibrary::new(&mut pdf, &mut next_id);
 
          Self {

@@ -4,7 +4,7 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use pdf_writer::types::TextAlign;
+
 use crate::language::LabelKey;
 use crate::{BillData, FontLibrary, FontStyle, Language, SlipPart};
 use crate::render::layout::bill_layout::{BillLayout, BillLayoutConfig};

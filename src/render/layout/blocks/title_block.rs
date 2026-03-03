@@ -3,9 +3,10 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{label, Baseline, Column, DrawOp, LabelKey, LayoutBlock, Mm, FONT_SIZE_TITLE, MARGIN, SLIP_HEIGHT};
+use crate::{label, Baseline, Column, DrawOp, LabelKey, LayoutBlock, Mm};
 use crate::bill_layout::{BillLayout};
 use crate::block_elements::ColumnCursor;
+use crate::constants::FONT_SIZE_TITLE;
 use crate::coords::LayoutY;
 
 pub struct TitleBlock {

@@ -5,10 +5,8 @@
  */
 
 use crate::{BillData, Language, ReferenceType};
-use crate::language::*;
 use crate::render::layout::geometry::*;
 use crate::render::layout::spacing::*;
-use crate::block_elements::{LayoutBlock};
 
 ///
 /// This is a module specific trait.

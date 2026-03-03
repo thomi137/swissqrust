@@ -3,9 +3,10 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{Baseline, DrawOp, LayoutBlock, Mm, A4_PAGE_HEIGHT, MARGIN, QR_CODE_HEIGHT, RECEIPT_WIDTH, SLIP_HEIGHT};
+use crate::{Baseline, DrawOp, LayoutBlock, Mm};
 use crate::bill_layout::{BillLayout};
 use crate::block_elements::{Column, ColumnCursor};
+use crate::constants::{A4_PAGE_HEIGHT, MARGIN, RECEIPT_WIDTH};
 use crate::coords::LayoutY;
 
 pub struct QrBlock;

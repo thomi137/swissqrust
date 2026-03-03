@@ -1,4 +1,4 @@
-use crate::{Baseline, Mm, Polygon, Pt, QRBillLayoutRect};
+use crate::{Baseline, Mm, Pt, QRBillLayoutRect};
 use crate::coords::LayoutY;
 
 #[derive(Debug)]

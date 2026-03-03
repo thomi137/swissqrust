@@ -6,7 +6,6 @@
 
 use pdf_writer::Content;
 use qrcodegen::QrCode;
-use crate::{Mm, MARGIN, QR_CODE_HEIGHT};
 use crate::render::types::DrawOp;
 use crate::render::engines::pdf::FontLibrary;
 
@@ -77,8 +76,7 @@ impl DrawOpHandler for QrCodeHandler {
 
         if let DrawOp::QrCodeSpace { at, .. } = op {
 
-            let mut y = at.y.to_pdf().0;
-            //y = y - QR_CODE_HEIGHT; // anchor from top
+            let y = at.y.to_pdf().0;
 
             if let Some(qr) = qr_data {
                 crate::render::engines::qr_renderers::render_qr_pdf(content, qr, at.x.to_pt().0, y.to_pt().0);

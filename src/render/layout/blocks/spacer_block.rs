@@ -3,8 +3,8 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use std::cmp::{Ordering, PartialOrd};
-use crate::{BillLayout, Column, ColumnCursor, DrawOp, LayoutBlock, Mm, A4_PAGE_HEIGHT};
+
+use crate::{BillLayout, Column, ColumnCursor, DrawOp, LayoutBlock, Mm};
 
 pub struct SpacerBlock {
     pub min_height: Mm,

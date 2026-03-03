@@ -6,7 +6,8 @@
 
 use std::path::Path;
 use anyhow::Result;
-use crate::{execute_bill_ops, BillData, DrawOp, FontStyle, Language, Mm, PDFBuilder, PaymentPartLayout, Pt, QRBillLayoutRect, ReceiptLayout, A4_PAGE_HEIGHT, FONT_SIZE_TITLE, PP_LABEL_PREF_FONT_SIZE, PP_TEXT_PREF_FONT_SIZE, RC_LABEL_PREF_FONT_SIZE, RC_TEXT_PREF_FONT_SIZE};
+use crate::{execute_bill_ops, BillData, FontStyle, Language, Mm, PDFBuilder, PaymentPartLayout, ReceiptLayout};
+use crate::constants::*;
 
 #[cfg(feature = "pdf-debug")]
 use crate::render::debug_overlay::draw_debug_overlay;
