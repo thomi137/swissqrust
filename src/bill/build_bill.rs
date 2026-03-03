@@ -35,7 +35,8 @@ pub fn buid_bill()  -> Result<BillData> {
         None, //Some(String::from("32111.00")),
         ReferenceType::infer("000008207791225857421286694")?,
         Some(String::from("Premium calculation July 2020")),
-        None
+        None,
+        [None, None],
     );
 
     Ok(bill_data?)

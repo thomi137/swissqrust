@@ -61,7 +61,6 @@ impl<'a> ReceiptLayout<'a> {
                 Box::new(AmountBlock{part: SlipPart::Receipt, amount_box_width: AMOUNT_BOX_WIDTH_RC, amount_box_height: AMOUNT_BOX_HEIGHT_RC}),
             ]
         }
-
     }
 
     pub fn layout_acceptance_point(&mut self, ops: &mut Vec<DrawOp>, fonts: &FontLibrary) {

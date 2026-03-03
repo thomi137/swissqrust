@@ -72,8 +72,9 @@ pub struct BillData {
     pub amount: Option<String>,
     pub reference_type: ReferenceType,
     pub unstructured_message: Option<String>,
-    pub additional_information: Option<String>,
+    pub bill_information: Option<String>,
     pub qr_code: Option<QrCode>,
+    pub alternative_schemes: [Option<String>; 2],
 } impl BillData {
     pub fn new (
         iban: String,
@@ -83,8 +84,15 @@ pub struct BillData {
         currency: Currency,
         amount: Option<String>,
         reference_type: ReferenceType,
+
+        // Belongs to additional Information
         unstructured_message: Option<String>,
-        additional_information: Option<String>,
+
+        // Belongs to additional Information, but not to QR code
+        bill_information: Option<String>,
+
+        // Belongs to Further Information
+        alternative_schemes: [Option<String>;2],
     ) -> Result<Self, BillError> {
 
         if let Some(ref amt) = amount
@@ -110,8 +118,9 @@ pub struct BillData {
             amount,
             reference_type,
             unstructured_message,
-            additional_information,
-            qr_code: None
+            bill_information,
+            qr_code: None,
+            alternative_schemes,
         };
 
          bill.qr_code = QrBill::new(&bill)

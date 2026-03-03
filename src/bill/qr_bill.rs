@@ -115,10 +115,11 @@ impl<'a> QrBill
 
         // IBAN - Mandatory
         qr_text.append_data_field(Some(self.bill_data.iban.as_str()));
-        // Creditor - Cdtr
+        // Cdtr - Mandatory
         qr_text.append_person(Some(&self.bill_data.creditor_address));
         // UltmtCdtr - Has to be there, has to be empty
         qr_text.append_person(None);
+
         qr_text.append_data_field(self.bill_data.amount.as_deref());
         qr_text.append_data_field(Some(&self.bill_data.currency.to_string()));
 
@@ -136,11 +137,24 @@ impl<'a> QrBill
             ReferenceType::Creditor(reference) => qr_text.append_data_field(Some(reference)),
         }
 
-        //Trailer - End of Payment Data
 
         // Additional information
         qr_text.append_data_field(self.bill_data.unstructured_message.as_deref());
+
+        //Trailer - End of Payment Data
         qr_text.append_data_field(Some(TRAILER_EPD));
+
+        // BIll Information
+        if let Some(billinfo) = &self.bill_data.bill_information {
+            qr_text.append_data_field(Some(billinfo));
+        }
+
+        // Alternative Schemes
+        for scheme in &self.bill_data.alternative_schemes {
+            if let Some(scheme) = scheme {
+                qr_text.append_data_field(Some(scheme));
+            }
+        }
 
         Ok(qr_text.build())
     }
