@@ -87,10 +87,9 @@ pub struct BillData {
         additional_information: Option<String>,
     ) -> Result<Self, BillError> {
 
-        if let Some(ref amt) = amount {
-            if !AMOUNT_REGEX.is_match(amt) {
+        if let Some(ref amt) = amount
+            && !AMOUNT_REGEX.is_match(amt) {
                 return Err(BillError::InvalidAmount);
-            }
         }
 
         is_valid_iban(&iban)?;

@@ -125,6 +125,13 @@ impl PDFBuilder {
 
  }
 
+impl Default for PDFBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+
 pub fn create_pdf(path: &str, bill_data: &BillData) -> anyhow::Result<()> {
     let path = Path::new(path);
     render_bill_to_pdf(bill_data, path)

@@ -48,14 +48,13 @@ impl LayoutBlock for InformationBlock {
         }
 
         // Unstructured message
-        if self.part == SlipPart::PaymentPart {
-            if let Some(unstructured_message) = &layout.bill_data.unstructured_message {
+        if self.part == SlipPart::PaymentPart
+            && let Some(unstructured_message) = &layout.bill_data.unstructured_message {
                 draw_label(ops, label!(AdditionalInformation, layout.language), cursor.x, &mut cursor.y, layout.label_font_size);
                 cursor.advance(layout.text_ascender);
                 draw_single_line(ops, unstructured_message, cursor.x, &mut cursor.y, layout.text_font_size);
                 cursor.advance(layout.line_spacing + layout.extra_spacing );
             }
-        }
 
 
         // Payable by
@@ -71,13 +70,13 @@ impl LayoutBlock for InformationBlock {
             cursor.advance(self.payable_box_height + layout.extra_spacing);
         }
 
-        if let Some(info_lines) = &layout.bill_data.additional_information {
-            if !info_lines.is_empty() {
+        if let Some(info_lines) = &layout.bill_data.additional_information
+            && !info_lines.is_empty() {
                 draw_label(ops, label!(AdditionalInformation, layout.language), cursor.x, &mut cursor.y, layout.label_font_size);
                 cursor.advance(layout.text_ascender);
                 draw_single_line(ops, info_lines, cursor.x, &mut cursor.y, layout.text_font_size);
                 cursor.advance(layout.extra_spacing);
             }
-        }
+
     }
 }

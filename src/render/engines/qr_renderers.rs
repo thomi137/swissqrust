@@ -45,8 +45,8 @@ pub fn render_qr_pdf(content: &mut Content, qr: &QrCode, x_off: f32, y_off: f32)
         content.save_state();
         content.set_fill_rgb(1.0, 1.0, 1.0);
         // Center of 46mm is 23mm. 7x7mm box starts at 23 - 3.5 = 19.5mm
-        let cross_box_offset = 19.5 * PT_PER_MM as f32;
-        content.rect(x_off + cross_box_offset, y_off + cross_box_offset, 7.0 * PT_PER_MM as f32, 7.0 * PT_PER_MM as f32);
+        let cross_box_offset = 19.5 * PT_PER_MM;
+        content.rect(x_off + cross_box_offset, y_off + cross_box_offset, 7.0 * PT_PER_MM, 7.0 * PT_PER_MM);
         content.fill_nonzero();
         content.restore_state();
 

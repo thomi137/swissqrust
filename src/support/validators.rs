@@ -24,11 +24,10 @@ pub struct SPSCharsetError {
 
 impl Display for SPSCharsetError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-        SPSCharsetError { invalid, index } => {
-                write!(f, "Found invalid character {} at {}", invalid, index)
-            }
-        }
+
+        let SPSCharsetError { invalid, index } = self;
+        write!(f, "Found invalid character {} at {}", invalid, index)
+
     }
 }
 

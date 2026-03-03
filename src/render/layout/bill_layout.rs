@@ -8,14 +8,10 @@ use crate::{BillData, Language, ReferenceType};
 use crate::render::layout::geometry::*;
 use crate::render::layout::spacing::*;
 
-///
 /// This is a module specific trait.
 /// It may depend on the `support::traits` module
 /// but it does not feel right to hand imports back and forth.
 /// maybe some later refactoring will fix this.
-///
-
-
 pub struct LayoutCursor {
     pub x: Mm,
     pub y: Mm,

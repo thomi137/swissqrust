@@ -77,9 +77,9 @@ impl Display for Version {
     }
 }
 
-const QR_TYPE: &'static str = "SPC";
+const QR_TYPE: &str = "SPC";
 const VERSION: Version = Version { major: 2, minor: 0 };
-const CODING_TYPE: &'static str = "1";
+const CODING_TYPE: &str = "1";
 const TRAILER_EPD: &str = "EPD";
 
 pub struct QrBill<'a> {
@@ -182,8 +182,8 @@ impl QRTextBuilder {
 
     pub fn append_header(&mut self, qr_type: &str, version: &str, coding_type: &str) {
         self.text.push_str(qr_type);
-        self.append_data_field(Some(version.as_ref()));
-        self.append_data_field(Some(coding_type.as_ref()));
+        self.append_data_field(Some(version));
+        self.append_data_field(Some(coding_type));
     }
 
     pub fn build(self) -> String {

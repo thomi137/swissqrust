@@ -18,7 +18,7 @@ pub enum AddressIdentity {
     UltmtDbtr,
 }
 
-const ADDRESS_TYPE: &'static str = "S";
+const ADDRESS_TYPE: &str = "S";
 
 #[derive(Error, Debug)]
 pub enum AddressError {
@@ -71,24 +71,22 @@ impl Address {
             .map(|s| s.trim())
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
-        if let Some(ref s) = street {
-            if s.len() > 70 {
+        if let Some(ref s) = street
+            && s.len() > 70 {
                 return Err(AddressError::AddressStreetError(
                     "Street must not be longer than 70 chars".into(),
                 ));
             }
-        }
 
         // House number
         let house_num = house_num
             .map(|s| s.trim())
             .filter(|s| !s.is_empty())
             .map(|s| s.to_string());
-        if let Some(ref h) = house_num {
-            if h.len() > 16 {
+        if let Some(ref h) = house_num
+            && h.len() > 16 {
                 return Err(AddressError::AddressHouseError);
             }
-        }
 
         // Postal code
         let plz = plz.trim().to_string();

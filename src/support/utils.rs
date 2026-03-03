@@ -8,7 +8,6 @@
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 
 /// Helpers for String manipultion or checking.
-
 /// Removes whitespace in-place
 /// taken from
 /// [Stackoverflow](https://stackoverflow.com/questions/57063777/remove-all-whitespace-from-a-string)
@@ -163,5 +162,8 @@ pub fn mod10(reference: &str) -> bool {
         carry = MOD_10[((carry + digit) % 10) as usize];
     }
 
-    ((10 - carry) % 10) == 0
+    // Fancy Clippy-Rusty way of saying:
+    // ((10 - carry) % 10) == 0
+    // This is better, because it will not panic.
+    (10 - carry).is_multiple_of(10)
 }
