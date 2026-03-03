@@ -8,8 +8,6 @@
 * ------------------------------------------------------------------
 */
 
-use crate::generated::shapes::*;
-
 pub const CROSS_VIEWBOX: (f64, f64) = (19.8f64, 19.8f64);
 
 pub const CROSS_RECTS: &[Rect] = &[

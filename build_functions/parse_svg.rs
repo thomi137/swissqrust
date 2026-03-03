@@ -114,11 +114,6 @@ pub fn generate_svg_constants(
          */\n\n",
     );
 
-    // ---- Runtime types (guaranteed to exist here) ----
-    out.push_str(
-        "use crate::generated::shapes::*;\n\n"
-    );
-
     // ---- ViewBox ----
     out.push_str(&format!(
         "pub const {name}_VIEWBOX: (f64, f64) = ({}f64, {}f64);\n\n",

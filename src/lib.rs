@@ -8,7 +8,6 @@ include!("generated/countries.rs");
 include!("generated/cross.rs");
 include!("generated/corner_marks_amount.rs");
 include!("generated/corner_marks_payable_by.rs");
-include!("generated/scissors.rs");
 
 pub mod bill;
 pub mod render;

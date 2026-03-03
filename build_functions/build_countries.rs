@@ -103,8 +103,6 @@ pub fn generate() {
 // https://github.com/mledoze/countries
 // DO NOT EDIT BY HAND
 
-use std::str::FromStr;
-
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Country {{
 {enum_variants}

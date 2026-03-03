@@ -4,7 +4,9 @@
  * https://opensource.org/licenses/MIT
  */
 
+
 use swiss_qrust::{Address, BillData, Currency, QRCountry, ReferenceType};
+
 
 pub fn load_test_file(path: &str) -> String {
     let full_path = format!("tests/data/{}", path);

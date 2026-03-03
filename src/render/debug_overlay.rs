@@ -4,7 +4,9 @@
  * https://opensource.org/licenses/MIT
  */
 
+#[cfg(feature = "pdf-debug")]
 use pdf_writer::{Content, Name};
+#[cfg(feature = "pdf-debug")]
 use crate::{PDFBuilder, PT_PER_MM};
 
 #[cfg(feature = "pdf-debug")]

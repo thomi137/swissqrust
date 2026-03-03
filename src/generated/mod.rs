@@ -11,4 +11,3 @@ include!("countries.rs");
 include!("cross.rs");
 include!("corner_marks_amount.rs");
 include!("corner_marks_payable_by.rs");
-include!("scissors.rs");
