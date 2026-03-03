@@ -46,3 +46,14 @@ fn test_bill_data_scor_ref() {
     assert_eq!(qr_bill.create_qr_text().unwrap(), expected);
 }
 
+#[test]
+fn test_bill_data_non_ref() {
+    let expected = include_str!("data/expected/Nr. 33 Datenschema englisch.txt");
+
+    let bill = bill_data_non_ref();
+    let qr_bill = QrBill::new(&bill).unwrap();
+
+    assert_eq!(qr_bill.create_qr_text().unwrap(), expected);
+}
+
+

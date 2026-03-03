@@ -3,6 +3,7 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
+
 use swiss_qrust::{Address, BillData, Currency, QRCountry, ReferenceType};
 
 pub fn load_test_file(path: &str) -> String {
@@ -76,6 +77,27 @@ pub fn bill_data_scor_ref() -> BillData {
     let amount = String::from("211.00");
     let iban = "CH5800791123000889012";
     let ref_type = ReferenceType::infer("RF240191230100405JSH0438").unwrap();
+
+    BillData::new(
+        iban.to_string(),
+        creditor_address,
+        Some(debtor_address),
+        QRCountry::CH,
+        Currency::CHF,
+        Some(amount),
+        ref_type,
+        Some(String::from("Premium calculation July 2020")),
+        None,
+        [None, None],
+    ).unwrap()
+}
+
+pub fn bill_data_non_ref() -> BillData {
+    let creditor_address = crdt_address();
+    let debtor_address = dbt_address();
+    let amount = String::from("311.00");
+    let iban = "CH5800791123000889012";
+    let ref_type = ReferenceType::infer("").unwrap();
 
     BillData::new(
         iban.to_string(),
