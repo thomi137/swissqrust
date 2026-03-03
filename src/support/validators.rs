@@ -79,46 +79,25 @@ pub enum CountryValidationError {
 
 
 /// Reference number errors for both QR-IBAN and SCOR (ISO11649)
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Error)]
 pub enum ReferenceError {
+    #[error("Invalid QR character. Must be 0-9 or space")]
     InvalidQrChar,
+    #[error("Invalid QR checksum.")]
     InvalidQrChecksum,
+    #[error("Invalid QR length. Expected: {expected}, Actual: {actual}")]
     InvalidQrLength { expected: usize, actual: usize },
+    #[error("Invalid ISO11649 length. Must be 5-25 characters long")]
     InvalidIso11649Length,
+    #[error("Invalid ISO11649 prefix. Must start with 'RF'")]
     InvalidIso11649Prefix,
+    #[error("Invalid ISO11649 character. Found: {0:?}")]
     InvalidIso11649Char(char),
+    #[error("Invalid ISO11649 checksum.")]
     InvalidIso11649Checksum,
+    #[error("Invalid reference")]
     InvalidReference,
 }
-
-impl fmt::Display for ReferenceError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ReferenceError::InvalidQrChar => {
-                write!(f, "Invalid QR reference character")
-            }
-            ReferenceError::InvalidQrChecksum => write!(f, "QR reference checksum failed"),
-            ReferenceError::InvalidQrLength { expected: e, actual: a } => write!(f, "Invalid QR length, must be {}, is {}", e, a),
-            ReferenceError::InvalidIso11649Length => {
-                write!(f, "ISO 11649 reference must be 5–25 characters long")
-            }
-            ReferenceError::InvalidIso11649Prefix => {
-                write!(f, "ISO 11649 reference must start with 'RF'")
-            }
-            ReferenceError::InvalidIso11649Char(c) => {
-                write!(f, "ISO11649 reference invalid character: '{}'", c)
-            }
-            ReferenceError::InvalidIso11649Checksum => {
-                write!(f, "ISO11649 reference checksum failed")
-            }
-            ReferenceError::InvalidReference => {
-                write!(f, "Invalid reference")
-            }
-        }
-    }
-}
-
-impl std::error::Error for ReferenceError {}
 
 /// Validates an IBAN
 ///

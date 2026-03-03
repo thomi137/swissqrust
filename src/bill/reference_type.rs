@@ -22,7 +22,31 @@ pub enum ReferenceType {
     Creditor(String),
 }
 
+/// There are three reference types:
+///  * None - A normal IBAN should not have a QR reference
+///  * QRR - If a QR IBAN is given, there MUST be a QR Reference
+///  * SCOR - If there is a normal IBAN, a SCOR or creditor IBAN can be added.
 impl ReferenceType {
+    //! Returns a reference type based on the given value.
+    //!
+    //! # Arguments
+    //!
+    //! * `value` - The value to be parsed.
+    //!
+    //! # Errors
+    //! 
+    //! * Returns `ReferenceError::InvalidReference` if the value is not a valid reference.
+    //! * Returns `ReferenceError::InvalidQrReference` if the value is a QR reference, but not valid.
+    //! * Returns `ReferenceError::InvalidIso11649Reference` if the value is a creditor reference, but not valid.
+    //!
+    //! # Examples
+    //!
+    //! ```
+    //! use swiss_qrust::ReferenceType;
+    //! let ref_type = ReferenceType::infer("RF18539007547034").unwrap();
+    //! assert_eq!(ref_type, ReferenceType::Creditor("RF18539007547034".into()));
+    //!```
+    //! Returns an error if the value is not a valid reference.
     pub fn infer(value: &str) -> Result<Self, ReferenceError> {
 
         // If value is empty, then Reference Type is none
