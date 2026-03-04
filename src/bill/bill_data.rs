@@ -3,10 +3,10 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
+
 use std::fmt::{Display, Formatter};
 use std::fmt;
 use once_cell::sync::Lazy;
-use qrcodegen::QrCode;
 use regex::Regex;
 use thiserror::Error;
 use crate::Address;
@@ -109,7 +109,7 @@ pub struct BillData {
                 .filter(|s| !s.is_whitespace())
                 .collect();
 
-        let mut bill =  BillData{
+        let bill =  BillData{
             iban,
             creditor_address,
             debtor_address,

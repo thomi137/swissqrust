@@ -5,7 +5,7 @@
  */
 
 use anyhow::Result;
-use crate::{Address, BillData, Currency, QRCountry, ReferenceType};
+use crate::{Address, BillData, Currency, ReferenceType};
 
 pub fn buid_bill()  -> Result<BillData> {
     let  creditor = Address::new(

@@ -7,7 +7,6 @@
 pub mod fonts;
 pub mod draw_op_handler;
 pub mod pdf_helpers;
-pub mod pdf_state;
 pub mod render_bill;
 pub mod coords;
 
@@ -15,7 +14,6 @@ use pdf_writer::{Name, Pdf, Ref};
 pub use fonts::*;
 pub use draw_op_handler::*;
 pub use pdf_helpers::*;
-pub use pdf_state::*;
 use crate::{Mm, Pt};
 
 const LIBERATION_SANS_REG_NAME: Name = Name(b"LiberationSansRegular");

@@ -9,8 +9,8 @@ use pdf_writer::Finish;
 use pdf_writer::{Content, Ref, Rect, Pdf};
 use anyhow::Result;
 
-use crate::{name, BillData, DrawOp, FontLibrary, FontStyle, Mm, PT_PER_MM};
-use crate::render_bill::render_bill_to_pdf;
+use crate::{name, BillData, DrawOp, FontLibrary, FontStyle, Language, Mm, PT_PER_MM};
+use crate::render_bill::{render_bill_to_bytes, render_bill_to_pdf};
 
 pub struct PdfPainter<'a> {
     pub content: &'a mut Content,
@@ -132,9 +132,15 @@ impl Default for PDFBuilder {
 }
 
 
-pub fn create_pdf(path: &str, bill_data: &BillData) -> anyhow::Result<()> {
-    let path = Path::new(path);
-    render_bill_to_pdf(bill_data, path)
+pub fn create_pdf(
+    path: &str,
+    language: Language,
+    bill_data: &BillData,
+) -> anyhow::Result<()> {
+
+    let bytes = render_bill_to_bytes(bill_data, language)?;
+    std::fs::write(path, bytes)?;
+    Ok(())
 }
 
 fn draw_scissors_official(content: &mut Content, x: f32, y: f32, rotation_deg: f32) {

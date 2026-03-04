@@ -6,11 +6,12 @@
 
 use std::fs;
 use swiss_qrust::qr_bill::QrBill;
+use swiss_qrust::BillData;
+use swiss_qrust::input::InputBill;
 
 mod common;
 use common::*;
-use swiss_qrust::BillData;
-use swiss_qrust::input::InputBill;
+
 
 #[test]
 fn test_address_data() {
@@ -69,6 +70,18 @@ fn test_correct_toml_read() {
     assert_eq!(input.amount, Some("199.95".to_string()));
     assert_eq!(input.reference, Some("210000000003139471430009017".to_string()));
     assert_eq!(input.unstructured_message, Some("Invoice 2026-01".to_string()));
+}
+
+#[test]
+fn test_try_from_input_bill() {
+    let content = fs::read_to_string("tests/data/valid_input/normal_slip_valid.toml").unwrap();
+    let input: InputBill = toml::from_str(&content).unwrap();
+
+    let bill = BillData::try_from(input).unwrap();
+
+    assert_eq!(bill.currency.to_string(), "CHF");
+    assert_eq!(bill.iban.to_string(), "CH9300762011623852957");
+    assert_eq!(bill.creditor_address.name.to_string(), "Robert Schneider AG");
 }
 
 #[test]
