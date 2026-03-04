@@ -9,11 +9,10 @@ use once_cell::sync::Lazy;
 use qrcodegen::QrCode;
 use regex::Regex;
 use thiserror::Error;
-use crate::{Address, Country};
+use crate::Address;
 use crate::address::AddressError;
 use crate::bill::reference_type::ReferenceType;
 use crate::input::InputBill;
-use crate::qr_bill::{encode_text_to_qr_code, QrBill};
 use crate::support::validators::*;
 
 pub static AMOUNT_REGEX: Lazy<Regex> =
@@ -76,7 +75,6 @@ pub struct BillData {
     pub reference_type: ReferenceType,
     pub unstructured_message: Option<String>,
     pub bill_information: Option<String>,
-    pub qr_code: Option<QrCode>,
     pub alternative_schemes: [Option<String>; 2],
 } impl BillData {
     pub fn new (
@@ -120,17 +118,8 @@ pub struct BillData {
             reference_type,
             unstructured_message,
             bill_information,
-            qr_code: None,
             alternative_schemes,
         };
-
-
-        // TODO Decompose out of this struct.
-         bill.qr_code = QrBill::new(&bill)
-            .and_then(|b| b.create_qr_text())
-            .and_then(|txt| encode_text_to_qr_code(&txt))
-            .ok();
-
         Ok(bill)
     }
 }

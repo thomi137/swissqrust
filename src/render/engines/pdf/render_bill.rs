@@ -8,7 +8,7 @@ use std::path::Path;
 use anyhow::Result;
 use crate::{execute_bill_ops, BillData, FontStyle, Language, Mm, PDFBuilder, PaymentPartLayout, ReceiptLayout};
 use crate::constants::*;
-
+use crate::qr_bill::qr_code;
 #[cfg(feature = "pdf-debug")]
 use crate::render::debug_overlay::draw_debug_overlay;
 
@@ -66,7 +66,7 @@ pub fn render_bill_to_pdf(bill: &BillData, path: &Path,) -> Result<()> {
         &mut builder.content,
         &builder.fonts,
         std::mem::take(&mut builder.ops),
-        bill.qr_code.as_ref(),
+        qr_code(&bill).ok().as_ref(),
     );
 
     // --- 5.1 Draw debug overlay ---
