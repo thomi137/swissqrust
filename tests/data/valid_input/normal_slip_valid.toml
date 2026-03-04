@@ -1,0 +1,21 @@
+iban = "CH9300762011623852957"
+currency = "CHF"
+amount = "199.95"
+reference = "210000000003139471430009017"
+unstructured_message = "Invoice 2026-01"
+
+[creditor_address]
+name = "Robert Schneider AG"
+street = "Rue du Lac"
+house_num = "1268"
+plz = "2501"
+city = "Biel"
+country = "CH"
+
+[debtor_address]
+name = "Max Muster"
+street = "Musterstrasse"
+house_num = "1"
+plz = "8000"
+city = "Zürich"
+country = "CH"

@@ -4,10 +4,13 @@
  * https://opensource.org/licenses/MIT
  */
 
+use std::fs;
 use swiss_qrust::qr_bill::QrBill;
 
 mod common;
 use common::*;
+use swiss_qrust::BillData;
+use swiss_qrust::input::InputBill;
 
 #[test]
 fn test_address_data() {
@@ -56,4 +59,26 @@ fn test_bill_data_non_ref() {
     assert_eq!(qr_bill.create_qr_text().unwrap(), expected);
 }
 
+#[test]
+fn test_correct_toml_read() {
+    let content = fs::read_to_string("data/valid_input/normal_slip_valid.toml").unwrap();
+    let input: InputBill = toml::from_str(&content).unwrap();
 
+    assert_eq!(input.iban, "CH9300762011623852957");
+    assert_eq!(input.currency, "CHF");
+    assert_eq!(input.amount, Some("199.95".to_string()));
+    assert_eq!(input.reference, Some("210000000003139471430009017".to_string()));
+    assert_eq!(input.unstructured_message, Some("Invoice 2026-01".to_string()));
+}
+
+#[test]
+fn test_input_to_qr_data() {
+    let content = fs::read_to_string("data/valid_input/normal_slip_valid.toml").unwrap();
+    let expected = fs::read_to_string("data/valid_input/normal_slip_valid.txt").unwrap();
+
+    let input: InputBill = toml::from_str(&content).unwrap();
+    let bill = BillData::try_from(input).unwrap();
+    let qr_bill = QrBill::new(&bill).unwrap();
+
+    assert_eq!(qr_bill.create_qr_text().unwrap(), expected);
+}
