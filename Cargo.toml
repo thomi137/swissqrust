@@ -20,6 +20,7 @@ pdf-writer = "0.14.0"
 ttf-parser = "0.25.1"
 miniz_oxide = "0.9.0"
 anyhow = "1.0.102"
+toml = "1.0.3"
 
 [build-dependencies]
 serde =  { version = "1.0.228", features = ["derive"]}

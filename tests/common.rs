@@ -4,7 +4,6 @@
  * https://opensource.org/licenses/MIT
  */
 
-
 use swiss_qrust::{Address, BillData, Currency, QRCountry, ReferenceType};
 
 
@@ -44,7 +43,6 @@ pub fn bill_data() -> BillData {
         iban.to_string(),
         creditor_address,
         Some(debtor_address),
-        QRCountry::CH,
         Currency::CHF,
         Some(amount),
         ReferenceType::QrRef(String::from("000008207791225857421286694")),
@@ -63,7 +61,6 @@ pub fn bill_data_bill_info_as() -> BillData {
         iban.to_string(),
         creditor_address,
         Some(debtor_address),
-        QRCountry::CH,
         Currency::CHF,
         Some(amount),
         ReferenceType::QrRef(String::from("000003701588132583136809972")),
@@ -84,7 +81,6 @@ pub fn bill_data_scor_ref() -> BillData {
         iban.to_string(),
         creditor_address,
         Some(debtor_address),
-        QRCountry::CH,
         Currency::CHF,
         Some(amount),
         ref_type,
@@ -105,7 +101,6 @@ pub fn bill_data_non_ref() -> BillData {
         iban.to_string(),
         creditor_address,
         Some(debtor_address),
-        QRCountry::CH,
         Currency::CHF,
         Some(amount),
         ref_type,

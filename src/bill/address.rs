@@ -143,3 +143,28 @@ impl Address {
         lines
     }
 }
+
+#[derive(Debug, Deserialize)]
+pub struct InputAddress {
+    pub name: String,
+    pub street: Option<String>,
+    pub house_num: Option<String>,
+    pub plz: String,
+    pub city: String,
+    pub country: String,
+}
+
+impl TryFrom<InputAddress> for Address {
+    type Error = AddressError;
+
+    fn try_from(input: InputAddress) -> Result<Self, Self::Error> {
+        Address::new(
+            &input.name,
+            input.street.as_deref(),
+            input.house_num.as_deref(),
+            &input.plz,
+            &input.city,
+            &input.country,
+        )
+    }
+}

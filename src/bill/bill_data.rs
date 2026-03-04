@@ -9,8 +9,10 @@ use once_cell::sync::Lazy;
 use qrcodegen::QrCode;
 use regex::Regex;
 use thiserror::Error;
-use crate::Address;
+use crate::{Address, Country};
+use crate::address::AddressError;
 use crate::bill::reference_type::ReferenceType;
+use crate::input::InputBill;
 use crate::qr_bill::{encode_text_to_qr_code, QrBill};
 use crate::support::validators::*;
 
@@ -19,18 +21,20 @@ pub static AMOUNT_REGEX: Lazy<Regex> =
 
 #[derive(Debug, Error)]
 pub enum BillError{
-
     #[error(transparent)]
     ReferenceError(#[from] ReferenceError),
     #[error(transparent)]
     IbanError(#[from] IbanError),
     #[error(transparent)]
+    AddressError(#[from] AddressError),
+    #[error(transparent)]
     SPSCharsetError(#[from] SPSCharsetError),
+    #[error("Invalid currency")]
+    InvalidCurrency,
     #[error("Amount does not match amount specification")]
     InvalidAmount,
     #[error("QR-IBAN requires a QR reference (QRR)")]
-    QrIbanRequiresQrReference,
-    
+    QrIbanRequiresQrReference
 }
 
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq)]
@@ -67,7 +71,6 @@ pub struct BillData {
     pub iban: String,
     pub creditor_address: Address,
     pub debtor_address: Option<Address>,
-    pub country: QRCountry,
     pub currency: Currency,
     pub amount: Option<String>,
     pub reference_type: ReferenceType,
@@ -80,7 +83,6 @@ pub struct BillData {
         iban: String,
         creditor_address: Address,
         debtor_address: Option<Address>,
-        country: QRCountry,
         currency: Currency,
         amount: Option<String>,
         reference_type: ReferenceType,
@@ -113,7 +115,6 @@ pub struct BillData {
             iban,
             creditor_address,
             debtor_address,
-            country,
             currency,
             amount,
             reference_type,
@@ -123,11 +124,47 @@ pub struct BillData {
             alternative_schemes,
         };
 
+
+        // TODO Decompose out of this struct.
          bill.qr_code = QrBill::new(&bill)
             .and_then(|b| b.create_qr_text())
             .and_then(|txt| encode_text_to_qr_code(&txt))
             .ok();
 
         Ok(bill)
+    }
+}
+
+impl TryFrom<InputBill> for BillData {
+    type Error = BillError;
+
+    fn try_from(input: InputBill) -> Result<Self, Self::Error> {
+
+        let currency = input.currency.parse()?;
+
+        let creditor_address = Address::try_from(input.creditor_address)?;
+        let debtor_address =
+            match input.debtor_address {
+                Some(addr) => Some(Address::try_from(addr)?),
+                None => None,
+            };
+        let alternative_schemes = input
+            .alternative_schemes
+            .unwrap_or([None, None]);
+
+        let reference_type =
+            ReferenceType::infer(input.reference.unwrap_or("".to_string()).as_str())?;
+
+        BillData::new(
+            input.iban,
+            creditor_address,
+            debtor_address,
+            currency,
+            input.amount,
+            reference_type,
+            input.unstructured_message,
+            input.bill_information,
+            alternative_schemes,
+        )
     }
 }

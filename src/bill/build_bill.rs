@@ -30,7 +30,6 @@ pub fn buid_bill()  -> Result<BillData> {
         "CH64 3196 1000 0044 2155 7".to_string(),
         creditor,
         Some(debtor),
-        QRCountry::CH,
         Currency::CHF,
         None, //Some(String::from("32111.00")),
         ReferenceType::infer("000008207791225857421286694")?,
