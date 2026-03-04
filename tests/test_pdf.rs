@@ -4,6 +4,8 @@
  * https://opensource.org/licenses/MIT
  */
 use std::fs;
+use lopdf::content::Content;
+use lopdf::Document;
 use swiss_qrust::{create_pdf, label, BillData, Language};
 use swiss_qrust::input::InputBill;
 use swiss_qrust::render_bill::render_bill_to_bytes;
@@ -121,7 +123,6 @@ fn test_language_en() {
     assert!(text.contains(label!(AcceptancePoint, Language::En)));
 }
 
-
 fn normalize_pdf_text(s: &str) -> String {
     s.chars()
         .map(|c| match c {
@@ -131,4 +132,13 @@ fn normalize_pdf_text(s: &str) -> String {
         })
         .collect::<String>()
         .replace('\n', " ")
+}
+
+fn extract_page_content(pdf_bytes: &[u8]) -> String {
+    let doc = Document::load_mem(pdf_bytes).unwrap();
+    let pages = doc.get_pages();
+    let (_, page_id) = pages.iter().next().unwrap();
+
+    let content = doc.get_page_content(*page_id).unwrap();
+    String::from_utf8_lossy(&content).into_owned()
 }

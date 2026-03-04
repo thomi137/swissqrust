@@ -29,3 +29,4 @@ roxmltree = "0.21.1"
 
 [dev-dependencies]
 pdf-extract = "0.10.0"
+lopdf = "0.39.0"
