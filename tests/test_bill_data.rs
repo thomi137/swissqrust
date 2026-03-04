@@ -61,7 +61,7 @@ fn test_bill_data_non_ref() {
 
 #[test]
 fn test_correct_toml_read() {
-    let content = fs::read_to_string("data/valid_input/normal_slip_valid.toml").unwrap();
+    let content = fs::read_to_string("./tests/data/valid_input/normal_slip_valid.toml").unwrap();
     let input: InputBill = toml::from_str(&content).unwrap();
 
     assert_eq!(input.iban, "CH9300762011623852957");
@@ -73,8 +73,20 @@ fn test_correct_toml_read() {
 
 #[test]
 fn test_input_to_qr_data() {
-    let content = fs::read_to_string("data/valid_input/normal_slip_valid.toml").unwrap();
-    let expected = fs::read_to_string("data/valid_input/normal_slip_valid.txt").unwrap();
+    let content = fs::read_to_string("./tests/data/valid_input/normal_slip_valid.toml").unwrap();
+    let expected = fs::read_to_string("./tests/data/valid_input/normal_slip_valid.txt").unwrap();
+
+    let input: InputBill = toml::from_str(&content).unwrap();
+    let bill = BillData::try_from(input).unwrap();
+    let qr_bill = QrBill::new(&bill).unwrap();
+
+    assert_eq!(qr_bill.create_qr_text().unwrap(), expected);
+}
+
+#[test]
+fn test_input_to_qr_data_no_street() {
+    let content = fs::read_to_string("./tests/data/valid_input/normal_slip_valid_no_street.toml").unwrap();
+    let expected = fs::read_to_string("./tests/data/valid_input/normal_slip_valid_no_street.txt").unwrap();
 
     let input: InputBill = toml::from_str(&content).unwrap();
     let bill = BillData::try_from(input).unwrap();
