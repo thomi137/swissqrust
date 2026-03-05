@@ -6,7 +6,6 @@ on:
 
 permissions:
   contents: write # Required to push to the gh-pages branch
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
