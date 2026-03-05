@@ -1,3 +1,4 @@
+use std::fmt;
 use thiserror::Error;
 
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Hash)]
@@ -8,6 +9,18 @@ pub enum Language {
     #[default]
     En,
 }
+impl fmt::Display for Language {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Language::De => write!(f, "Deutsch"),
+            Language::Fr => write!(f, "Français"),
+            Language::It => write!(f, "Italiano"),
+            Language::En => write!(f, "English"),
+        }
+    }
+}
+
+
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum LabelKey {

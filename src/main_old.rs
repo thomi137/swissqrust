@@ -11,7 +11,7 @@ use swiss_qrust::{create_pdf, Language};
 fn main() -> Result<()> {
 
     let language = Language::It;
-    let test_output_path = "./examples/test_receipt.pdf";
+    let test_output_path = "./test_output/test_receipt.pdf";
     let bill = buid_bill()?;
     create_pdf(test_output_path, language, &bill)?;
     Ok(())
