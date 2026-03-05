@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  - Copyright (c) 2026 Thomas Prosser
+  - Licensed under MIT License
+  - https://opensource.org/licenses/MIT
+  -->
+
+<svg version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <!-- Swiss Red Background (Pantone 485 C) -->
+    <rect width="512" height="512" fill="#D52B1E"/>
+
+    <!-- Perfect 6:7 Proportion Cross -->
+    <!-- Width = 92.5, Length (total span) = 308.3 (approx 92.5 * 3.33) -->
+    <rect x="209.75" y="101.85" width="92.5" height="308.3" fill="#FFFFFF"/>
+    <rect x="101.85" y="209.75" width="308.3" height="92.5" fill="#FFFFFF"/>
+
+    <!-- Optional: Subtle "QR" corner frame to hint at the app's purpose -->
+    <path d="M40,40 L120,40 M40,40 L40,120" stroke="#FFFFFF" stroke-width="20" fill="none" stroke-linecap="square"/>
+    <path d="M392,40 L472,40 M472,40 L472,120" stroke="#FFFFFF" stroke-width="20" fill="none" stroke-linecap="square"/>
+    <path d="M40,392 L40,472 M40,472 L120,472" stroke="#FFFFFF" stroke-width="20" fill="none" stroke-linecap="square"/>
+</svg>
