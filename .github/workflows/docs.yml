@@ -1,0 +1,30 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ] # Trigger on every push to main
+
+permissions:
+  contents: write # Required to push to the gh-pages branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Generate Documentation
+        run: |
+          cargo doc --no-deps
+          # Redirect the root to your crate's specific doc page
+          echo "<meta http-equiv=\"refresh\" content=\"0; url=swiss_q_rust/index.html\">" > target/doc/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: target/doc
+          branch: gh-pages # Deploys to a separate branch for hosting
