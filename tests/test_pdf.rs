@@ -3,10 +3,10 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
+
 use std::fs;
-use lopdf::content::Content;
 use lopdf::Document;
-use swiss_qrust::{create_pdf, label, BillData, Language};
+use swiss_qrust::{label, BillData, Language};
 use swiss_qrust::input::InputBill;
 use swiss_qrust::render_bill::render_bill_to_bytes;
 

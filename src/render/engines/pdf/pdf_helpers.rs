@@ -4,13 +4,12 @@
  * https://opensource.org/licenses/MIT
  */
 
-use std::path::Path;
 use pdf_writer::Finish;
 use pdf_writer::{Content, Ref, Rect, Pdf};
 use anyhow::Result;
 
 use crate::{name, BillData, DrawOp, FontLibrary, FontStyle, Language, Mm, PT_PER_MM};
-use crate::render_bill::{render_bill_to_bytes, render_bill_to_pdf};
+use crate::render_bill::{render_bill_to_bytes};
 
 pub struct PdfPainter<'a> {
     pub content: &'a mut Content,

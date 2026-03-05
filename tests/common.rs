@@ -3,11 +3,8 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use std::fs;
-use std::path::Path;
-use serde::Deserialize;
+
 use swiss_qrust::{Address, BillData, Currency, ReferenceType};
-use swiss_qrust::input::InputBill;
 
 pub fn  crdt_address() -> Address {
     return Address::new(
