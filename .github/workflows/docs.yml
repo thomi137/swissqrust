@@ -2,10 +2,11 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [ main ] # Trigger on every push to main
+    branches: [ master ] # Trigger on every push to main
 
 permissions:
   contents: write # Required to push to the gh-pages branch
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
