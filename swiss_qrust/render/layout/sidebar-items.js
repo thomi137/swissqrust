@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["bill_layout","block_elements","blocks","draw","geometry","payment_part","receipt_part","spacing"]};

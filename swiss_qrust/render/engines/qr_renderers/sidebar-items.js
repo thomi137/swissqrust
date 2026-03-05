@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["add_swiss_cross","draw_swiss_cross_vector","render_qr_pdf","render_qr_svg"]};

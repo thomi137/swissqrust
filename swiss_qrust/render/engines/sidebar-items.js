@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["pdf","png_renderers","qr_renderers"]};

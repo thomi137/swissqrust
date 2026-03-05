@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["render_bill_to_bytes","render_bill_to_pdf"]};

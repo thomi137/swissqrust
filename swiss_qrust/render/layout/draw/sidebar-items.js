@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CornerMarksViewBox"],"fn":["draw_box","draw_corner_marks","draw_label","draw_single_line","draw_text_at","draw_text_lines"]};

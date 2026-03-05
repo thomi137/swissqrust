@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["render_svg_to_png"]};

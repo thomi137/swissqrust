@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BillError","Currency","QRCountry"],"static":["AMOUNT_REGEX"],"struct":["BillData"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["is_in_extended_sps_charset","is_qr_iban","mod10","mod97","qr_ref_is_numeric","remove_whitespace"]};

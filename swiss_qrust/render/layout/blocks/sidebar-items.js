@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["amount_block","information_block","qr_block","spacer_block","title_block"]};

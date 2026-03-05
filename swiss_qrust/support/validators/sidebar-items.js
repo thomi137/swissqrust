@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CountryValidationError","IbanError","ReferenceError"],"fn":["is_valid_iban","is_valid_iso11649_reference","is_valid_iso_3661_1_country","is_valid_qr_reference","is_valid_sps_charset"],"struct":["SPSCharsetError"]};

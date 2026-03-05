@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LineSeparator","QRBillError"],"fn":["encode_text_to_qr_code","qr_code"],"struct":["QRTextBuilder","QrBill","Version"]};

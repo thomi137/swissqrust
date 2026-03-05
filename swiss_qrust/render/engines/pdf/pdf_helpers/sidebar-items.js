@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["create_pdf"],"struct":["PDFBuilder","PdfPainter"]};

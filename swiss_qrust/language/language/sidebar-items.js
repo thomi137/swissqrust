@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["LabelKey","Language","LanguageError"],"fn":["label"],"struct":["LabelEntry"]};
