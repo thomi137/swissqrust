@@ -1,0 +1,17 @@
+[package]
+name = "swiss-qr-web-stub"
+version = "0.1.0"
+edition = "2021"
+
+# THIS PART IS MANDATORY
+[[bin]]
+name = "swiss-qr-web-stub"
+path = "main.rs"
+
+[dependencies]
+leptos = { version = "0.6", features = ["csr"] }
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+# This links to your main project so you can use your PDF logic
+swiss_qrust = { path = "../../" }
+

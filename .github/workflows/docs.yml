@@ -21,7 +21,7 @@ jobs:
         run: |
           cargo doc --no-deps
           # Redirect the root to your crate's specific doc page
-          echo "<meta http-equiv=\"refresh\" content=\"0; url=swiss_q_rust/index.html\">" > target/doc/index.html
+          echo "<meta http-equiv=\"refresh\" content=\"0; url=swiss_qrust/index.html\">" > target/doc/index.html
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
