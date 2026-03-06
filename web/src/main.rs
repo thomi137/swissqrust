@@ -5,10 +5,10 @@
  */
 
 use leptos::prelude::*;
+use leptos::component;
 use leptos::mount::mount_to_body;
 
 fn main() {
-    #[cfg(feature = "web")]
     {
         console_error_panic_hook::set_once();
         mount_to_body(|| view! { <App /> });
