@@ -6,7 +6,7 @@
 
 use std::fs;
 use clap::Parser;
-use anyhow::Result;
+use anyhow::{bail, Result};
 use swiss_qrust::{BillData, InputBill, create_pdf};
 
 #[derive(Parser)]
@@ -31,14 +31,8 @@ fn main() -> Result<()> {
 
     // --- 1. Load input file ---
     let content = fs::read_to_string(&cli.input)?;
-    let input_bill: InputBill = match cli.input.rsplit('.').next() {
-        Some("toml") => toml::from_str(&content)?,
-        Some("json") => serde_json::from_str(&content)?,
-        other => anyhow::bail!(
-            "Unsupported input format: {:?}. Use .toml or .json",
-            other
-        ),
-    };
+    let ext = &cli.extension().and_then(|s| s.to_str()).unwrap_or("");
+    let input_bill = swiss_qrust::parse_bill_data(&content, ext)?;
 
     // --- 2. Convert to internal BillData ---
     let bill_data: BillData = input_bill.try_into()?; // your TryFrom impl

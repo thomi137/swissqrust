@@ -11,8 +11,6 @@ use std::{
 };
 use serde::Deserialize;
 
-
-
 #[derive(Debug, Deserialize)]
 struct CountryRaw {
     cca2: String,
@@ -92,7 +90,7 @@ pub fn generate() {
         ));
 
         from_str_arms.push_str(&format!(
-            "            \"{a2}\" => Ok(Country::{variant}),\n",
+            "            \"{a2}\" => std::result::Result::Ok(Country::{variant}),\n",
             a2 = alpha2
         ));
 
@@ -102,6 +100,12 @@ pub fn generate() {
         r#"// AUTO-GENERATED FROM mledoze/countries (ODbL 1.0)
 // https://github.com/mledoze/countries
 // DO NOT EDIT BY HAND
+
+#[derive(Debug, thiserror::Error)]
+pub enum CountryParseError {{
+    #[error("'{{0}}' is not a valid ISO country code")]
+    InvalidCode(String),
+}}
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Country {{
@@ -127,12 +131,12 @@ impl Country {{
 }}
 
 impl std::str::FromStr for Country {{
-    type Err = ();
+    type Err = CountryParseError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {{
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {{
         match s.to_ascii_uppercase().as_str() {{
 {from_str_arms}
-            _ => Err(()),
+            _ => ::core::result::Result::Err(CountryParseError::InvalidCode(s.to_string())),
         }}
     }}
 }}

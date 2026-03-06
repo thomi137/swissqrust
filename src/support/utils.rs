@@ -167,3 +167,4 @@ pub fn mod10(reference: &str) -> bool {
     // This is better, because it will not panic.
     (10 - carry).is_multiple_of(10)
 }
+
