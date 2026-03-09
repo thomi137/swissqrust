@@ -4,12 +4,10 @@
  * https://opensource.org/licenses/MIT
  */
 
-use std::path::Path;
 use thiserror::Error;
-use crate::{BillData, Language, Mm, PaymentPartLayout, ReceiptLayout};
+use crate::{BillData, Language, PaymentPartLayout, ReceiptLayout};
 use crate::render::layout::bill_layout::LayoutStrategy;
-use crate::pdf::{execute_bill_ops, FontStyle, PDFBuilder, PdfFontLibrary};
-use crate::constants::*;
+use crate::pdf::{execute_bill_ops, PDFBuilder};
 use crate::qr_bill::qr_code;
 
 #[cfg(feature = "pdf-debug")]
@@ -29,110 +27,29 @@ pub enum RenderError {
     QrCodeGenerationError,
 }
 
-
-
-
-/*pub fn render_bill_to_bytes(bill: &BillData, language: Language) -> Result<Vec<u8>, RenderError> {
-
-    // --- 1. Create PDF builder ---
-    let mut builder = PDFBuilder::new();
-    builder.setup_pdf()?;
-
-    // --- 2. Compute font metrics (single source of truth) ---
-    let pp_title_ascender =
-        builder.fonts.ascender_mm(FontStyle::Bold, FONT_SIZE_TITLE);
-    let pp_label_ascender =
-        builder.fonts.ascender_mm(FontStyle::Bold, PP_LABEL_PREF_FONT_SIZE);
-    let pp_text_ascender =
-        builder.fonts.ascender_mm(FontStyle::Regular, PP_TEXT_PREF_FONT_SIZE);
-    let pp_line_spacing: Mm = (PP_TEXT_PREF_FONT_SIZE) .to_mm();
-
-    let rc_title_ascender =
-        builder.fonts.ascender_mm(FontStyle::Bold, FONT_SIZE_TITLE);
-    let rc_label_ascender =
-        builder.fonts.ascender_mm(FontStyle::Bold, RC_LABEL_PREF_FONT_SIZE);
-    let rc_text_ascender =
-        builder.fonts.ascender_mm(FontStyle::Regular, RC_TEXT_PREF_FONT_SIZE);
-    let rc_line_spacing: Mm = (RC_TEXT_PREF_FONT_SIZE ).to_mm();
-
-    let mut payment_part = PaymentPartLayout::new(
-        bill,
-        language,
-        PP_LABEL_PREF_FONT_SIZE,
-        PP_TEXT_PREF_FONT_SIZE,
-        pp_line_spacing,
-        Mm(2.0),
-        pp_title_ascender,
-        pp_label_ascender,
-        pp_text_ascender,
-    );
-    payment_part.render(&mut builder.ops);
-
-    // --- 4. Layout: Receipt ---
-    let mut receipt = ReceiptLayout::new(
-        bill,
-        language,
-        RC_LABEL_PREF_FONT_SIZE,
-        RC_TEXT_PREF_FONT_SIZE,
-        rc_line_spacing,
-        Mm(2.0),
-        rc_title_ascender,
-        rc_label_ascender,
-        rc_text_ascender,
-    );
-    receipt.render(&mut builder.ops, &builder.fonts);
-
-    execute_bill_ops(
-        &mut builder.content,
-        &builder.fonts,
-        std::mem::take(&mut builder.ops),
-        qr_code(&bill).ok().as_ref(),
-    );
-
-    // --- 5.1 Draw debug overlay ---
-    // Good for debugging
-    // requires pdf-debug feature
-    #[cfg(feature = "pdf-debug")]
-    draw_debug_overlay(&mut builder);
-
-    // --- 6. Attach content stream ---
-    builder
-        .pdf
-        .stream(builder.content_id, &builder.content.finish());
-
-    Ok(builder.pdf.finish())
-}
-*/
-
+/// Renders a bill to a set of PDF operations.
+///
+/// # Arguments:
+/// * `bill` - Data of the bill
+/// * `language` - Language of the bill
+///
+/// # Returns
+///
+/// A vector of raw bytes representing the PDF content.
+///
 pub fn render_bill_to_pdf(bill: &BillData, language: Language) -> Result<Vec<u8>, RenderError>  {
 
-    // --- 1. Create PDF builder ---
+     // --- 1. Create PDF builder ---
     let mut builder = PDFBuilder::new();
     builder.setup_pdf()?;
 
-    // --- 2. Compute font metrics (single source of truth) ---
-    let pp_title_ascender =
-        builder.fonts.get_ascender_mm(FontStyle::Bold, TITLE_FONT_SIZE);
-    let pp_label_ascender =
-        builder.fonts.get_ascender_mm(FontStyle::Bold, PP_LABEL_PREF_FONT_SIZE);
-    let pp_text_ascender =
-        builder.fonts.get_ascender_mm(FontStyle::Regular, PP_TEXT_PREF_FONT_SIZE);
-    let pp_line_spacing: Mm = (PP_TEXT_PREF_FONT_SIZE) .to_mm();
-
-    let rc_title_ascender =
-    builder.fonts.get_ascender_mm(FontStyle::Bold, TITLE_FONT_SIZE);
-    let rc_label_ascender =
-        builder.fonts.get_ascender_mm(FontStyle::Bold, RC_LABEL_PREF_FONT_SIZE);
-    let rc_text_ascender =
-        builder.fonts.get_ascender_mm(FontStyle::Regular, RC_TEXT_PREF_FONT_SIZE);
-    let rc_line_spacing: Mm = (RC_TEXT_PREF_FONT_SIZE ).to_mm();
-
-    let mut payment_part = PaymentPartLayout::new()
+    // --- 2. Layout: Payment Part --
+    PaymentPartLayout::new()
         .render(bill, language, &builder.fonts, &mut builder.ops);
 
-    // --- 4. Layout: Receipt ---
-    let mut receipt = ReceiptLayout::new().
-        render(bill, language, &builder.fonts, &mut builder.ops);
+    // --- 3. Layout: Receipt --
+    ReceiptLayout::new()
+        .render(bill, language, &builder.fonts, &mut builder.ops);
 
     execute_bill_ops(
         &mut builder.content,
@@ -141,17 +58,14 @@ pub fn render_bill_to_pdf(bill: &BillData, language: Language) -> Result<Vec<u8>
         qr_code(&bill).ok().as_ref(),
     );
 
-    // --- 5.1 Draw debug overlay ---
-    // Good for debugging
-    // requires pdf-debug feature
+    /// Draw a visual overlay grid 5x5 mm and positions and sizes of blocks.
     #[cfg(feature = "pdf-debug")]
+    
     draw_debug_overlay(&mut builder);
-
     // --- 6. Attach content stream ---
     builder
         .pdf
         .stream(builder.content_id, &builder.content.finish());
-
 
     // --- 7. Write PDF -
     Ok(builder.pdf.finish())

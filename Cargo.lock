@@ -3677,6 +3677,7 @@ name = "swiss_qrust"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "base64",
  "clap",
  "iced",
  "lopdf 0.39.0",

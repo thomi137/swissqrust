@@ -6,16 +6,26 @@
 use crate::constants::A4_PAGE_HEIGHT;
 use crate::Mm;
 
+/// Flips y so the origin is at the bottom left. PDF needs ths
 ///
-/// Flips y coordinate. In the TV age, x,y started top left.
-/// Then, Apple and hence PostScript and PDF started using
-/// the origin at the conventional position bottom left.
+///  # Arguments:
 ///
-/// This flips y so the layout layer can stay regardless of what the renderer does.
-/// So this converts from top down to a bottom up position
+///  * `y` - Distance from top of the layout area.
+///
+///  # Returns:
+///
+///  * `LayoutY` a Type that can be converted to PDF coordinates.
 ///
 /// Distance from top of the layout area.
-
+///
+/// # Example
+///
+/// ```
+/// # use crate::render::pdf::LayoutY;
+/// # use crate::{Mm, A4_PAGE_HEIGHT};
+/// let y = LayoutY(Mm(10f32));
+/// assert_eq!(y.to_pdf().0, Mm(A4_PAGE_HEIGHT - 10f32));
+/// ```
 #[derive(Copy, Clone, Debug)]
 pub struct LayoutY(pub Mm);
 

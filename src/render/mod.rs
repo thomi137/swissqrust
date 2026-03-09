@@ -43,7 +43,8 @@ impl FontMetrics for PdfFontLibrary {
             PdfFontLibrary::get_text_width_mm(self, style, text, size)
     }
 }
-/*
+
+
 impl FontMetrics for SvgFontLibrary {
     fn ascender_mm(&self, style: FontStyle, size: Pt) -> Mm {
         // This calls the method defined in 'impl SvgFontLibrary'
@@ -52,12 +53,10 @@ impl FontMetrics for SvgFontLibrary {
     fn descender_mm(&self, style: FontStyle, size: Pt) -> Mm {
         SvgFontLibrary::descender_mm(self, style, size)
     }
-    fn line_height_mm(&self: FontStyle, size: Pt) -> Mm {
-        SvgFontLibrary::line_height_mm(self, size)
+    fn line_height_mm(&self, style: FontStyle, size: Pt) -> Mm {
+        SvgFontLibrary::line_height_mm(self, style, size)
     }
     fn text_width_mm(&self, text: &str, style: FontStyle, size: Pt) -> Mm {
         SvgFontLibrary::text_width_mm(self, text, style, size)
     }
 }
-
-*/

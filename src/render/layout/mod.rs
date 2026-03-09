@@ -22,7 +22,6 @@ pub use receipt_part::*;
 pub use bill_layout::*;
 pub use blocks::*;
 pub use block_elements::*;
-use crate::{BillData, DrawOp, Language};
 use crate::render::FontMetrics;
 
 

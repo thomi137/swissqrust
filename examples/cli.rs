@@ -33,7 +33,6 @@ fn main() -> Result<()> {
     // --- 1. Load input file ---
     let content = fs::read_to_string(&cli.input)?;
     let ext = cli.input.split('.').last().unwrap_or("");
-    ;
     let input_bill = swiss_qrust::parse_bill_data(&content, ext)?;
 
     // --- 2. Convert to internal BillData ---

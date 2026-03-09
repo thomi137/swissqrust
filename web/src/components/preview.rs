@@ -6,6 +6,8 @@
 
 use leptos::{component, view, IntoView};
 use leptos::prelude::{use_context, Memo};
+
+use swiss_qrust::render_bill_to_pdf;
 use crate::state::AppState;
 
 #[component]
@@ -16,7 +18,7 @@ pub fn Preview() -> impl IntoView {
     let preview_svg = Memo::new(move |_| {
         state.bill.with(|data| {
             // Your existing SVG rendering logic
-            crate::render_bill_to_svg(data, state.lang.get())
+            crate::render_bill_to_pdf(data, state.lang.get())
         })
     });
 
