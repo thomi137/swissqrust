@@ -3,20 +3,21 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{Baseline, DrawOp, LayoutBlock, Mm};
-use crate::bill_layout::{BillLayout};
+
+use crate::{Baseline, DrawOp, LayoutBlock, Mm, RenderContext};
 use crate::block_elements::{Column, ColumnCursor};
 use crate::constants::{A4_PAGE_HEIGHT, MARGIN, RECEIPT_WIDTH};
-use crate::coords::LayoutY;
+use crate::pdf::coords::LayoutY;
+use crate::render::FontMetrics;
 
 pub struct QrBlock;
 
-impl LayoutBlock for QrBlock {
+impl <T: FontMetrics> LayoutBlock<T> for QrBlock {
     fn column(&self) -> Column {
         Column::Absolute
     }
 
-    fn render(&self, _: &mut BillLayout, ops: &mut Vec<DrawOp>,  _: &mut ColumnCursor) {
+    fn render(&self, _: &RenderContext<'_, T>, ops: &mut Vec<DrawOp>,  _: &mut ColumnCursor) {
         let x_start = RECEIPT_WIDTH + MARGIN;
         let y = A4_PAGE_HEIGHT -  Mm(42f32);
         ops.push(DrawOp::QrCodeSpace {

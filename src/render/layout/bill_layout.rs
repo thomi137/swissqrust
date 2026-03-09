@@ -4,17 +4,32 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::{BillData, Language, ReferenceType};
+use crate::{BillData, DrawOp, FontStyle, Language};
+use crate::render::FontMetrics;
 use crate::render::layout::geometry::*;
-use crate::render::layout::spacing::*;
 
 /// This is a module specific trait.
 /// It may depend on the `support::traits` module
-/// but it does not feel right to hand imports back and forth.
-/// maybe some later refactoring will fix this.
 pub struct LayoutCursor {
     pub x: Mm,
     pub y: Mm,
+}
+
+/// Trait for layout font metric strategies.
+pub trait LayoutStrategy<T: FontMetrics> {
+
+    const LABEL_SIZE: Pt;
+    const TEXT_SIZE: Pt;
+    const TITLE_SIZE: Pt;
+    const MAX_HEIGHT: Mm;
+
+    fn render(&mut self,
+              bill_data: &BillData,
+              language: Language,
+              metrics: &T,
+              ops: &mut Vec<DrawOp>
+    );
+
 }
 
 /// Configuration for which sections to render.
@@ -26,54 +41,38 @@ pub struct BillLayoutConfig {
 }
 
 /// Base layout information shared by Payment Part and Receipt Part
-pub struct BillLayout<'a> {
+pub struct RenderContext<'a, T: FontMetrics> {
     pub bill_data: &'a BillData,
-    pub config: BillLayoutConfig,
     pub language: Language,
-
-    // typography
-    pub label_font_size: Pt,
-    pub text_font_size: Pt,
-
-    // spacing (computed)
+    pub metrics: &'a T,
+    pub label_size: Pt,
+    pub text_size: Pt,
+    pub title_size: Pt,
     pub line_spacing: Mm,
-    pub extra_spacing: Mm,
-    pub title_ascender: Mm,
     pub label_ascender: Mm,
-    pub text_ascender: Mm
+    pub title_ascender: Mm,
+    pub text_ascender: Mm,
+    pub extra_spacing: Mm, // Calculated by your spacing logic
 }
 
-impl<'a> BillLayout<'a> {
-    pub fn compute_spacing(&mut self) -> bool {
-        let mut text_lines = 0usize;
-        let mut extra_blocks = 0usize;
-        let mut fixed_height = Mm(0.0);
-
-        text_lines += 1 + self.bill_data.creditor_address.to_lines().len();
-
-        match &self.bill_data.reference_type {
-            ReferenceType::NoRef => {}
-            _ => {
-                extra_blocks += 1;
-                text_lines += 2;
-            }
+impl<'a, T: FontMetrics> RenderContext<'a, T> {
+    pub fn for_strategy<S: LayoutStrategy<T>>(
+        bill_data: &'a BillData,
+        language: Language,
+        metrics: &'a T
+    ) -> Self {
+        Self {
+            bill_data,
+            language,
+            metrics,
+            label_size: S::LABEL_SIZE,
+            text_size: S::TEXT_SIZE,
+            title_size: S::TITLE_SIZE,
+            line_spacing: metrics.line_height_mm(FontStyle::Regular, S::TEXT_SIZE),
+            label_ascender: metrics.ascender_mm(FontStyle::Bold, S::LABEL_SIZE),
+            text_ascender: metrics.ascender_mm(FontStyle::Regular, S::TEXT_SIZE),
+            title_ascender: metrics.ascender_mm(FontStyle::Bold, S::TITLE_SIZE),
+            extra_spacing: Mm(0.0), // Logic for Swiss spacing goes here
         }
-        extra_blocks += 1;
-
-        match &self.bill_data.debtor_address {
-            Some(address) => text_lines += 1 + address.to_lines().len(),
-            None => {
-                text_lines += 1;
-                fixed_height = Mm(fixed_height.0 + self.config.debtor_box_height.0);
-            }
-        }
-        extra_blocks += 1;
-
-        let spacing = compute_spacing(self.config.max_height, fixed_height, text_lines, extra_blocks, self.line_spacing);
-
-        self.line_spacing = spacing.line_spacing;
-        self.extra_spacing = spacing.extra_spacing;
-
-        spacing.extra_spacing.0 / spacing.line_spacing.0 < 0.8
     }
 }

@@ -17,3 +17,4 @@ pub const DEBTOR_BOX_HEIGHT: Mm = Mm(25f32);
 pub const AMOUNT_BOX_WIDTH_PP: Mm = Mm(40f32);
 pub const AMOUNT_BOX_HEIGHT_PP: Mm = Mm(15f32);
 pub const PAYMENT_PART_MAX_HEIGHT: Mm = Mm(95f32);
+pub const RECEIPT_PART_MAX_HEIGHT: Mm = Mm(95f32);

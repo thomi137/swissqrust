@@ -5,15 +5,34 @@
  */
 
 use std::path::Path;
-use anyhow::Result;
-use crate::{execute_bill_ops, BillData, FontStyle, Language, Mm, PDFBuilder, PaymentPartLayout, ReceiptLayout};
+use thiserror::Error;
+use crate::{BillData, Language, Mm, PaymentPartLayout, ReceiptLayout};
+use crate::render::layout::bill_layout::LayoutStrategy;
+use crate::pdf::{execute_bill_ops, FontStyle, PDFBuilder, PdfFontLibrary};
 use crate::constants::*;
 use crate::qr_bill::qr_code;
 
 #[cfg(feature = "pdf-debug")]
 use crate::render::debug_overlay::draw_debug_overlay;
 
-pub fn render_bill_to_bytes(bill: &BillData, language: Language) -> Result<Vec<u8>> {
+#[derive(Debug, Error)]
+pub enum RenderError {
+    #[error("Failed to create PDF builder")]
+    BuilderCreationError,
+    #[error("Failed to setup PDF")]
+    SetupPdfError,
+    #[error("Failed to compute font metrics")]
+    FontMetricsError,
+    #[error("Failed to execute bill operations")]
+    BillOpsExecutionError,
+    #[error("Failed to generate QR code")]
+    QrCodeGenerationError,
+}
+
+
+
+
+/*pub fn render_bill_to_bytes(bill: &BillData, language: Language) -> Result<Vec<u8>, RenderError> {
 
     // --- 1. Create PDF builder ---
     let mut builder = PDFBuilder::new();
@@ -83,9 +102,9 @@ pub fn render_bill_to_bytes(bill: &BillData, language: Language) -> Result<Vec<u
 
     Ok(builder.pdf.finish())
 }
+*/
 
-
-pub fn render_bill_to_pdf(bill: &BillData, language: Language, path: &Path,) -> Result<()> {
+pub fn render_bill_to_pdf(bill: &BillData, language: Language) -> Result<Vec<u8>, RenderError>  {
 
     // --- 1. Create PDF builder ---
     let mut builder = PDFBuilder::new();
@@ -93,47 +112,27 @@ pub fn render_bill_to_pdf(bill: &BillData, language: Language, path: &Path,) -> 
 
     // --- 2. Compute font metrics (single source of truth) ---
     let pp_title_ascender =
-        builder.fonts.ascender_mm(FontStyle::Bold, FONT_SIZE_TITLE);
+        builder.fonts.get_ascender_mm(FontStyle::Bold, TITLE_FONT_SIZE);
     let pp_label_ascender =
-        builder.fonts.ascender_mm(FontStyle::Bold, PP_LABEL_PREF_FONT_SIZE);
+        builder.fonts.get_ascender_mm(FontStyle::Bold, PP_LABEL_PREF_FONT_SIZE);
     let pp_text_ascender =
-        builder.fonts.ascender_mm(FontStyle::Regular, PP_TEXT_PREF_FONT_SIZE);
+        builder.fonts.get_ascender_mm(FontStyle::Regular, PP_TEXT_PREF_FONT_SIZE);
     let pp_line_spacing: Mm = (PP_TEXT_PREF_FONT_SIZE) .to_mm();
 
     let rc_title_ascender =
-    builder.fonts.ascender_mm(FontStyle::Bold, FONT_SIZE_TITLE);
+    builder.fonts.get_ascender_mm(FontStyle::Bold, TITLE_FONT_SIZE);
     let rc_label_ascender =
-        builder.fonts.ascender_mm(FontStyle::Bold, RC_LABEL_PREF_FONT_SIZE);
+        builder.fonts.get_ascender_mm(FontStyle::Bold, RC_LABEL_PREF_FONT_SIZE);
     let rc_text_ascender =
-        builder.fonts.ascender_mm(FontStyle::Regular, RC_TEXT_PREF_FONT_SIZE);
+        builder.fonts.get_ascender_mm(FontStyle::Regular, RC_TEXT_PREF_FONT_SIZE);
     let rc_line_spacing: Mm = (RC_TEXT_PREF_FONT_SIZE ).to_mm();
 
-    let mut payment_part = PaymentPartLayout::new(
-        bill,
-        language,
-        PP_LABEL_PREF_FONT_SIZE,
-        PP_TEXT_PREF_FONT_SIZE,
-        pp_line_spacing,
-        Mm(2.0),
-        pp_title_ascender,
-        pp_label_ascender,
-        pp_text_ascender,
-    );
-    payment_part.render(&mut builder.ops);
+    let mut payment_part = PaymentPartLayout::new()
+        .render(bill, language, &builder.fonts, &mut builder.ops);
 
     // --- 4. Layout: Receipt ---
-    let mut receipt = ReceiptLayout::new(
-        bill,
-        language,
-        RC_LABEL_PREF_FONT_SIZE,
-        RC_TEXT_PREF_FONT_SIZE,
-        rc_line_spacing,
-        Mm(2.0),
-        rc_title_ascender,
-        rc_label_ascender,
-        rc_text_ascender,
-    );
-    receipt.render(&mut builder.ops, &builder.fonts);
+    let mut receipt = ReceiptLayout::new().
+        render(bill, language, &builder.fonts, &mut builder.ops);
 
     execute_bill_ops(
         &mut builder.content,
@@ -154,8 +153,6 @@ pub fn render_bill_to_pdf(bill: &BillData, language: Language, path: &Path,) -> 
         .stream(builder.content_id, &builder.content.finish());
 
 
-    // --- 7. Write PDF ---
-    std::fs::write(path, builder.pdf.finish())?;
-
-    Ok(())
+    // --- 7. Write PDF -
+    Ok(builder.pdf.finish())
 }

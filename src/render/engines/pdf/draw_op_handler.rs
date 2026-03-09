@@ -7,7 +7,7 @@
 use pdf_writer::Content;
 use qrcodegen::QrCode;
 use crate::render::types::DrawOp;
-use crate::render::engines::pdf::FontLibrary;
+use crate::render::engines::pdf::PdfFontLibrary;
 
 /*
  * ⚠️ pdf-writer is not for the faint of heart
@@ -20,12 +20,12 @@ use crate::render::engines::pdf::FontLibrary;
 
 // Define handlers for each DrawOp type
 trait DrawOpHandler {
-    fn handle(&self, content: &mut Content, op: &DrawOp, qr_data: Option<&QrCode>, fonts: &FontLibrary);
+    fn handle(&self, content: &mut Content, op: &DrawOp, qr_data: Option<&QrCode>, fonts: &PdfFontLibrary);
 }
 
 struct TextHandler;
 impl DrawOpHandler for TextHandler {
-    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, fonts: &FontLibrary) {
+    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, fonts: &PdfFontLibrary) {
         if let DrawOp::Text { text, at, size, bold } = op {
             let style = if *bold { crate::pdf::FontStyle::Bold } else { crate::pdf::FontStyle::Regular };
             let font_obj = if *bold { &fonts.bold } else { &fonts.regular };
@@ -34,7 +34,7 @@ impl DrawOpHandler for TextHandler {
             let pdf_y = at.y.to_pdf().0;
 
             content.begin_text();
-            content.set_font(crate::pdf::name(style), size.0);
+            content.set_font(crate::render::pdf::name(style), size.0);
             content.set_text_matrix([1.0, 0.0, 0.0, 1.0,
                 at.x.to_pt().0, pdf_y.to_pt().0]);
             content.show(pdf_writer::Str(&gids));
@@ -45,7 +45,7 @@ impl DrawOpHandler for TextHandler {
 
 struct LineHandler;
 impl DrawOpHandler for LineHandler {
-    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, _: &FontLibrary) {
+    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, _: &PdfFontLibrary) {
         if let DrawOp::Line { from, to, width } = op {
 
             let fy = from.1.to_pdf().0;
@@ -61,7 +61,7 @@ impl DrawOpHandler for LineHandler {
 
 struct BoxHandler;
 impl DrawOpHandler for BoxHandler {
-    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, _: &FontLibrary) {
+    fn handle(&self, content: &mut Content, op: &DrawOp, _: Option<&QrCode>, _: &PdfFontLibrary) {
         if let DrawOp::Box { rect } = op {
             content.set_line_width(0.75);
             content.rect(rect.x.to_pt().0, rect.y.to_pt().0, rect.width.to_pt().0, rect.height.to_pt().0);
@@ -72,7 +72,7 @@ impl DrawOpHandler for BoxHandler {
 
 struct QrCodeHandler;
 impl DrawOpHandler for QrCodeHandler {
-    fn handle(&self, content: &mut Content, op: &DrawOp, qr_data: Option<&QrCode>, _: &FontLibrary) {
+    fn handle(&self, content: &mut Content, op: &DrawOp, qr_data: Option<&QrCode>, _: &PdfFontLibrary) {
 
         if let DrawOp::QrCodeSpace { at, .. } = op {
 
@@ -87,7 +87,7 @@ impl DrawOpHandler for QrCodeHandler {
 
 pub fn execute_bill_ops(
     content: &mut Content,
-    fonts: &FontLibrary,
+    fonts: &PdfFontLibrary,
     ops: Vec<DrawOp>,
     qr_data: Option<&QrCode>,
 ) {
@@ -103,3 +103,5 @@ pub fn execute_bill_ops(
 
     }
 }
+
+

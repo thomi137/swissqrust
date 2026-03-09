@@ -4,37 +4,38 @@
  * https://opensource.org/licenses/MIT
  */
 
-use pdf_writer::Finish;
-use pdf_writer::{Content, Ref, Rect, Pdf};
 use anyhow::Result;
+use pdf_writer::Finish;
+use pdf_writer::{Content, Pdf, Rect, Ref};
 
-use crate::{name, BillData, DrawOp, FontLibrary, FontStyle, Language, Mm, PT_PER_MM};
-use crate::render_bill::{render_bill_to_bytes};
+use crate::pdf::render_bill::{render_bill_to_pdf, RenderError};
+use crate::pdf::{name, PdfFontLibrary};
+use crate::FontStyle;
+use crate::{BillData, DrawOp, Language, Mm, PT_PER_MM};
 
 pub struct PdfPainter<'a> {
     pub content: &'a mut Content,
-    pub fonts: &'a FontLibrary,
+    pub fonts: &'a PdfFontLibrary,
 }
 
- pub struct PDFBuilder {
+ pub struct PDFBuilder{
      pub pdf: Pdf,
      pub ops: Vec<DrawOp>,
      pub next_id: Ref,
      pub content: Content,
      pub content_id: Ref,
-     pub fonts: FontLibrary,
+     pub fonts: PdfFontLibrary,
 }
 
-impl PDFBuilder {
+impl PDFBuilder{
      pub fn new() -> Self {
 
          let mut pdf = Pdf::new();
-         let ops: Vec<DrawOp> = Vec::new();
+         let mut ops= Vec::new();
          let mut next_id = Ref::new(1);
          let content_id = next_id.bump();
          let content = Content::new();
-         let fonts = FontLibrary::new(&mut pdf, &mut next_id);
-
+         let fonts = PdfFontLibrary::new(&mut pdf, &mut next_id);
          Self {
              pdf,
              ops,
@@ -45,7 +46,7 @@ impl PDFBuilder {
          }
      }
 
-    pub fn setup_pdf(&mut self) -> Result<()> {
+    pub fn setup_pdf(&mut self) -> Result<(), RenderError> {
 
         let catalog_id = self.next_id.bump();
         let page_tree_id = self.next_id.bump();
@@ -137,7 +138,7 @@ pub fn create_pdf(
     bill_data: &BillData,
 ) -> anyhow::Result<()> {
 
-    let bytes = render_bill_to_bytes(bill_data, language)?;
+    let bytes = render_bill_to_pdf(bill_data, language)?;
     std::fs::write(path, bytes)?;
     Ok(())
 }

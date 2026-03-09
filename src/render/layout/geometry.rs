@@ -4,7 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 use std::ops::{Add, Mul, Sub};
-use crate::coords::LayoutY;
+use crate::pdf::coords::LayoutY;
 
 /// A4 Width in mm
 pub const A4_PORTRAIT_WIDTH: f32 = 210f32;

@@ -4,8 +4,8 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::{Mm, DrawOp};
-use crate::bill_layout::BillLayout;
+use crate::{Mm, DrawOp, RenderContext};
+use crate::render::FontMetrics;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum SlipPart {
@@ -35,12 +35,12 @@ impl ColumnCursor {
     }
 }
 
-pub trait LayoutBlock {
+pub trait LayoutBlock<T: FontMetrics> {
     fn column(&self) -> Column;
 
     fn render(
         &self,
-        layout: &mut BillLayout,
+        ctx: &RenderContext<'_, T>,
         ops: &mut Vec<DrawOp>,
         cursor: &mut ColumnCursor,
     );

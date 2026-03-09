@@ -1,5 +1,5 @@
 use crate::{Baseline, Mm, Pt, QRBillLayoutRect};
-use crate::coords::LayoutY;
+use crate::pdf::coords::LayoutY;
 
 #[derive(Debug)]
 pub enum DrawOp {

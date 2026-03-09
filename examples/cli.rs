@@ -6,8 +6,9 @@
 
 use std::fs;
 use clap::Parser;
-use anyhow::{bail, Result};
-use swiss_qrust::{BillData, InputBill, create_pdf};
+use anyhow::{Result};
+use swiss_qrust::{BillData};
+use swiss_qrust::pdf::create_pdf;
 
 #[derive(Parser)]
 #[command(name = "swiss_qrust")]
@@ -31,7 +32,8 @@ fn main() -> Result<()> {
 
     // --- 1. Load input file ---
     let content = fs::read_to_string(&cli.input)?;
-    let ext = &cli.extension().and_then(|s| s.to_str()).unwrap_or("");
+    let ext = cli.input.split('.').last().unwrap_or("");
+    ;
     let input_bill = swiss_qrust::parse_bill_data(&content, ext)?;
 
     // --- 2. Convert to internal BillData ---

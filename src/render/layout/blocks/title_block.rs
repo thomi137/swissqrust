@@ -3,21 +3,23 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-use crate::{label, Baseline, Column, DrawOp, LabelKey, LayoutBlock, Mm};
-use crate::bill_layout::{BillLayout};
+
+use crate::{label, Baseline, Column, DrawOp, LabelKey, LayoutBlock, Mm, RenderContext};
 use crate::block_elements::ColumnCursor;
-use crate::constants::FONT_SIZE_TITLE;
-use crate::coords::LayoutY;
+use crate::constants::TITLE_FONT_SIZE;
+use crate::pdf::coords::LayoutY;
+use crate::render::FontMetrics;
 
 pub struct TitleBlock {
     pub label: LabelKey,
 }
-impl LayoutBlock for TitleBlock {
+
+impl <T: FontMetrics> LayoutBlock<T> for TitleBlock {
     fn column(&self) -> Column {
         Column::Left
     }
 
-    fn render(&self, layout: &mut BillLayout, ops: &mut Vec<DrawOp>, cursor: &mut ColumnCursor) {
+    fn render(&self, ctx: &RenderContext<'_, T>, ops: &mut Vec<DrawOp>, cursor: &mut ColumnCursor) {
 
         let x = cursor.x;
         let y = cursor.y;
@@ -25,16 +27,16 @@ impl LayoutBlock for TitleBlock {
         let title_height = Mm(7f32);
 
         // small detour because title is only available when running.
-        let label_text = label(self.label, layout.language)
+        let label_text = label(self.label, ctx.language)
             .unwrap_or("");
         ops.push(DrawOp::Text {
             text: label_text.to_string(),
-            at: Baseline { x, y: LayoutY(y + layout.title_ascender) },
-            size: FONT_SIZE_TITLE,
+            at: Baseline { x, y: LayoutY(y + ctx.title_ascender) },
+            size: TITLE_FONT_SIZE,
             bold: true,
         });
 
         // TODO: Smell. Actually, this should be done in the layout.
-        cursor.advance(title_height + layout.label_ascender);
+        cursor.advance(title_height + ctx.label_ascender);
     }
 }

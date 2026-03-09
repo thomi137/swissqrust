@@ -8,7 +8,7 @@ use std::fs;
 use lopdf::Document;
 use swiss_qrust::{label, BillData, Language};
 use swiss_qrust::input::InputBill;
-use swiss_qrust::render_bill::render_bill_to_bytes;
+use swiss_qrust::pdf::render_bill::render_bill_to_pdf;
 
 #[test]
 fn test_pdf() {
@@ -18,7 +18,7 @@ fn test_pdf() {
     let bill = BillData::try_from(input).unwrap();
 
     // Act
-    let test_bill_bytes = render_bill_to_bytes(&bill, swiss_qrust::Language::It).unwrap();
+    let test_bill_bytes = render_bill_to_pdf(&bill, swiss_qrust::Language::It).unwrap();
     let text = pdf_extract::extract_text_from_mem(&test_bill_bytes).unwrap();
     let text = normalize_pdf_text(&text);
 
@@ -36,7 +36,7 @@ fn test_language_de() {
     let bill = BillData::try_from(input).unwrap();
 
     // Act
-    let test_bill_bytes = render_bill_to_bytes(&bill, swiss_qrust::Language::De).unwrap();
+    let test_bill_bytes = render_bill_to_pdf(&bill, swiss_qrust::Language::De).unwrap();
     let text = pdf_extract::extract_text_from_mem(&test_bill_bytes).unwrap();
     let text = normalize_pdf_text(&text);
 
@@ -59,7 +59,7 @@ fn test_language_fr() {
     let bill = BillData::try_from(input).unwrap();
 
     // Act
-    let test_bill_bytes = render_bill_to_bytes(&bill, swiss_qrust::Language::Fr).unwrap();
+    let test_bill_bytes = render_bill_to_pdf(&bill, swiss_qrust::Language::Fr).unwrap();
     let text = pdf_extract::extract_text_from_mem(&test_bill_bytes).unwrap();
     let text = normalize_pdf_text(&text);
 
@@ -82,7 +82,7 @@ fn test_language_it() {
     let bill = BillData::try_from(input).unwrap();
 
     // Act
-    let test_bill_bytes = render_bill_to_bytes(&bill, swiss_qrust::Language::It).unwrap();
+    let test_bill_bytes = render_bill_to_pdf(&bill, swiss_qrust::Language::It).unwrap();
     let text = pdf_extract::extract_text_from_mem(&test_bill_bytes).unwrap();
     let text = normalize_pdf_text(&text);
 
@@ -108,7 +108,7 @@ fn test_language_en() {
     let bill = BillData::try_from(input).unwrap();
 
     // Act
-    let test_bill_bytes = render_bill_to_bytes(&bill, swiss_qrust::Language::En).unwrap();
+    let test_bill_bytes = render_bill_to_pdf(&bill, swiss_qrust::Language::En).unwrap();
     let text = pdf_extract::extract_text_from_mem(&test_bill_bytes).unwrap();
     let text = normalize_pdf_text(&text);
 

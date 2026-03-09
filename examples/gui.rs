@@ -11,7 +11,8 @@ use iced::widget::{text, column, center, button, pick_list, row, container, svg}
 use iced::{Center, Element, Task, Color, Theme, Length, window, Background, Border, Shadow};
 use iced::theme::Palette;
 
-use swiss_qrust::{create_pdf, BillData, InputBill, Language};
+use swiss_qrust::{BillData, InputBill, Language};
+use swiss_qrust::pdf::create_pdf;
 
 // Define the official Swiss Red (Pantone 485 C)
 const SWISS_RED: Color = Color::from_rgb(0.835, 0.168, 0.117); // #D52B1E

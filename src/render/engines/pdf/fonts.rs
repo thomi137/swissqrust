@@ -8,13 +8,8 @@ use pdf_writer::{Finish, Name, Pdf, Ref, Str, Stream, Filter};
 use pdf_writer::types::{CidFontType, FontFlags, SystemInfo, UnicodeCmap};
 use ttf_parser::{Face, GlyphId};
 use miniz_oxide::deflate::compress_to_vec_zlib;
-use crate::{MM_PER_PT};
-
-pub const LIBERATION_SANS_REGULAR_TTF: &[u8] =
-    include_bytes!("../../../../assets/fonts/LiberationSansRegular.ttf");
-
-pub const LIBERATION_SANS_BOLD_TTF: &[u8] =
-    include_bytes!("../../../../assets/fonts/LiberationSansBold.ttf");
+use crate::{FontStyle, MM_PER_PT};
+use crate::pdf::{LIBERATION_SANS_BOLD_NAME, LIBERATION_SANS_REG_NAME};
 
 const SYSTEM_INFO: SystemInfo = SystemInfo {
     registry: Str(b"Adobe"),
@@ -145,5 +140,12 @@ pub fn embed_ttf_font(pdf: &mut Pdf, next_id: &mut Ref, custom_font_name: Name, 
     EmbeddedFont {
         type0_ref,
         face,
+    }
+}
+
+pub fn name(style: FontStyle) -> Name<'static> {
+    match style {
+        FontStyle::Regular => LIBERATION_SANS_REG_NAME,
+        FontStyle::Bold => LIBERATION_SANS_BOLD_NAME,
     }
 }

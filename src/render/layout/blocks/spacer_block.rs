@@ -4,19 +4,20 @@
  * https://opensource.org/licenses/MIT
  */
 
-use crate::{BillLayout, Column, ColumnCursor, DrawOp, LayoutBlock, Mm};
+use crate::{Column, ColumnCursor, DrawOp, LayoutBlock, Mm, RenderContext};
+use crate::render::FontMetrics;
 
 pub struct SpacerBlock {
     pub min_height: Mm,
 }
 
-impl LayoutBlock for SpacerBlock {
+impl <T: FontMetrics> LayoutBlock<T> for SpacerBlock {
 
     fn column(&self) -> Column {
         Column::Left
     }
 
-    fn render(&self, layout: &mut BillLayout, _ops: &mut Vec<DrawOp>, cursor: &mut ColumnCursor) {
+    fn render(&self, ctx: &RenderContext<'_, T>, _ops: &mut Vec<DrawOp>, cursor: &mut ColumnCursor) {
 
         // basically clamping the cursor to the minimum height
         let dy = if cursor.y <= self.min_height {
@@ -24,6 +25,6 @@ impl LayoutBlock for SpacerBlock {
         } else {
             cursor.y - self.min_height
         };
-        cursor.advance(dy + layout.label_ascender);
+        cursor.advance(dy + ctx.label_ascender);
     }
 }
