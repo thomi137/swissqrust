@@ -4101,16 +4101,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "swiss-qrrust-web"
+name = "swiss-qrust-web"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
  "js-sys",
  "leptos",
  "swiss_qrust",
- "toml 0.9.12+spec-1.1.0",
  "wasm-bindgen",
- "wasm-bindgen-futures",
  "web-sys",
 ]
 
@@ -4381,12 +4379,10 @@ version = "0.9.12+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf92845e79fc2e2def6a5d828f0801e29a2f8acc037becc5ab08595c7d5e9863"
 dependencies = [
- "indexmap",
  "serde_core",
  "serde_spanned",
  "toml_datetime 0.7.5+spec-1.1.0",
  "toml_parser",
- "toml_writer",
  "winnow",
 ]
 

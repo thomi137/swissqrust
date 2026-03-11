@@ -36,6 +36,22 @@ pub fn Sidebar() -> impl IntoView {
         }
     };
 
+    let iban_error = Memo::new(move |_| {
+        state.bill.with(|data| {
+            if data.iban.is_empty() {
+                Some(swiss_qrust::validators::IbanError::IncorrectLength {
+                    expected: 21,
+                    actual: 0,
+                })
+            } else if let Err(e) = swiss_qrust::is_valid_iban(&data.iban) {
+                Some(swiss_qrust::validators::IbanError::InvalidIban)
+            } else {
+                None
+            }
+        })
+    });
+
+
     view! {
             <aside class="lg:w-[450px] p-8 overflow-y-auto bg-white shadow-2xl border-r-4 border-red-600 z-10">
                 <div class="mb-10">
@@ -48,7 +64,10 @@ pub fn Sidebar() -> impl IntoView {
                         <label class="text-xs font-black text-slate-400 group-focus-within:text-red-600 transition-colors">"IBAN"</label>
                         <input
                             type="text"
-                            class="p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-red-600 outline-none transition-all font-mono"
+                            class=move || format!(
+                            "w-full p-2 border rounded font-mono outline-none {};",
+                                if iban_error.get().is_some() { "border-red-500 bg-red-50" } else { "border-slate-300" }
+                            )
                             prop:value= move || state.bill.get().iban.clone()
                             on:input= move |ev| {
                                 state.bill.update(|b| b.iban = event_target_value(&ev));

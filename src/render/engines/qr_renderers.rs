@@ -6,8 +6,8 @@
 
 use pdf_writer::Content;
 use qrcodegen::QrCode;
-use svg::Document;
 use svg::node::element::{Rectangle, Polygon as SvgPolygon, Group};
+
 use crate::{CROSS_POLYGONS, CROSS_RECTS, PT_PER_MM};
 
 const QR_MM: f64 = 46.0;
@@ -127,12 +127,12 @@ pub fn render_qr_svg(qr: QrCode, x_off: f64, y_off: f64) -> Group {
 }
 
 /// Clears QR modules and draws Swiss cross centered
-pub fn add_swiss_cross(mut doc: svg::Document) -> svg::Document {
+pub fn add_swiss_cross(mut group: Group) -> Group {
     let scale = CROSS_MM / CROSS_VIEWBOX.0; // 7 / 19.8
     let offset = (QR_MM - CROSS_MM) / 2.0;  // 19.5
 
     // Clear QR modules underneath (white background)
-    doc = doc.add(
+    group = group.add(
         Rectangle::new()
             .set("x", offset)
             .set("y", offset)
@@ -156,7 +156,7 @@ pub fn add_swiss_cross(mut doc: svg::Document) -> svg::Document {
             .collect::<Vec<_>>()
             .join(" ");
 
-        doc = doc.add(
+        group = group.add(
             SvgPolygon::new()
                 .set("points", points)
                 .set("fill", "black"),
@@ -164,7 +164,7 @@ pub fn add_swiss_cross(mut doc: svg::Document) -> svg::Document {
     }
 
     for r in CROSS_RECTS {
-        doc = doc.add(
+        group = group.add(
             Rectangle::new()
                 .set("x", r.x * scale + offset)
                 .set("y", r.y * scale + offset)
@@ -174,5 +174,5 @@ pub fn add_swiss_cross(mut doc: svg::Document) -> svg::Document {
         );
     }
 
-    doc
+    group
 }

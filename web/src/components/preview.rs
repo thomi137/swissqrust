@@ -7,7 +7,7 @@
 use leptos::prelude::*;
 use leptos::{component, view, IntoView};
 use leptos::prelude::{use_context, Memo};
-
+use swiss_qrust::BillError::IbanError;
 use swiss_qrust::svg::render_bill_to_svg;
 
 use crate::state::AppState;
@@ -16,19 +16,16 @@ use crate::state::AppState;
 pub fn Preview() -> impl IntoView {
 
     let state = use_context::<AppState>().expect("state missing");
-
+    
     let preview_svg = Memo::new(move |_| {
         state.bill.with(|data| {
-            match render_bill_to_svg(data, state.lang.get()) {
-                Ok(svg) => svg,
-                Err(e) => format!("<text y='20' fill='red'>Render Error: {}</text>", e),
-            }
+            render_bill_to_svg(data, state.lang.get()).unwrap_or_else(|e| format!("<text y='20' fill='red'>Render Error: {}</text>", e))
         })
     });
 
     view! {
-        <section class="flex-1 bg-slate-200 p-12 flex items-center justify-center overflow-auto">
-                <div class="relative bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-[210mm] aspect-[2/1] p-[10mm] transition-all duration-300 transform hover:scale-[1.01]">
+        <section class="flex-1 bg-slate-200 flex items-center justify-center overflow-auto">
+                <div class="relative bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-[210mm] aspect-[2/1] transition-all duration-300 transform hover:scale-[1.01]">
                     <div class="w-full h-full" inner_html=move || preview_svg.get() />
 
                     // Subtle corner marks for that "Pro" feel

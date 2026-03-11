@@ -45,7 +45,7 @@ pub fn execute_bill_ops_svg (
         .set("viewBox", (0, 0, 210, 105))
         .set("width", "100%")
         .set("height", "100%")
-        .set("shape-rendering", "geometricPrecision")
+        .set("preserveAspectRatio", "xMidYMid meet")
         .set("class", "swiss-qr-preview");
 
     for op in ops.iter() {
@@ -82,15 +82,15 @@ pub fn execute_bill_ops_svg (
                     .set("stroke-width", 0.2); // 0.75pt approx
                 doc = doc.add(box_rect);
             },
-            DrawOp::QrCodeSpace { .. } => {
-            if let Some(qr) = qr_data {
-                // Reuse your existing render_qr_svg + add_swiss_cross
-                let qr_group = add_swiss_cross(
-                    render_qr_svg(qr.clone())
-                );
-                doc = doc.add(qr_group);
-            }
-        },
+            DrawOp::QrCodeSpace { at, .. } => {
+                if let Some(qr) = qr_data {
+                    let y_svg = 17f32;
+                    let qr_group = add_swiss_cross(
+                        render_qr_svg(qr.clone(), at.x.0 as f64, y_svg as f64)
+                    );
+                    doc = doc.add(qr_group);
+                }
+            },
         }
     }
     Ok(doc.to_string())
