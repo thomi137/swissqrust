@@ -4,12 +4,14 @@
  * https://opensource.org/licenses/MIT
  */
 
-use leptos::prelude::{use_context, Memo};
+use leptos::prelude::*;
 use leptos::{component, view, IntoView};
 
-use swiss_qrust::Language;
 use crate::state::AppState;
 use crate::trigger_browser_download;
+
+use swiss_qrust::Language;
+use swiss_qrust::pdf::render_bill_to_pdf;
 
 #[component]
 pub fn Sidebar() -> impl IntoView {
@@ -25,7 +27,7 @@ pub fn Sidebar() -> impl IntoView {
         let lang = state.lang.get();
 
         // Use your existing PDF engine
-        match generate_pdf_bytes(&bill_data, lang) {
+        match render_bill_to_pdf(&bill_data, lang) {
             Ok(bytes) => {
                 trigger_browser_download(bytes);
                 state.status.set("PDF Downloaded!".into());
@@ -35,7 +37,6 @@ pub fn Sidebar() -> impl IntoView {
     };
 
     view! {
-         // LEFT: The Control Card (Keep your design!)
             <aside class="lg:w-[450px] p-8 overflow-y-auto bg-white shadow-2xl border-r-4 border-red-600 z-10">
                 <div class="mb-10">
                     <h1 class="text-4xl font-black text-slate-900 leading-tight">"Swiss QR"</h1>
@@ -43,15 +44,14 @@ pub fn Sidebar() -> impl IntoView {
                 </div>
 
                 <div class="space-y-8">
-                    // INPUT: IBAN (Reactive)
                     <div class="group flex flex-col gap-2">
                         <label class="text-xs font-black text-slate-400 group-focus-within:text-red-600 transition-colors">"IBAN"</label>
                         <input
                             type="text"
                             class="p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-red-600 outline-none transition-all font-mono"
-                            prop:value= move || bill.get().iban.clone()
+                            prop:value= move || state.bill.get().iban.clone()
                             on:input= move |ev| {
-                                bill.update(|b| b.iban = event_target_value(&ev));
+                                state.bill.update(|b| b.iban = event_target_value(&ev));
                             }
                         />
                     </div>
@@ -64,8 +64,8 @@ pub fn Sidebar() -> impl IntoView {
                             step="0.01"
                             class="p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-red-600 outline-none transition-all"
                             on:input=move |ev| {
-                                let val = event_target_value(&ev).parse::<f64>().unwrap_or(0.0);
-                                bill.update(|b| b.amount = val);
+                            let val = event_target_value(&ev).parse::<f64>().unwrap_or(0.0);
+                                state.bill.update(|b| b.amount = Some(format!("{:.2}", val)));
                             }
                         />
                     </div>
@@ -80,7 +80,7 @@ pub fn Sidebar() -> impl IntoView {
                             class="p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-swiss-red outline-none transition-all font-bold"
                             on:input=move |ev| {
                                 let val = event_target_value(&ev).parse::<f64>().unwrap_or(0.0);
-                                state.bill.update(|b| b.amount = val);
+                                state.bill.update(|b| b.amount = Some(format!("{:.2}", val)));
                             }
                         />
                     </div>
@@ -90,9 +90,9 @@ pub fn Sidebar() -> impl IntoView {
                             class="p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-swiss-red outline-none appearance-none font-bold"
                             on:change=move |ev| {
                                 let val = event_target_value(&ev);
-                                state.bill.update(|b| b.currency = val);
+                                state.bill.update(|b| b.currency = val.parse().unwrap_or_default());
                             }
-                        >
+                            >
                             <option value="CHF">"CHF"</option>
                             <option value="EUR">"EUR"</option>
                         </select>
@@ -133,9 +133,6 @@ pub fn Sidebar() -> impl IntoView {
                     </p>
                 </div>
             </div>
-
-                </div>
-            </aside>
-
+         </aside>
     }
 }

@@ -6,6 +6,7 @@
 
 use std::fmt::{Display, Formatter};
 use std::fmt;
+use std::str::FromStr;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use thiserror::Error;
@@ -42,6 +43,7 @@ pub enum Currency {
     CHF,
     EUR,
 }
+
 impl Display for Currency {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {

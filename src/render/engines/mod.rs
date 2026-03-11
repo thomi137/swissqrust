@@ -7,9 +7,9 @@
 use crate::render::FontMetrics;
 
 pub mod pdf;
+pub mod svg;
 
 pub mod png_renderers;
-pub mod svg;
 pub mod qr_renderers;
 
 pub enum FontStyle {

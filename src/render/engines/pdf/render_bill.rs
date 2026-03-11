@@ -13,7 +13,7 @@ use crate::qr_bill::qr_code;
 #[cfg(feature = "pdf-debug")]
 use crate::render::debug_overlay::draw_debug_overlay;
 
-#[derive(Debug, Error)]
+#[derive(Debug, PartialEq, Error)]
 pub enum RenderError {
     #[error("Failed to create PDF builder")]
     BuilderCreationError,

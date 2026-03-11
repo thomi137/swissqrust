@@ -5,6 +5,19 @@
   -->
 
 <!-- examples/web/index.html -->
-<link data-trunk rel="rust" data-path="main.rs" data-type="main" />
-<link data-trunk rel="tailwind-css" href="input.css" data-config="tailwind.config.js" />
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Swiss QR - Enterprise</title>
+    <!-- Trunk handles the JS/WASM injection automatically -->
+    <link data-trunk rel="rust" data-path="main.rs" data-type="main" />
+    <!-- Tailwind -->
+    <link data-trunk rel="tailwind-css" href="input.css" data-config="tailwind.config.js" />
+</head>
+<body>
+ <!-- Trunk will inject the JS/WASM here -->
+</body>
+</html>

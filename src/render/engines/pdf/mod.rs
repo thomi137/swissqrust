@@ -14,6 +14,7 @@ use pdf_writer::{Name, Pdf, Ref};
 pub use fonts::*;
 pub use draw_op_handler::*;
 pub use pdf_helpers::*;
+pub use render_bill::*;
 use crate::{render, FontStyle, Mm, Pt, LIBERATION_SANS_BOLD_TTF, LIBERATION_SANS_REGULAR_TTF, MM_PER_PT};
 
 const LIBERATION_SANS_REG_NAME: Name = Name(b"LiberationSansRegular");

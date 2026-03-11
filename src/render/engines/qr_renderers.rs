@@ -3,10 +3,11 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
+
 use pdf_writer::Content;
 use qrcodegen::QrCode;
 use svg::Document;
-use svg::node::element::{Rectangle, Polygon as SvgPolygon};
+use svg::node::element::{Rectangle, Polygon as SvgPolygon, Group};
 use crate::{CROSS_POLYGONS, CROSS_RECTS, PT_PER_MM};
 
 const QR_MM: f64 = 46.0;
@@ -90,20 +91,17 @@ pub fn draw_swiss_cross_vector(content: &mut Content, x_center: f64, y_center: f
     content.restore_state();
 }
 
-
-
 /// Render a Swiss QR Code SVG (modules only).
 /// The Swiss cross area is cleared here.
 /// The official SVG cross is rendered later on top.
-pub fn render_qr_svg(qr: QrCode) -> Document {
+pub fn render_qr_svg(qr: QrCode, x_off: f64, y_off: f64) -> Group {
     let modules = qr.size();
     let drawable_mm = QR_MM - 2.0 * QUIET_MM;
     let module_mm = drawable_mm / modules as f64;
 
-    let mut doc = Document::new()
-        .set("width", format!("{}mm", QR_MM as usize))
-        .set("height", format!("{}mm", QR_MM as usize))
-        .set("viewBox", format!("0 0 {} {}", QR_MM, QR_MM));
+    let mut group = Group::new()
+        .set("transform", format!("translate({}, {})", x_off, y_off));
+
 
     for row in 0..modules {
         for col in 0..modules {
@@ -111,10 +109,10 @@ pub fn render_qr_svg(qr: QrCode) -> Document {
                 continue;
             }
 
-            let x = QUIET_MM + col as f64 * module_mm;
-            let y = QUIET_MM + row as f64 * module_mm;
+            let x = col as f64 * module_mm;
+            let y = row as f64 * module_mm;
 
-            doc = doc.add(
+            group = group.add(
                 Rectangle::new()
                     .set("x", x)
                     .set("y", y)
@@ -125,7 +123,7 @@ pub fn render_qr_svg(qr: QrCode) -> Document {
         }
     }
 
-    doc
+    group
 }
 
 /// Clears QR modules and draws Swiss cross centered

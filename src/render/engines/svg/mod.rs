@@ -7,6 +7,8 @@ pub mod svg_draw_op_handler;
 pub mod fonts;
 mod render_svg_bill;
 
+
+pub use render_svg_bill::*;
 pub use fonts::*;
 pub use svg_draw_op_handler::*;
 pub use crate::render::engines::qr_renderers::*;
