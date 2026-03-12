@@ -13,6 +13,8 @@ pub struct AppState {
     pub bill: RwSignal<BillData>,
     pub lang: RwSignal<Language>,
     pub status: RwSignal<String>,
+    pub creditor_address: RwSignal<Address>,
+    pub debtor_address: RwSignal<Option<Address>>,
 }
 
 impl AppState {
@@ -21,6 +23,8 @@ impl AppState {
             bill: RwSignal::new(seed_bill()),
             lang: RwSignal::new(Language::De),
             status: RwSignal::new("Ready".to_string()),
+            creditor_address: RwSignal::new(seed_bill().creditor_address),
+            debtor_address: RwSignal::new(None),
         }
     }
 }

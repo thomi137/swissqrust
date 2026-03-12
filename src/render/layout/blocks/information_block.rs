@@ -23,9 +23,9 @@ impl <T: FontMetrics> LayoutBlock<T> for InformationBlock {
     fn render(&self, ctx: &RenderContext<'_, T>, ops: &mut Vec<DrawOp>, cursor: &mut ColumnCursor) {
         // Account / Payable to
         draw_label(ops, label!(AccountPayableTo, ctx.language), cursor.x, &mut cursor.y, ctx.label_size);
-        cursor.advance(ctx.text_ascender);
+        cursor.advance(ctx.line_spacing);
         draw_single_line(ops, &ctx.bill_data.iban.format_iban(), cursor.x, &mut cursor.y, ctx.text_size);
-        cursor.advance(ctx.text_ascender);
+        cursor.advance(ctx.line_spacing);
         draw_text_lines(ops, &ctx.bill_data.creditor_address.to_lines().all_but_last(), cursor.x, &mut cursor.y, ctx.text_size, ctx.line_spacing);
         cursor.advance(ctx.line_spacing);
 
@@ -43,7 +43,7 @@ impl <T: FontMetrics> LayoutBlock<T> for InformationBlock {
                 draw_single_line(ops, &reference.format_scor_reference(), cursor.x, &mut cursor.y, ctx.text_size);
                 cursor.advance(ctx.line_spacing + ctx.extra_spacing);
             },
-            _ => {},
+            _ => {cursor.advance(ctx.line_spacing + ctx.extra_spacing); },
         }
 
         // Unstructured message

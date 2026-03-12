@@ -37,7 +37,7 @@ impl<T: FontMetrics> ReceiptLayout<T> {
 impl <T: FontMetrics> LayoutStrategy<T> for ReceiptLayout<T> {
 
         const LABEL_SIZE: Pt = RC_LABEL_PREF_FONT_SIZE;
-        const TEXT_SIZE: Pt = RC_LABEL_PREF_FONT_SIZE;
+        const TEXT_SIZE: Pt = RC_TEXT_PREF_FONT_SIZE;
         const TITLE_SIZE: Pt = TITLE_FONT_SIZE;
         const MAX_HEIGHT: Mm = RECEIPT_PART_MAX_HEIGHT;
 

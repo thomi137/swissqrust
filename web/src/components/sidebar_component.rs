@@ -8,16 +8,24 @@ use leptos::prelude::*;
 use leptos::{component, view, IntoView};
 
 use crate::state::AppState;
-use crate::trigger_browser_download;
+
 
 use swiss_qrust::Language;
 use swiss_qrust::pdf::render_bill_to_pdf;
+use crate::components::address_component::AddressComponent;
+use crate::components::widgets::ToggleSwitch;
+use crate::utils::trigger_browser_download;
 
 #[component]
 pub fn Sidebar() -> impl IntoView {
 
     // 1. Access the global state
     let state = use_context::<AppState>().expect("State context missing");
+
+
+    // 1.1 Just local state. No need to put it into app state
+    let (has_debtor, set_has_debtor) = signal(false);
+
 
     // 2. Action for PDF Generation
     let on_download = move |_| {
@@ -34,6 +42,14 @@ pub fn Sidebar() -> impl IntoView {
             }
             Err(e) => state.status.set(format!("Error: {e}")),
         }
+    };
+
+    let mask = move |val: &str| {
+        val.as_bytes()
+            .chunks(4)
+            .map(|c| std::str::from_utf8(c).unwrap())
+            .collect::<Vec<_>>()
+            .join(" ")
     };
 
     let iban_error = Memo::new(move |_| {
@@ -53,7 +69,6 @@ pub fn Sidebar() -> impl IntoView {
 
 
     view! {
-            <aside class="lg:w-[450px] p-8 overflow-y-auto bg-white shadow-2xl border-r-4 border-red-600 z-10">
                 <div class="mb-10">
                     <h1 class="text-4xl font-black text-slate-900 leading-tight">"Swiss QR"</h1>
                     <p class="text-red-600 font-bold uppercase tracking-tighter text-sm">"Enterprise Edition"</p>
@@ -68,26 +83,38 @@ pub fn Sidebar() -> impl IntoView {
                             "w-full p-2 border rounded font-mono outline-none {};",
                                 if iban_error.get().is_some() { "border-red-500 bg-red-50" } else { "border-slate-300" }
                             )
-                            prop:value= move || state.bill.get().iban.clone()
-                            on:input= move |ev| {
-                                state.bill.update(|b| b.iban = event_target_value(&ev));
+                            prop:value= move || mask(&*state.bill.get().iban)
+                             on:input=move |ev| {
+                                let val = event_target_value(&ev).replace(" ", "").to_uppercase();
+                                // Simple mask: Add spaces every 4 chars
+                                let masked = mask(&val);
+                                state.bill.update(|b| b.iban = masked);
                             }
+                            />
+                    </div>
+
+                    <AddressComponent
+                        title="Creditor"
+                        address=Signal::derive(move || state.bill.get().creditor_address)
+                        on_change=move |new_addr| state.bill.update(|b| b.creditor_address = new_addr)
+                    />
+
+                    <ToggleSwitch
+                        has_debtor=has_debtor
+                        set_has_debtor=set_has_debtor/>
+
+                    <div class=move || format!(
+                        "transition-all duration-500 ease-in-out overflow-hidden {}",
+                        if has_debtor.get() { "max-h-[500px] opacity-100 mt-6" } else { "max-h-0 opacity-0 pointer-events-none" }
+                    )>
+                        <AddressComponent
+                            title="Debtor (Optional)"
+                            address=Signal::derive(move || state.bill.get().debtor_address.unwrap_or_default())
+                            on_change=move |new_addr| state.bill.update(|b| b.debtor_address = Some(new_addr))
+                            class="p-4 bg-blue-50/30 rounded-xl border border-blue-100"
                         />
                     </div>
 
-                    // INPUT: Amount
-                    <div class="flex flex-col gap-2">
-                        <label class="text-xs font-black text-slate-400">"AMOUNT"</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            class="p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-red-600 outline-none transition-all"
-                            on:input=move |ev| {
-                            let val = event_target_value(&ev).parse::<f64>().unwrap_or(0.0);
-                                state.bill.update(|b| b.amount = Some(format!("{:.2}", val)));
-                            }
-                        />
-                    </div>
 
                     <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
@@ -152,6 +179,5 @@ pub fn Sidebar() -> impl IntoView {
                     </p>
                 </div>
             </div>
-         </aside>
     }
 }

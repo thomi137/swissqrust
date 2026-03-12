@@ -49,6 +49,20 @@ pub struct Address {
     pub country: Country,
 }
 
+impl Default for Address {
+    fn default() -> Self {
+        Self {
+            address_type: ADDRESS_TYPE.into(),
+            name: "".into(),
+            street: None,
+            house_num: None,
+            plz: "".into(),
+            city: "".into(),
+            country: Country::CH,
+        }
+    }
+}
+
 impl Address {
     pub fn new(
         name: &str,

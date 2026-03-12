@@ -3,10 +3,9 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
+use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::fmt;
-use std::str::FromStr;
 use once_cell::sync::Lazy;
 use regex::Regex;
 use thiserror::Error;
@@ -158,4 +157,55 @@ impl TryFrom<InputBill> for BillData {
             alternative_schemes,
         )
     }
+}
+
+/// Generates Bill Data for use in a main function which is testing this library:
+/// 1. Create a new Address
+/// 2. Create a new BillData
+///
+/// Note: This is not a real bill, it is just a test case. Validating against the
+/// SIX Swiss Bank Master will fail as the IBAN is not valid.
+///
+/// # Returns
+/// `Result<BillData>` - Bill Data Result for use as a test case
+///
+/// # Example
+/// ```
+/// # use swiss_qrust::*;
+/// let bill_data = build_bill::build_bill().unwrap();
+/// assert_eq!(bill_data.creditor_address.name, "Health insurance fit&kicking");
+/// assert_eq!(bill_data.reference_type, ReferenceType::QrRef("000008207791225857421286694".to_string()));
+/// ```
+pub fn build_bill()  -> Result<BillData, BillError> {
+    let  creditor = Address::new(
+        "Health insurance fit&kicking",
+        Some("Am Wasser"),
+        Some("1"),
+        "3000",
+        "Bern",
+        "CH"
+    )?;
+
+    let debtor = Address::new(
+        "Sarah Beispiel",
+        Some("Mustergasse"),
+        Some("1"),
+        "3600",
+        "Thun",
+        "CH"
+    )?;
+
+    let bill_data = BillData::new(
+        "CH64 3196 1000 0044 2155 7".to_string(),
+        creditor,
+        Some(debtor),
+        Currency::CHF,
+        None, //Some(String::from("32111.00")),
+        ReferenceType::infer("000008207791225857421286694")?,
+        Some(String::from("Premium calculation July 2020")),
+        None,
+        [None, None],
+    );
+
+    Ok(bill_data?)
 }
