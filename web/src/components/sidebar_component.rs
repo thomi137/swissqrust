@@ -13,7 +13,7 @@ use crate::state::AppState;
 use swiss_qrust::Language;
 use swiss_qrust::pdf::render_bill_to_pdf;
 use crate::components::address_component::AddressComponent;
-use crate::components::widgets::ToggleSwitch;
+use crate::components::widgets::{CountingTextArea, ToggleSwitch};
 use crate::utils::trigger_browser_download;
 
 #[component]
@@ -67,14 +67,15 @@ pub fn Sidebar() -> impl IntoView {
         })
     });
 
+    let section_card = "p-6 bg-slate-50 border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300";
 
     view! {
                 <div class="mb-10">
                     <h1 class="text-4xl font-black text-slate-900 leading-tight">"Swiss QR"</h1>
                     <p class="text-red-600 font-bold uppercase tracking-tighter text-sm">"Enterprise Edition"</p>
                 </div>
-
                 <div class="space-y-8">
+                    <div class=section_card>
                     <div class="group flex flex-col gap-2">
                         <label class="text-xs font-black text-slate-400 group-focus-within:text-red-600 transition-colors">"IBAN"</label>
                         <input
@@ -93,12 +94,35 @@ pub fn Sidebar() -> impl IntoView {
                             />
                     </div>
 
+
                     <AddressComponent
                         title="Creditor"
                         address=Signal::derive(move || state.bill.get().creditor_address)
                         on_change=move |new_addr| state.bill.update(|b| b.creditor_address = new_addr)
                     />
+                     </div>
 
+                    // Reference gets in here
+
+
+                    // Additional Information
+                    <div class=section_card>
+                    <CountingTextArea
+                        label="Additional Information"
+                        value=Signal::derive(move || {
+                            state.bill.get().unstructured_message.unwrap_or_default()
+                        })
+                        on_input=move |new_info| {
+                            state.bill.update(|b| {
+                                // Write: Update the field inside the signal
+                                b.unstructured_message = if new_info.is_empty() { None } else { Some(new_info) };
+                            });
+                        }
+                        max_length=140
+                    />
+                    </div>
+
+                    <div class=section_card>
                     <ToggleSwitch
                         has_debtor=has_debtor
                         set_has_debtor=set_has_debtor/>
@@ -114,8 +138,10 @@ pub fn Sidebar() -> impl IntoView {
                             class="p-4 bg-blue-50/30 rounded-xl border border-blue-100"
                         />
                     </div>
+                    </div>
 
-
+                    // Amount Section
+                    <div class=section_card>
                     <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-1">
                         <label class="text-[10px] font-black text-slate-400">"AMOUNT"</label>
@@ -142,6 +168,7 @@ pub fn Sidebar() -> impl IntoView {
                             <option value="CHF">"CHF"</option>
                             <option value="EUR">"EUR"</option>
                         </select>
+                    </div>
                     </div>
                 </div>
 

@@ -102,4 +102,50 @@ pub mod widgets {
                 </div>
             }
         }
+
+    #[component]
+    pub fn CountingTextArea<F>(
+        label: &'static str,
+        #[prop(into)] value: Signal<String>,
+        on_input: F,
+        max_length: usize,
+    ) -> impl IntoView
+    where F: Fn(String) + 'static
+    {
+        let current_len = move || value.get().len();
+        let is_over = move || current_len() > max_length;
+
+        view! {
+        <div class="relative mt-4 group">
+            <textarea
+                class=move || format!(
+                    "peer w-full min-h-[100px] p-4 pt-6 text-sm border-2 rounded-xl outline-none transition-all \
+                    {} group-hover:border-slate-300 focus:border-red-600 focus:ring-0 resize-none",
+                    if is_over() { "border-red-500 bg-red-50" } else { "border-slate-100 bg-white" }
+                )
+                placeholder=" " // Required for the CSS peer-placeholder-shown trick
+                prop:value=value
+                on:input=move |ev| on_input(event_target_value(&ev))
+            />
+
+            // The Floating Label
+            <label class="absolute left-4 top-2 text-[10px] font-black uppercase text-slate-400 \
+                          transition-all duration-200 pointer-events-none \
+                          peer-placeholder-shown:top-6 peer-placeholder-shown:text-sm \
+                          peer-placeholder-shown:font-bold peer-focus:top-2 peer-focus:text-[10px] \
+                          peer-focus:text-red-600">
+                {label}
+            </label>
+
+            // Character Counter
+            <div class=move || format!(
+                "absolute bottom-2 right-4 text-[10px] font-bold tracking-widest {}",
+                if is_over() { "text-red-500" } else { "text-slate-300" }
+            )>
+                {move || format!("{}/{}", current_len(), max_length)}
+            </div>
+        </div>
+    }
+    }
+
 } // widgets
