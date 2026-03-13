@@ -172,7 +172,7 @@ impl TryFrom<InputBill> for BillData {
 /// # Example
 /// ```
 /// # use swiss_qrust::*;
-/// let bill_data = build_bill::build_bill().unwrap();
+/// let bill_data = build_bill().unwrap();
 /// assert_eq!(bill_data.creditor_address.name, "Health insurance fit&kicking");
 /// assert_eq!(bill_data.reference_type, ReferenceType::QrRef("000008207791225857421286694".to_string()));
 /// ```

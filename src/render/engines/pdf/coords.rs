@@ -21,10 +21,11 @@ use crate::Mm;
 /// # Example
 ///
 /// ```
-/// # use crate::render::pdf::LayoutY;
-/// # use crate::{Mm, A4_PAGE_HEIGHT};
+/// # use swiss_qrust::pdf::coords::LayoutY;
+/// # use swiss_qrust::Mm;
+/// # use swiss_qrust::constants::A4_PAGE_HEIGHT;
 /// let y = LayoutY(Mm(10f32));
-/// assert_eq!(y.to_pdf().0, Mm(A4_PAGE_HEIGHT - 10f32));
+/// assert_eq!(y.to_pdf().0, (A4_PAGE_HEIGHT - Mm(10f32)));
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct LayoutY(pub Mm);
