@@ -8,6 +8,6 @@ SIX Swiss Bank Master will fail as the IBAN is not valid.</p>
 <h2 id="returns"><a class="doc-anchor" href="#returns">§</a>Returns</h2>
 <p><code>Result&lt;BillData&gt;</code> - Bill Data Result for use as a test case</p>
 <h2 id="example"><a class="doc-anchor" href="#example">§</a>Example</h2>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>bill_data = build_bill::build_bill().unwrap();
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>bill_data = build_bill().unwrap();
 <span class="macro">assert_eq!</span>(bill_data.creditor_address.name, <span class="string">"Health insurance fit&amp;kicking"</span>);
 <span class="macro">assert_eq!</span>(bill_data.reference_type, ReferenceType::QrRef(<span class="string">"000008207791225857421286694"</span>.to_string()));</code></pre></div></div></details></section></div></main></body></html>

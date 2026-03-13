@@ -21,26 +21,27 @@
 <a href=#21 id=21 data-nosnippet>21</a>/// # Example
 <a href=#22 id=22 data-nosnippet>22</a>///
 <a href=#23 id=23 data-nosnippet>23</a>/// ```
-<a href=#24 id=24 data-nosnippet>24</a>/// # use crate::render::pdf::LayoutY;
-<a href=#25 id=25 data-nosnippet>25</a>/// # use crate::{Mm, A4_PAGE_HEIGHT};
-<a href=#26 id=26 data-nosnippet>26</a>/// let y = LayoutY(Mm(10f32));
-<a href=#27 id=27 data-nosnippet>27</a>/// assert_eq!(y.to_pdf().0, Mm(A4_PAGE_HEIGHT - 10f32));
-<a href=#28 id=28 data-nosnippet>28</a>/// ```
-<a href=#29 id=29 data-nosnippet>29</a></span><span class="attr">#[derive(Copy, Clone, Debug)]
-<a href=#30 id=30 data-nosnippet>30</a></span><span class="kw">pub struct </span>LayoutY(<span class="kw">pub </span>Mm);
-<a href=#31 id=31 data-nosnippet>31</a>
-<a href=#32 id=32 data-nosnippet>32</a><span class="kw">impl </span>LayoutY {
-<a href=#33 id=33 data-nosnippet>33</a>
-<a href=#34 id=34 data-nosnippet>34</a>    <span class="attr">#[inline]
-<a href=#35 id=35 data-nosnippet>35</a>    </span><span class="kw">pub fn </span>to_pdf(<span class="self">self</span>) -&gt; PdfY {
-<a href=#36 id=36 data-nosnippet>36</a>        PdfY(A4_PAGE_HEIGHT - <span class="self">self</span>.<span class="number">0</span>)
-<a href=#37 id=37 data-nosnippet>37</a>    }
-<a href=#38 id=38 data-nosnippet>38</a>
-<a href=#39 id=39 data-nosnippet>39</a>    <span class="kw">pub fn </span>to_pdf_with_height(<span class="self">self</span>, page_height: Mm, obj_height: Mm) -&gt; Mm {
-<a href=#40 id=40 data-nosnippet>40</a>        page_height - <span class="self">self</span>.<span class="number">0 </span>- obj_height
-<a href=#41 id=41 data-nosnippet>41</a>    }
-<a href=#42 id=42 data-nosnippet>42</a>}
-<a href=#43 id=43 data-nosnippet>43</a>
-<a href=#44 id=44 data-nosnippet>44</a><span class="attr">#[derive(Copy, Clone, Debug)]
-<a href=#45 id=45 data-nosnippet>45</a></span><span class="kw">pub struct </span>PdfY(<span class="kw">pub </span>Mm);
+<a href=#24 id=24 data-nosnippet>24</a>/// # use swiss_qrust::pdf::coords::LayoutY;
+<a href=#25 id=25 data-nosnippet>25</a>/// # use swiss_qrust::Mm;
+<a href=#26 id=26 data-nosnippet>26</a>/// # use swiss_qrust::constants::A4_PAGE_HEIGHT;
+<a href=#27 id=27 data-nosnippet>27</a>/// let y = LayoutY(Mm(10f32));
+<a href=#28 id=28 data-nosnippet>28</a>/// assert_eq!(y.to_pdf().0, (A4_PAGE_HEIGHT - Mm(10f32)));
+<a href=#29 id=29 data-nosnippet>29</a>/// ```
+<a href=#30 id=30 data-nosnippet>30</a></span><span class="attr">#[derive(Copy, Clone, Debug)]
+<a href=#31 id=31 data-nosnippet>31</a></span><span class="kw">pub struct </span>LayoutY(<span class="kw">pub </span>Mm);
+<a href=#32 id=32 data-nosnippet>32</a>
+<a href=#33 id=33 data-nosnippet>33</a><span class="kw">impl </span>LayoutY {
+<a href=#34 id=34 data-nosnippet>34</a>
+<a href=#35 id=35 data-nosnippet>35</a>    <span class="attr">#[inline]
+<a href=#36 id=36 data-nosnippet>36</a>    </span><span class="kw">pub fn </span>to_pdf(<span class="self">self</span>) -&gt; PdfY {
+<a href=#37 id=37 data-nosnippet>37</a>        PdfY(A4_PAGE_HEIGHT - <span class="self">self</span>.<span class="number">0</span>)
+<a href=#38 id=38 data-nosnippet>38</a>    }
+<a href=#39 id=39 data-nosnippet>39</a>
+<a href=#40 id=40 data-nosnippet>40</a>    <span class="kw">pub fn </span>to_pdf_with_height(<span class="self">self</span>, page_height: Mm, obj_height: Mm) -&gt; Mm {
+<a href=#41 id=41 data-nosnippet>41</a>        page_height - <span class="self">self</span>.<span class="number">0 </span>- obj_height
+<a href=#42 id=42 data-nosnippet>42</a>    }
+<a href=#43 id=43 data-nosnippet>43</a>}
+<a href=#44 id=44 data-nosnippet>44</a>
+<a href=#45 id=45 data-nosnippet>45</a><span class="attr">#[derive(Copy, Clone, Debug)]
+<a href=#46 id=46 data-nosnippet>46</a></span><span class="kw">pub struct </span>PdfY(<span class="kw">pub </span>Mm);
 </code></pre></div></section></main></body></html>
