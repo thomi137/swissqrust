@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["pdf","png_renderers","qr_renderers"]};
+window.SIDEBAR_ITEMS = {"constant":["LIBERATION_SANS_BOLD_TTF","LIBERATION_SANS_REGULAR_TTF"],"enum":["FontStyle"],"mod":["pdf","png_renderers","qr_renderers","svg"]};

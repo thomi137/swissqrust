@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["BillError","Currency","QRCountry"],"static":["AMOUNT_REGEX"],"struct":["BillData"]};
+window.SIDEBAR_ITEMS = {"enum":["BillError","Currency","QRCountry"],"fn":["build_bill"],"static":["AMOUNT_REGEX"],"struct":["BillData"]};

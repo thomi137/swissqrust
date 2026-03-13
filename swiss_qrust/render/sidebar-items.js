@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["engines","layout","types"]};
+window.SIDEBAR_ITEMS = {"mod":["engines","layout","types"],"trait":["FontMetrics"]};

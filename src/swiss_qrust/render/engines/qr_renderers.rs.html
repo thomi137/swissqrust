@@ -3,179 +3,177 @@
 <a href=#3 id=3 data-nosnippet>3</a> * Licensed under MIT License
 <a href=#4 id=4 data-nosnippet>4</a> * https://opensource.org/licenses/MIT
 <a href=#5 id=5 data-nosnippet>5</a> */
-<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use </span>pdf_writer::Content;
-<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>qrcodegen::QrCode;
-<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>svg::Document;
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>svg::node::element::{Rectangle, Polygon <span class="kw">as </span>SvgPolygon};
-<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>crate::{CROSS_POLYGONS, CROSS_RECTS, PT_PER_MM};
-<a href=#11 id=11 data-nosnippet>11</a>
-<a href=#12 id=12 data-nosnippet>12</a><span class="kw">const </span>QR_MM: f64 = <span class="number">46.0</span>;
-<a href=#13 id=13 data-nosnippet>13</a><span class="kw">const </span>CROSS_MM: f64 = <span class="number">7.0</span>;
-<a href=#14 id=14 data-nosnippet>14</a>
-<a href=#15 id=15 data-nosnippet>15</a><span class="comment">// Spec is a little misleading it talks about a quiet
-<a href=#16 id=16 data-nosnippet>16</a>// zone of 4 modules (1.6 mm) but extends it to 5 mm.
-<a href=#17 id=17 data-nosnippet>17</a></span><span class="kw">const </span>QUIET_MM: f64 = <span class="number">0f64</span>;
-<a href=#18 id=18 data-nosnippet>18</a><span class="kw">const </span>CROSS_VIEWBOX: (f64, f64) = (<span class="number">19.8</span>, <span class="number">19.8</span>);
-<a href=#19 id=19 data-nosnippet>19</a>
+<a href=#6 id=6 data-nosnippet>6</a>
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">use </span>pdf_writer::Content;
+<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>qrcodegen::QrCode;
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>svg::node::element::{Rectangle, Polygon <span class="kw">as </span>SvgPolygon, Group};
+<a href=#10 id=10 data-nosnippet>10</a>
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span>crate::{CROSS_POLYGONS, CROSS_RECTS, PT_PER_MM};
+<a href=#12 id=12 data-nosnippet>12</a>
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">const </span>QR_MM: f64 = <span class="number">46.0</span>;
+<a href=#14 id=14 data-nosnippet>14</a><span class="kw">const </span>CROSS_MM: f64 = <span class="number">7.0</span>;
+<a href=#15 id=15 data-nosnippet>15</a>
+<a href=#16 id=16 data-nosnippet>16</a><span class="comment">// Spec is a little misleading it talks about a quiet
+<a href=#17 id=17 data-nosnippet>17</a>// zone of 4 modules (1.6 mm) but extends it to 5 mm.
+<a href=#18 id=18 data-nosnippet>18</a></span><span class="kw">const </span>QUIET_MM: f64 = <span class="number">0f64</span>;
+<a href=#19 id=19 data-nosnippet>19</a><span class="kw">const </span>CROSS_VIEWBOX: (f64, f64) = (<span class="number">19.8</span>, <span class="number">19.8</span>);
 <a href=#20 id=20 data-nosnippet>20</a>
-<a href=#21 id=21 data-nosnippet>21</a><span class="kw">pub fn </span>render_qr_pdf(content: <span class="kw-2">&amp;mut </span>Content, qr: <span class="kw-2">&amp;</span>QrCode, x_off: f32, y_off: f32) {
-<a href=#22 id=22 data-nosnippet>22</a>
-<a href=#23 id=23 data-nosnippet>23</a>        <span class="kw">let </span>modules = qr.size();
-<a href=#24 id=24 data-nosnippet>24</a>        <span class="kw">let </span>drawable_pt = (QR_MM - <span class="number">2.0 </span>* QUIET_MM) <span class="kw">as </span>f32 * PT_PER_MM;
-<a href=#25 id=25 data-nosnippet>25</a>        <span class="kw">let </span>module_pt = drawable_pt / modules <span class="kw">as </span>f32;
-<a href=#26 id=26 data-nosnippet>26</a>        <span class="kw">let </span>quiet_pt = QUIET_MM <span class="kw">as </span>f32 * PT_PER_MM;
-<a href=#27 id=27 data-nosnippet>27</a>
-<a href=#28 id=28 data-nosnippet>28</a>        content.save_state();
-<a href=#29 id=29 data-nosnippet>29</a>        content.set_fill_rgb(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>); <span class="comment">// Black modules
-<a href=#30 id=30 data-nosnippet>30</a>
-<a href=#31 id=31 data-nosnippet>31</a>        </span><span class="kw">for </span>row <span class="kw">in </span><span class="number">0</span>..modules {
-<a href=#32 id=32 data-nosnippet>32</a>            <span class="kw">for </span>col <span class="kw">in </span><span class="number">0</span>..modules {
-<a href=#33 id=33 data-nosnippet>33</a>                <span class="kw">if </span>qr.get_module(col, row) {
-<a href=#34 id=34 data-nosnippet>34</a>                    <span class="kw">let </span>x = x_off + quiet_pt + (col <span class="kw">as </span>f32 * module_pt);
-<a href=#35 id=35 data-nosnippet>35</a>                    <span class="comment">// Remember PDF is Y-up!
-<a href=#36 id=36 data-nosnippet>36</a>                    </span><span class="kw">let </span>y = y_off + quiet_pt + ((modules - <span class="number">1 </span>- row) <span class="kw">as </span>f32 * module_pt);
-<a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a>                    content.rect(x, y, module_pt, module_pt);
-<a href=#39 id=39 data-nosnippet>39</a>                }
-<a href=#40 id=40 data-nosnippet>40</a>            }
-<a href=#41 id=41 data-nosnippet>41</a>        }
-<a href=#42 id=42 data-nosnippet>42</a>        content.fill_nonzero(); <span class="comment">// Draw all modules at once for efficiency
-<a href=#43 id=43 data-nosnippet>43</a>        </span>content.restore_state();
-<a href=#44 id=44 data-nosnippet>44</a>
-<a href=#45 id=45 data-nosnippet>45</a>        content.save_state();
-<a href=#46 id=46 data-nosnippet>46</a>        content.set_fill_rgb(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
-<a href=#47 id=47 data-nosnippet>47</a>        <span class="comment">// Center of 46mm is 23mm. 7x7mm box starts at 23 - 3.5 = 19.5mm
-<a href=#48 id=48 data-nosnippet>48</a>        </span><span class="kw">let </span>cross_box_offset = <span class="number">19.5 </span>* PT_PER_MM;
-<a href=#49 id=49 data-nosnippet>49</a>        content.rect(x_off + cross_box_offset, y_off + cross_box_offset, <span class="number">7.0 </span>* PT_PER_MM, <span class="number">7.0 </span>* PT_PER_MM);
-<a href=#50 id=50 data-nosnippet>50</a>        content.fill_nonzero();
-<a href=#51 id=51 data-nosnippet>51</a>        content.restore_state();
-<a href=#52 id=52 data-nosnippet>52</a>
-<a href=#53 id=53 data-nosnippet>53</a>        <span class="comment">// Draw the Swiss Cross (Vector)
-<a href=#54 id=54 data-nosnippet>54</a>        </span>draw_swiss_cross_vector(content, (x_off + (<span class="number">23.0 </span>* PT_PER_MM)) <span class="kw">as </span>f64, (y_off + (<span class="number">23.0 </span>* PT_PER_MM)) <span class="kw">as </span>f64);
-<a href=#55 id=55 data-nosnippet>55</a>}
-<a href=#56 id=56 data-nosnippet>56</a>
-<a href=#57 id=57 data-nosnippet>57</a><span class="kw">pub fn </span>draw_swiss_cross_vector(content: <span class="kw-2">&amp;mut </span>Content, x_center: f64, y_center: f64) {
-<a href=#58 id=58 data-nosnippet>58</a>    <span class="kw">let </span>cross_size_pt = <span class="number">7.0 </span>* PT_PER_MM <span class="kw">as </span>f64;
-<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">let </span>scale = cross_size_pt / CROSS_VIEWBOX.<span class="number">0</span>;
-<a href=#60 id=60 data-nosnippet>60</a>
-<a href=#61 id=61 data-nosnippet>61</a>    <span class="comment">// Bottom-left corner of the 7x7mm cross area
-<a href=#62 id=62 data-nosnippet>62</a>    </span><span class="kw">let </span>x_origin = x_center - (cross_size_pt / <span class="number">2.0</span>);
-<a href=#63 id=63 data-nosnippet>63</a>    <span class="kw">let </span>y_origin = y_center - (cross_size_pt / <span class="number">2.0</span>);
-<a href=#64 id=64 data-nosnippet>64</a>
-<a href=#65 id=65 data-nosnippet>65</a>    content.save_state();
-<a href=#66 id=66 data-nosnippet>66</a>
-<a href=#67 id=67 data-nosnippet>67</a>    <span class="comment">// 1. Black Background (The Polygon with rounded-ish corners)
-<a href=#68 id=68 data-nosnippet>68</a>    </span>content.set_fill_rgb(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
-<a href=#69 id=69 data-nosnippet>69</a>    <span class="kw">for </span>poly <span class="kw">in </span>CROSS_POLYGONS {
-<a href=#70 id=70 data-nosnippet>70</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>((first_x, first_y)) = poly.points.first() {
-<a href=#71 id=71 data-nosnippet>71</a>            content.move_to((x_origin + (first_x * scale)) <span class="kw">as </span>f32, (y_origin + (cross_size_pt - (first_y * scale))) <span class="kw">as </span>f32);
-<a href=#72 id=72 data-nosnippet>72</a>            <span class="kw">for </span>(px, py) <span class="kw">in </span>poly.points.iter().skip(<span class="number">1</span>) {
-<a href=#73 id=73 data-nosnippet>73</a>                content.line_to((x_origin + (px * scale)) <span class="kw">as </span>f32, (y_origin + (cross_size_pt - (py * scale))) <span class="kw">as </span>f32);
-<a href=#74 id=74 data-nosnippet>74</a>            }
-<a href=#75 id=75 data-nosnippet>75</a>            content.close_path();
-<a href=#76 id=76 data-nosnippet>76</a>        }
-<a href=#77 id=77 data-nosnippet>77</a>    }
-<a href=#78 id=78 data-nosnippet>78</a>    content.fill_nonzero();
-<a href=#79 id=79 data-nosnippet>79</a>
-<a href=#80 id=80 data-nosnippet>80</a>    <span class="comment">// 2. White Cross Arms (The Rects)
-<a href=#81 id=81 data-nosnippet>81</a>    </span>content.set_fill_rgb(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
-<a href=#82 id=82 data-nosnippet>82</a>    <span class="kw">for </span>r <span class="kw">in </span>CROSS_RECTS {
-<a href=#83 id=83 data-nosnippet>83</a>        <span class="kw">let </span>rx = x_origin + (r.x * scale);
-<a href=#84 id=84 data-nosnippet>84</a>        <span class="comment">// Flip Y: SVG Y is distance from top, PDF Y is distance from bottom
-<a href=#85 id=85 data-nosnippet>85</a>        </span><span class="kw">let </span>ry = y_origin + (cross_size_pt - ((r.y + r.height) * scale));
-<a href=#86 id=86 data-nosnippet>86</a>        content.rect(rx <span class="kw">as </span>f32, ry <span class="kw">as </span>f32, r.width <span class="kw">as </span>f32 * scale <span class="kw">as </span>f32, r.height <span class="kw">as </span>f32 * scale <span class="kw">as </span>f32);
-<a href=#87 id=87 data-nosnippet>87</a>    }
-<a href=#88 id=88 data-nosnippet>88</a>    content.fill_nonzero();
-<a href=#89 id=89 data-nosnippet>89</a>
-<a href=#90 id=90 data-nosnippet>90</a>    content.restore_state();
-<a href=#91 id=91 data-nosnippet>91</a>}
-<a href=#92 id=92 data-nosnippet>92</a>
+<a href=#21 id=21 data-nosnippet>21</a>
+<a href=#22 id=22 data-nosnippet>22</a><span class="kw">pub fn </span>render_qr_pdf(content: <span class="kw-2">&amp;mut </span>Content, qr: <span class="kw-2">&amp;</span>QrCode, x_off: f32, y_off: f32) {
+<a href=#23 id=23 data-nosnippet>23</a>
+<a href=#24 id=24 data-nosnippet>24</a>        <span class="kw">let </span>modules = qr.size();
+<a href=#25 id=25 data-nosnippet>25</a>        <span class="kw">let </span>drawable_pt = (QR_MM - <span class="number">2.0 </span>* QUIET_MM) <span class="kw">as </span>f32 * PT_PER_MM;
+<a href=#26 id=26 data-nosnippet>26</a>        <span class="kw">let </span>module_pt = drawable_pt / modules <span class="kw">as </span>f32;
+<a href=#27 id=27 data-nosnippet>27</a>        <span class="kw">let </span>quiet_pt = QUIET_MM <span class="kw">as </span>f32 * PT_PER_MM;
+<a href=#28 id=28 data-nosnippet>28</a>
+<a href=#29 id=29 data-nosnippet>29</a>        content.save_state();
+<a href=#30 id=30 data-nosnippet>30</a>        content.set_fill_rgb(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>); <span class="comment">// Black modules
+<a href=#31 id=31 data-nosnippet>31</a>
+<a href=#32 id=32 data-nosnippet>32</a>        </span><span class="kw">for </span>row <span class="kw">in </span><span class="number">0</span>..modules {
+<a href=#33 id=33 data-nosnippet>33</a>            <span class="kw">for </span>col <span class="kw">in </span><span class="number">0</span>..modules {
+<a href=#34 id=34 data-nosnippet>34</a>                <span class="kw">if </span>qr.get_module(col, row) {
+<a href=#35 id=35 data-nosnippet>35</a>                    <span class="kw">let </span>x = x_off + quiet_pt + (col <span class="kw">as </span>f32 * module_pt);
+<a href=#36 id=36 data-nosnippet>36</a>                    <span class="comment">// Remember PDF is Y-up!
+<a href=#37 id=37 data-nosnippet>37</a>                    </span><span class="kw">let </span>y = y_off + quiet_pt + ((modules - <span class="number">1 </span>- row) <span class="kw">as </span>f32 * module_pt);
+<a href=#38 id=38 data-nosnippet>38</a>
+<a href=#39 id=39 data-nosnippet>39</a>                    content.rect(x, y, module_pt, module_pt);
+<a href=#40 id=40 data-nosnippet>40</a>                }
+<a href=#41 id=41 data-nosnippet>41</a>            }
+<a href=#42 id=42 data-nosnippet>42</a>        }
+<a href=#43 id=43 data-nosnippet>43</a>        content.fill_nonzero(); <span class="comment">// Draw all modules at once for efficiency
+<a href=#44 id=44 data-nosnippet>44</a>        </span>content.restore_state();
+<a href=#45 id=45 data-nosnippet>45</a>
+<a href=#46 id=46 data-nosnippet>46</a>        content.save_state();
+<a href=#47 id=47 data-nosnippet>47</a>        content.set_fill_rgb(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
+<a href=#48 id=48 data-nosnippet>48</a>        <span class="comment">// Center of 46mm is 23mm. 7x7mm box starts at 23 - 3.5 = 19.5mm
+<a href=#49 id=49 data-nosnippet>49</a>        </span><span class="kw">let </span>cross_box_offset = <span class="number">19.5 </span>* PT_PER_MM;
+<a href=#50 id=50 data-nosnippet>50</a>        content.rect(x_off + cross_box_offset, y_off + cross_box_offset, <span class="number">7.0 </span>* PT_PER_MM, <span class="number">7.0 </span>* PT_PER_MM);
+<a href=#51 id=51 data-nosnippet>51</a>        content.fill_nonzero();
+<a href=#52 id=52 data-nosnippet>52</a>        content.restore_state();
+<a href=#53 id=53 data-nosnippet>53</a>
+<a href=#54 id=54 data-nosnippet>54</a>        <span class="comment">// Draw the Swiss Cross (Vector)
+<a href=#55 id=55 data-nosnippet>55</a>        </span>draw_swiss_cross_vector(content, (x_off + (<span class="number">23.0 </span>* PT_PER_MM)) <span class="kw">as </span>f64, (y_off + (<span class="number">23.0 </span>* PT_PER_MM)) <span class="kw">as </span>f64);
+<a href=#56 id=56 data-nosnippet>56</a>}
+<a href=#57 id=57 data-nosnippet>57</a>
+<a href=#58 id=58 data-nosnippet>58</a><span class="kw">pub fn </span>draw_swiss_cross_vector(content: <span class="kw-2">&amp;mut </span>Content, x_center: f64, y_center: f64) {
+<a href=#59 id=59 data-nosnippet>59</a>    <span class="kw">let </span>cross_size_pt = <span class="number">7.0 </span>* PT_PER_MM <span class="kw">as </span>f64;
+<a href=#60 id=60 data-nosnippet>60</a>    <span class="kw">let </span>scale = cross_size_pt / CROSS_VIEWBOX.<span class="number">0</span>;
+<a href=#61 id=61 data-nosnippet>61</a>
+<a href=#62 id=62 data-nosnippet>62</a>    <span class="comment">// Bottom-left corner of the 7x7mm cross area
+<a href=#63 id=63 data-nosnippet>63</a>    </span><span class="kw">let </span>x_origin = x_center - (cross_size_pt / <span class="number">2.0</span>);
+<a href=#64 id=64 data-nosnippet>64</a>    <span class="kw">let </span>y_origin = y_center - (cross_size_pt / <span class="number">2.0</span>);
+<a href=#65 id=65 data-nosnippet>65</a>
+<a href=#66 id=66 data-nosnippet>66</a>    content.save_state();
+<a href=#67 id=67 data-nosnippet>67</a>
+<a href=#68 id=68 data-nosnippet>68</a>    <span class="comment">// 1. Black Background (The Polygon with rounded-ish corners)
+<a href=#69 id=69 data-nosnippet>69</a>    </span>content.set_fill_rgb(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
+<a href=#70 id=70 data-nosnippet>70</a>    <span class="kw">for </span>poly <span class="kw">in </span>CROSS_POLYGONS {
+<a href=#71 id=71 data-nosnippet>71</a>        <span class="kw">if let </span><span class="prelude-val">Some</span>((first_x, first_y)) = poly.points.first() {
+<a href=#72 id=72 data-nosnippet>72</a>            content.move_to((x_origin + (first_x * scale)) <span class="kw">as </span>f32, (y_origin + (cross_size_pt - (first_y * scale))) <span class="kw">as </span>f32);
+<a href=#73 id=73 data-nosnippet>73</a>            <span class="kw">for </span>(px, py) <span class="kw">in </span>poly.points.iter().skip(<span class="number">1</span>) {
+<a href=#74 id=74 data-nosnippet>74</a>                content.line_to((x_origin + (px * scale)) <span class="kw">as </span>f32, (y_origin + (cross_size_pt - (py * scale))) <span class="kw">as </span>f32);
+<a href=#75 id=75 data-nosnippet>75</a>            }
+<a href=#76 id=76 data-nosnippet>76</a>            content.close_path();
+<a href=#77 id=77 data-nosnippet>77</a>        }
+<a href=#78 id=78 data-nosnippet>78</a>    }
+<a href=#79 id=79 data-nosnippet>79</a>    content.fill_nonzero();
+<a href=#80 id=80 data-nosnippet>80</a>
+<a href=#81 id=81 data-nosnippet>81</a>    <span class="comment">// 2. White Cross Arms (The Rects)
+<a href=#82 id=82 data-nosnippet>82</a>    </span>content.set_fill_rgb(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
+<a href=#83 id=83 data-nosnippet>83</a>    <span class="kw">for </span>r <span class="kw">in </span>CROSS_RECTS {
+<a href=#84 id=84 data-nosnippet>84</a>        <span class="kw">let </span>rx = x_origin + (r.x * scale);
+<a href=#85 id=85 data-nosnippet>85</a>        <span class="comment">// Flip Y: SVG Y is distance from top, PDF Y is distance from bottom
+<a href=#86 id=86 data-nosnippet>86</a>        </span><span class="kw">let </span>ry = y_origin + (cross_size_pt - ((r.y + r.height) * scale));
+<a href=#87 id=87 data-nosnippet>87</a>        content.rect(rx <span class="kw">as </span>f32, ry <span class="kw">as </span>f32, r.width <span class="kw">as </span>f32 * scale <span class="kw">as </span>f32, r.height <span class="kw">as </span>f32 * scale <span class="kw">as </span>f32);
+<a href=#88 id=88 data-nosnippet>88</a>    }
+<a href=#89 id=89 data-nosnippet>89</a>    content.fill_nonzero();
+<a href=#90 id=90 data-nosnippet>90</a>
+<a href=#91 id=91 data-nosnippet>91</a>    content.restore_state();
+<a href=#92 id=92 data-nosnippet>92</a>}
 <a href=#93 id=93 data-nosnippet>93</a>
-<a href=#94 id=94 data-nosnippet>94</a>
-<a href=#95 id=95 data-nosnippet>95</a><span class="doccomment">/// Render a Swiss QR Code SVG (modules only).
-<a href=#96 id=96 data-nosnippet>96</a>/// The Swiss cross area is cleared here.
-<a href=#97 id=97 data-nosnippet>97</a>/// The official SVG cross is rendered later on top.
-<a href=#98 id=98 data-nosnippet>98</a></span><span class="kw">pub fn </span>render_qr_svg(qr: QrCode) -&gt; Document {
-<a href=#99 id=99 data-nosnippet>99</a>    <span class="kw">let </span>modules = qr.size();
-<a href=#100 id=100 data-nosnippet>100</a>    <span class="kw">let </span>drawable_mm = QR_MM - <span class="number">2.0 </span>* QUIET_MM;
-<a href=#101 id=101 data-nosnippet>101</a>    <span class="kw">let </span>module_mm = drawable_mm / modules <span class="kw">as </span>f64;
-<a href=#102 id=102 data-nosnippet>102</a>
-<a href=#103 id=103 data-nosnippet>103</a>    <span class="kw">let </span><span class="kw-2">mut </span>doc = Document::new()
-<a href=#104 id=104 data-nosnippet>104</a>        .set(<span class="string">"width"</span>, <span class="macro">format!</span>(<span class="string">"{}mm"</span>, QR_MM <span class="kw">as </span>usize))
-<a href=#105 id=105 data-nosnippet>105</a>        .set(<span class="string">"height"</span>, <span class="macro">format!</span>(<span class="string">"{}mm"</span>, QR_MM <span class="kw">as </span>usize))
-<a href=#106 id=106 data-nosnippet>106</a>        .set(<span class="string">"viewBox"</span>, <span class="macro">format!</span>(<span class="string">"0 0 {} {}"</span>, QR_MM, QR_MM));
-<a href=#107 id=107 data-nosnippet>107</a>
-<a href=#108 id=108 data-nosnippet>108</a>    <span class="kw">for </span>row <span class="kw">in </span><span class="number">0</span>..modules {
-<a href=#109 id=109 data-nosnippet>109</a>        <span class="kw">for </span>col <span class="kw">in </span><span class="number">0</span>..modules {
-<a href=#110 id=110 data-nosnippet>110</a>            <span class="kw">if </span>!qr.get_module(col, row) {
-<a href=#111 id=111 data-nosnippet>111</a>                <span class="kw">continue</span>;
-<a href=#112 id=112 data-nosnippet>112</a>            }
-<a href=#113 id=113 data-nosnippet>113</a>
-<a href=#114 id=114 data-nosnippet>114</a>            <span class="kw">let </span>x = QUIET_MM + col <span class="kw">as </span>f64 * module_mm;
-<a href=#115 id=115 data-nosnippet>115</a>            <span class="kw">let </span>y = QUIET_MM + row <span class="kw">as </span>f64 * module_mm;
-<a href=#116 id=116 data-nosnippet>116</a>
-<a href=#117 id=117 data-nosnippet>117</a>            doc = doc.add(
-<a href=#118 id=118 data-nosnippet>118</a>                Rectangle::new()
-<a href=#119 id=119 data-nosnippet>119</a>                    .set(<span class="string">"x"</span>, x)
-<a href=#120 id=120 data-nosnippet>120</a>                    .set(<span class="string">"y"</span>, y)
-<a href=#121 id=121 data-nosnippet>121</a>                    .set(<span class="string">"width"</span>, module_mm)
-<a href=#122 id=122 data-nosnippet>122</a>                    .set(<span class="string">"height"</span>, module_mm)
-<a href=#123 id=123 data-nosnippet>123</a>                    .set(<span class="string">"fill"</span>, <span class="string">"black"</span>),
-<a href=#124 id=124 data-nosnippet>124</a>            );
-<a href=#125 id=125 data-nosnippet>125</a>        }
-<a href=#126 id=126 data-nosnippet>126</a>    }
-<a href=#127 id=127 data-nosnippet>127</a>
-<a href=#128 id=128 data-nosnippet>128</a>    doc
-<a href=#129 id=129 data-nosnippet>129</a>}
-<a href=#130 id=130 data-nosnippet>130</a>
-<a href=#131 id=131 data-nosnippet>131</a><span class="doccomment">/// Clears QR modules and draws Swiss cross centered
-<a href=#132 id=132 data-nosnippet>132</a></span><span class="kw">pub fn </span>add_swiss_cross(<span class="kw-2">mut </span>doc: svg::Document) -&gt; svg::Document {
-<a href=#133 id=133 data-nosnippet>133</a>    <span class="kw">let </span>scale = CROSS_MM / CROSS_VIEWBOX.<span class="number">0</span>; <span class="comment">// 7 / 19.8
-<a href=#134 id=134 data-nosnippet>134</a>    </span><span class="kw">let </span>offset = (QR_MM - CROSS_MM) / <span class="number">2.0</span>;  <span class="comment">// 19.5
-<a href=#135 id=135 data-nosnippet>135</a>
-<a href=#136 id=136 data-nosnippet>136</a>    // Clear QR modules underneath (white background)
-<a href=#137 id=137 data-nosnippet>137</a>    </span>doc = doc.add(
-<a href=#138 id=138 data-nosnippet>138</a>        Rectangle::new()
-<a href=#139 id=139 data-nosnippet>139</a>            .set(<span class="string">"x"</span>, offset)
-<a href=#140 id=140 data-nosnippet>140</a>            .set(<span class="string">"y"</span>, offset)
-<a href=#141 id=141 data-nosnippet>141</a>            .set(<span class="string">"width"</span>, CROSS_MM)
-<a href=#142 id=142 data-nosnippet>142</a>            .set(<span class="string">"height"</span>, CROSS_MM)
-<a href=#143 id=143 data-nosnippet>143</a>            .set(<span class="string">"fill"</span>, <span class="string">"white"</span>),
-<a href=#144 id=144 data-nosnippet>144</a>    );
-<a href=#145 id=145 data-nosnippet>145</a>
-<a href=#146 id=146 data-nosnippet>146</a>    <span class="comment">// Draw polygon parts of cross
-<a href=#147 id=147 data-nosnippet>147</a>    </span><span class="kw">for </span>poly <span class="kw">in </span>CROSS_POLYGONS {
-<a href=#148 id=148 data-nosnippet>148</a>        <span class="kw">let </span>points = poly
-<a href=#149 id=149 data-nosnippet>149</a>            .points
-<a href=#150 id=150 data-nosnippet>150</a>            .iter()
-<a href=#151 id=151 data-nosnippet>151</a>            .map(|(x, y)| {
-<a href=#152 id=152 data-nosnippet>152</a>                <span class="macro">format!</span>(
-<a href=#153 id=153 data-nosnippet>153</a>                    <span class="string">"{},{}"</span>,
-<a href=#154 id=154 data-nosnippet>154</a>                    x * scale + offset,
-<a href=#155 id=155 data-nosnippet>155</a>                    y * scale + offset
-<a href=#156 id=156 data-nosnippet>156</a>                )
-<a href=#157 id=157 data-nosnippet>157</a>            })
-<a href=#158 id=158 data-nosnippet>158</a>            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
-<a href=#159 id=159 data-nosnippet>159</a>            .join(<span class="string">" "</span>);
-<a href=#160 id=160 data-nosnippet>160</a>
-<a href=#161 id=161 data-nosnippet>161</a>        doc = doc.add(
-<a href=#162 id=162 data-nosnippet>162</a>            SvgPolygon::new()
-<a href=#163 id=163 data-nosnippet>163</a>                .set(<span class="string">"points"</span>, points)
-<a href=#164 id=164 data-nosnippet>164</a>                .set(<span class="string">"fill"</span>, <span class="string">"black"</span>),
-<a href=#165 id=165 data-nosnippet>165</a>        );
-<a href=#166 id=166 data-nosnippet>166</a>    }
-<a href=#167 id=167 data-nosnippet>167</a>
-<a href=#168 id=168 data-nosnippet>168</a>    <span class="kw">for </span>r <span class="kw">in </span>CROSS_RECTS {
-<a href=#169 id=169 data-nosnippet>169</a>        doc = doc.add(
-<a href=#170 id=170 data-nosnippet>170</a>            Rectangle::new()
-<a href=#171 id=171 data-nosnippet>171</a>                .set(<span class="string">"x"</span>, r.x * scale + offset)
-<a href=#172 id=172 data-nosnippet>172</a>                .set(<span class="string">"y"</span>, r.y * scale + offset)
-<a href=#173 id=173 data-nosnippet>173</a>                .set(<span class="string">"width"</span>, r.width * scale)
-<a href=#174 id=174 data-nosnippet>174</a>                .set(<span class="string">"height"</span>, r.height * scale)
-<a href=#175 id=175 data-nosnippet>175</a>                .set(<span class="string">"fill"</span>, <span class="string">"white"</span>),
-<a href=#176 id=176 data-nosnippet>176</a>        );
-<a href=#177 id=177 data-nosnippet>177</a>    }
-<a href=#178 id=178 data-nosnippet>178</a>
-<a href=#179 id=179 data-nosnippet>179</a>    doc
-<a href=#180 id=180 data-nosnippet>180</a>}
+<a href=#94 id=94 data-nosnippet>94</a><span class="doccomment">/// Render a Swiss QR Code SVG (modules only).
+<a href=#95 id=95 data-nosnippet>95</a>/// The Swiss cross area is cleared here.
+<a href=#96 id=96 data-nosnippet>96</a>/// The official SVG cross is rendered later on top.
+<a href=#97 id=97 data-nosnippet>97</a></span><span class="kw">pub fn </span>render_qr_svg(qr: QrCode, x_off: f64, y_off: f64) -&gt; Group {
+<a href=#98 id=98 data-nosnippet>98</a>    <span class="kw">let </span>modules = qr.size();
+<a href=#99 id=99 data-nosnippet>99</a>    <span class="kw">let </span>drawable_mm = QR_MM - <span class="number">2.0 </span>* QUIET_MM;
+<a href=#100 id=100 data-nosnippet>100</a>    <span class="kw">let </span>module_mm = drawable_mm / modules <span class="kw">as </span>f64;
+<a href=#101 id=101 data-nosnippet>101</a>
+<a href=#102 id=102 data-nosnippet>102</a>    <span class="kw">let </span><span class="kw-2">mut </span>group = Group::new()
+<a href=#103 id=103 data-nosnippet>103</a>        .set(<span class="string">"transform"</span>, <span class="macro">format!</span>(<span class="string">"translate({}, {})"</span>, x_off, y_off));
+<a href=#104 id=104 data-nosnippet>104</a>
+<a href=#105 id=105 data-nosnippet>105</a>
+<a href=#106 id=106 data-nosnippet>106</a>    <span class="kw">for </span>row <span class="kw">in </span><span class="number">0</span>..modules {
+<a href=#107 id=107 data-nosnippet>107</a>        <span class="kw">for </span>col <span class="kw">in </span><span class="number">0</span>..modules {
+<a href=#108 id=108 data-nosnippet>108</a>            <span class="kw">if </span>!qr.get_module(col, row) {
+<a href=#109 id=109 data-nosnippet>109</a>                <span class="kw">continue</span>;
+<a href=#110 id=110 data-nosnippet>110</a>            }
+<a href=#111 id=111 data-nosnippet>111</a>
+<a href=#112 id=112 data-nosnippet>112</a>            <span class="kw">let </span>x = col <span class="kw">as </span>f64 * module_mm;
+<a href=#113 id=113 data-nosnippet>113</a>            <span class="kw">let </span>y = row <span class="kw">as </span>f64 * module_mm;
+<a href=#114 id=114 data-nosnippet>114</a>
+<a href=#115 id=115 data-nosnippet>115</a>            group = group.add(
+<a href=#116 id=116 data-nosnippet>116</a>                Rectangle::new()
+<a href=#117 id=117 data-nosnippet>117</a>                    .set(<span class="string">"x"</span>, x)
+<a href=#118 id=118 data-nosnippet>118</a>                    .set(<span class="string">"y"</span>, y)
+<a href=#119 id=119 data-nosnippet>119</a>                    .set(<span class="string">"width"</span>, module_mm)
+<a href=#120 id=120 data-nosnippet>120</a>                    .set(<span class="string">"height"</span>, module_mm)
+<a href=#121 id=121 data-nosnippet>121</a>                    .set(<span class="string">"fill"</span>, <span class="string">"black"</span>),
+<a href=#122 id=122 data-nosnippet>122</a>            );
+<a href=#123 id=123 data-nosnippet>123</a>        }
+<a href=#124 id=124 data-nosnippet>124</a>    }
+<a href=#125 id=125 data-nosnippet>125</a>
+<a href=#126 id=126 data-nosnippet>126</a>    group
+<a href=#127 id=127 data-nosnippet>127</a>}
+<a href=#128 id=128 data-nosnippet>128</a>
+<a href=#129 id=129 data-nosnippet>129</a><span class="doccomment">/// Clears QR modules and draws Swiss cross centered
+<a href=#130 id=130 data-nosnippet>130</a></span><span class="kw">pub fn </span>add_swiss_cross(<span class="kw-2">mut </span>group: Group) -&gt; Group {
+<a href=#131 id=131 data-nosnippet>131</a>    <span class="kw">let </span>scale = CROSS_MM / CROSS_VIEWBOX.<span class="number">0</span>; <span class="comment">// 7 / 19.8
+<a href=#132 id=132 data-nosnippet>132</a>    </span><span class="kw">let </span>offset = (QR_MM - CROSS_MM) / <span class="number">2.0</span>;  <span class="comment">// 19.5
+<a href=#133 id=133 data-nosnippet>133</a>
+<a href=#134 id=134 data-nosnippet>134</a>    // Clear QR modules underneath (white background)
+<a href=#135 id=135 data-nosnippet>135</a>    </span>group = group.add(
+<a href=#136 id=136 data-nosnippet>136</a>        Rectangle::new()
+<a href=#137 id=137 data-nosnippet>137</a>            .set(<span class="string">"x"</span>, offset)
+<a href=#138 id=138 data-nosnippet>138</a>            .set(<span class="string">"y"</span>, offset)
+<a href=#139 id=139 data-nosnippet>139</a>            .set(<span class="string">"width"</span>, CROSS_MM)
+<a href=#140 id=140 data-nosnippet>140</a>            .set(<span class="string">"height"</span>, CROSS_MM)
+<a href=#141 id=141 data-nosnippet>141</a>            .set(<span class="string">"fill"</span>, <span class="string">"white"</span>),
+<a href=#142 id=142 data-nosnippet>142</a>    );
+<a href=#143 id=143 data-nosnippet>143</a>
+<a href=#144 id=144 data-nosnippet>144</a>    <span class="comment">// Draw polygon parts of cross
+<a href=#145 id=145 data-nosnippet>145</a>    </span><span class="kw">for </span>poly <span class="kw">in </span>CROSS_POLYGONS {
+<a href=#146 id=146 data-nosnippet>146</a>        <span class="kw">let </span>points = poly
+<a href=#147 id=147 data-nosnippet>147</a>            .points
+<a href=#148 id=148 data-nosnippet>148</a>            .iter()
+<a href=#149 id=149 data-nosnippet>149</a>            .map(|(x, y)| {
+<a href=#150 id=150 data-nosnippet>150</a>                <span class="macro">format!</span>(
+<a href=#151 id=151 data-nosnippet>151</a>                    <span class="string">"{},{}"</span>,
+<a href=#152 id=152 data-nosnippet>152</a>                    x * scale + offset,
+<a href=#153 id=153 data-nosnippet>153</a>                    y * scale + offset
+<a href=#154 id=154 data-nosnippet>154</a>                )
+<a href=#155 id=155 data-nosnippet>155</a>            })
+<a href=#156 id=156 data-nosnippet>156</a>            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+<a href=#157 id=157 data-nosnippet>157</a>            .join(<span class="string">" "</span>);
+<a href=#158 id=158 data-nosnippet>158</a>
+<a href=#159 id=159 data-nosnippet>159</a>        group = group.add(
+<a href=#160 id=160 data-nosnippet>160</a>            SvgPolygon::new()
+<a href=#161 id=161 data-nosnippet>161</a>                .set(<span class="string">"points"</span>, points)
+<a href=#162 id=162 data-nosnippet>162</a>                .set(<span class="string">"fill"</span>, <span class="string">"black"</span>),
+<a href=#163 id=163 data-nosnippet>163</a>        );
+<a href=#164 id=164 data-nosnippet>164</a>    }
+<a href=#165 id=165 data-nosnippet>165</a>
+<a href=#166 id=166 data-nosnippet>166</a>    <span class="kw">for </span>r <span class="kw">in </span>CROSS_RECTS {
+<a href=#167 id=167 data-nosnippet>167</a>        group = group.add(
+<a href=#168 id=168 data-nosnippet>168</a>            Rectangle::new()
+<a href=#169 id=169 data-nosnippet>169</a>                .set(<span class="string">"x"</span>, r.x * scale + offset)
+<a href=#170 id=170 data-nosnippet>170</a>                .set(<span class="string">"y"</span>, r.y * scale + offset)
+<a href=#171 id=171 data-nosnippet>171</a>                .set(<span class="string">"width"</span>, r.width * scale)
+<a href=#172 id=172 data-nosnippet>172</a>                .set(<span class="string">"height"</span>, r.height * scale)
+<a href=#173 id=173 data-nosnippet>173</a>                .set(<span class="string">"fill"</span>, <span class="string">"white"</span>),
+<a href=#174 id=174 data-nosnippet>174</a>        );
+<a href=#175 id=175 data-nosnippet>175</a>    }
+<a href=#176 id=176 data-nosnippet>176</a>
+<a href=#177 id=177 data-nosnippet>177</a>    group
+<a href=#178 id=178 data-nosnippet>178</a>}
 </code></pre></div></section></main></body></html>

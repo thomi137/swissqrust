@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["render_bill_to_bytes","render_bill_to_pdf"]};
+window.SIDEBAR_ITEMS = {"enum":["RenderError"],"fn":["render_bill_to_pdf"]};

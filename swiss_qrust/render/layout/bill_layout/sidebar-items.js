@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["BillLayout","BillLayoutConfig","LayoutCursor"]};
+window.SIDEBAR_ITEMS = {"struct":["BillLayoutConfig","LayoutCursor","RenderContext"],"trait":["LayoutStrategy"]};

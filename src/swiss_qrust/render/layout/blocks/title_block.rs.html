@@ -3,39 +3,41 @@
 <a href=#3 id=3 data-nosnippet>3</a> * Licensed under MIT License
 <a href=#4 id=4 data-nosnippet>4</a> * https://opensource.org/licenses/MIT
 <a href=#5 id=5 data-nosnippet>5</a> */
-<a href=#6 id=6 data-nosnippet>6</a></span><span class="kw">use </span>crate::{label, Baseline, Column, DrawOp, LabelKey, LayoutBlock, Mm};
-<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span><span class="kw">crate</span>::bill_layout::{BillLayout};
+<a href=#6 id=6 data-nosnippet>6</a>
+<a href=#7 id=7 data-nosnippet>7</a></span><span class="kw">use </span>crate::{label, Baseline, Column, DrawOp, LabelKey, LayoutBlock, Mm, RenderContext};
 <a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span><span class="kw">crate</span>::block_elements::ColumnCursor;
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span><span class="kw">crate</span>::constants::FONT_SIZE_TITLE;
-<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span><span class="kw">crate</span>::coords::LayoutY;
-<a href=#11 id=11 data-nosnippet>11</a>
-<a href=#12 id=12 data-nosnippet>12</a><span class="kw">pub struct </span>TitleBlock {
-<a href=#13 id=13 data-nosnippet>13</a>    <span class="kw">pub </span>label: LabelKey,
-<a href=#14 id=14 data-nosnippet>14</a>}
-<a href=#15 id=15 data-nosnippet>15</a><span class="kw">impl </span>LayoutBlock <span class="kw">for </span>TitleBlock {
-<a href=#16 id=16 data-nosnippet>16</a>    <span class="kw">fn </span>column(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Column {
-<a href=#17 id=17 data-nosnippet>17</a>        Column::Left
-<a href=#18 id=18 data-nosnippet>18</a>    }
-<a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a>    <span class="kw">fn </span>render(<span class="kw-2">&amp;</span><span class="self">self</span>, layout: <span class="kw-2">&amp;mut </span>BillLayout, ops: <span class="kw-2">&amp;mut </span>Vec&lt;DrawOp&gt;, cursor: <span class="kw-2">&amp;mut </span>ColumnCursor) {
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span><span class="kw">crate</span>::constants::TITLE_FONT_SIZE;
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span><span class="kw">crate</span>::pdf::coords::LayoutY;
+<a href=#11 id=11 data-nosnippet>11</a><span class="kw">use </span><span class="kw">crate</span>::render::FontMetrics;
+<a href=#12 id=12 data-nosnippet>12</a>
+<a href=#13 id=13 data-nosnippet>13</a><span class="kw">pub struct </span>TitleBlock {
+<a href=#14 id=14 data-nosnippet>14</a>    <span class="kw">pub </span>label: LabelKey,
+<a href=#15 id=15 data-nosnippet>15</a>}
+<a href=#16 id=16 data-nosnippet>16</a>
+<a href=#17 id=17 data-nosnippet>17</a><span class="kw">impl </span>&lt;T: FontMetrics&gt; LayoutBlock&lt;T&gt; <span class="kw">for </span>TitleBlock {
+<a href=#18 id=18 data-nosnippet>18</a>    <span class="kw">fn </span>column(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Column {
+<a href=#19 id=19 data-nosnippet>19</a>        Column::Left
+<a href=#20 id=20 data-nosnippet>20</a>    }
 <a href=#21 id=21 data-nosnippet>21</a>
-<a href=#22 id=22 data-nosnippet>22</a>        <span class="kw">let </span>x = cursor.x;
-<a href=#23 id=23 data-nosnippet>23</a>        <span class="kw">let </span>y = cursor.y;
-<a href=#24 id=24 data-nosnippet>24</a>
-<a href=#25 id=25 data-nosnippet>25</a>        <span class="kw">let </span>title_height = Mm(<span class="number">7f32</span>);
+<a href=#22 id=22 data-nosnippet>22</a>    <span class="kw">fn </span>render(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>RenderContext&lt;<span class="lifetime">'_</span>, T&gt;, ops: <span class="kw-2">&amp;mut </span>Vec&lt;DrawOp&gt;, cursor: <span class="kw-2">&amp;mut </span>ColumnCursor) {
+<a href=#23 id=23 data-nosnippet>23</a>
+<a href=#24 id=24 data-nosnippet>24</a>        <span class="kw">let </span>x = cursor.x;
+<a href=#25 id=25 data-nosnippet>25</a>        <span class="kw">let </span>y = cursor.y;
 <a href=#26 id=26 data-nosnippet>26</a>
-<a href=#27 id=27 data-nosnippet>27</a>        <span class="comment">// small detour because title is only available when running.
-<a href=#28 id=28 data-nosnippet>28</a>        </span><span class="kw">let </span>label_text = label(<span class="self">self</span>.label, layout.language)
-<a href=#29 id=29 data-nosnippet>29</a>            .unwrap_or(<span class="string">""</span>);
-<a href=#30 id=30 data-nosnippet>30</a>        ops.push(DrawOp::Text {
-<a href=#31 id=31 data-nosnippet>31</a>            text: label_text.to_string(),
-<a href=#32 id=32 data-nosnippet>32</a>            at: Baseline { x, y: LayoutY(y + layout.title_ascender) },
-<a href=#33 id=33 data-nosnippet>33</a>            size: FONT_SIZE_TITLE,
-<a href=#34 id=34 data-nosnippet>34</a>            bold: <span class="bool-val">true</span>,
-<a href=#35 id=35 data-nosnippet>35</a>        });
-<a href=#36 id=36 data-nosnippet>36</a>
-<a href=#37 id=37 data-nosnippet>37</a>        <span class="comment">// TODO: Smell. Actually, this should be done in the layout.
-<a href=#38 id=38 data-nosnippet>38</a>        </span>cursor.advance(title_height + layout.label_ascender);
-<a href=#39 id=39 data-nosnippet>39</a>    }
-<a href=#40 id=40 data-nosnippet>40</a>}
+<a href=#27 id=27 data-nosnippet>27</a>        <span class="kw">let </span>title_height = Mm(<span class="number">7f32</span>);
+<a href=#28 id=28 data-nosnippet>28</a>
+<a href=#29 id=29 data-nosnippet>29</a>        <span class="comment">// small detour because title is only available when running.
+<a href=#30 id=30 data-nosnippet>30</a>        </span><span class="kw">let </span>label_text = label(<span class="self">self</span>.label, ctx.language)
+<a href=#31 id=31 data-nosnippet>31</a>            .unwrap_or(<span class="string">""</span>);
+<a href=#32 id=32 data-nosnippet>32</a>        ops.push(DrawOp::Text {
+<a href=#33 id=33 data-nosnippet>33</a>            text: label_text.to_string(),
+<a href=#34 id=34 data-nosnippet>34</a>            at: Baseline { x, y: LayoutY(y + ctx.title_ascender) },
+<a href=#35 id=35 data-nosnippet>35</a>            size: TITLE_FONT_SIZE,
+<a href=#36 id=36 data-nosnippet>36</a>            bold: <span class="bool-val">true</span>,
+<a href=#37 id=37 data-nosnippet>37</a>        });
+<a href=#38 id=38 data-nosnippet>38</a>
+<a href=#39 id=39 data-nosnippet>39</a>        <span class="comment">// TODO: Smell. Actually, this should be done in the layout.
+<a href=#40 id=40 data-nosnippet>40</a>        </span>cursor.advance(title_height + ctx.label_ascender);
+<a href=#41 id=41 data-nosnippet>41</a>    }
+<a href=#42 id=42 data-nosnippet>42</a>}
 </code></pre></div></section></main></body></html>

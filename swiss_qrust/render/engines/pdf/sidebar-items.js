@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["FontStyle"],"fn":["name"],"mod":["coords","draw_op_handler","fonts","pdf_helpers","render_bill"],"struct":["FontLibrary"]};
+window.SIDEBAR_ITEMS = {"mod":["coords","draw_op_handler","fonts","pdf_helpers","render_bill"],"struct":["PdfFontLibrary"]};

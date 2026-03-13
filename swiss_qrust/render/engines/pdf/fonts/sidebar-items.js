@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":["LIBERATION_SANS_BOLD_TTF","LIBERATION_SANS_REGULAR_TTF"],"fn":["embed_ttf_font"],"struct":["EmbeddedFont"]};
+window.SIDEBAR_ITEMS = {"fn":["embed_ttf_font","name"],"struct":["EmbeddedFont"]};

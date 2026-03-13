@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["render_bill_to_svg"],"mod":["fonts","svg_draw_op_handler"]};
