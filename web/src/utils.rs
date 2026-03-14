@@ -3,9 +3,12 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
+use leptos::html::p;
+use leptos::serde_json;
+use reqwest::Response;
 use wasm_bindgen::JsCast;
 use web_sys::{Blob, HtmlAnchorElement, Url};
+use swiss_qrust::Country;
 
 pub fn trigger_browser_download(bytes: Vec<u8>) {
 
@@ -27,6 +30,49 @@ pub fn trigger_browser_download(bytes: Vec<u8>) {
     link.click();
 
     let _ = Url::revoke_object_url(&url);
+}
+
+/// Fetches the city name for a given postal code and country.
+///
+/// # Arguments
+/// * cty - Country code. Using swiss_qrust's Country enum
+/// * plz - Postal code, must be 4 digits
+///
+/// # Returns
+/// The city name if found, otherwise None
+///
+/// # Example
+/// Using pollster as a lightweight async runtime
+///
+/// ```
+/// # use pollster;
+/// # use swiss_qrust::Country;
+/// # use swiss_qrust::utils::fetch_city_by_plz;
+/// let result = pollster::block_on(fetch_city_by_plz(Country::CH, "8048"));
+/// assert_eq!(result, 42);
+/// ```
+pub async fn fetch_city_by_plz(cty: Country, plz: String) -> Option<String> {
+    if plz.len() != 4 { return None; }
+
+    let mut path = "/".to_string();
+    match cty {
+        Country::CH => path.push_str("ch/Localities?"),
+        Country::LI  => path.push_str("li/Localities?"),
+        _ => return None,
+    };
+
+    path.push_str(format!("postalCode={plz}").as_str());
+
+    let url = format!("https://openplzapi.org{}", path);
+
+    let resp: Response = reqwest::get(url).await.ok()?;
+    let json: serde_json::Value = resp.json().await.ok()?;
+
+    // The API returns an array of objects. We take the first match.
+    json.get(0)?
+        .get("name")?
+        .as_str()
+        .map(|s| s.to_string())
 }
 
 /* -- DUMP ---

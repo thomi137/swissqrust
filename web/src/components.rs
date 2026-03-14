@@ -13,10 +13,11 @@ pub use preview_component::*;
 
 
 pub mod widgets {
-
     use leptos::prelude::*;
     use leptos::component;
-    use leptos::svg::set;
+
+    use swiss_qrust::Country;
+    use strum::IntoEnumIterator;
 
     #[component]
     pub fn FormField<F>(
@@ -27,7 +28,8 @@ pub mod widgets {
         #[prop(optional, into)] class: String,
         #[prop(optional)] placeholder: &'static str,
     ) -> impl IntoView
-    where F: Fn(String) + 'static
+    where
+        F: Fn(String) + 'static
     {
         let has_error = move || error.get().is_some();
 
@@ -77,31 +79,30 @@ pub mod widgets {
     }
 
     #[component]
-    pub fn ToggleSwitch (
+    pub fn ToggleSwitch(
         #[prop(into)] has_debtor: Signal<bool>,
         #[prop(into)] set_has_debtor: SignalSetter<bool>
     ) -> impl IntoView {
-
-            view! {
-                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <div class="flex flex-col">
-                        <span class="text-sm font-bold text-slate-700">"Debtor Details"</span>
-                        <span class="text-xs text-slate-500">"Add an optional recipient address"</span>
-                    </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" class="sr-only peer"
-                            prop:checked=has_debtor.get()
-                            on:change= move |_| set_has_debtor.set(!has_debtor.get()) />
-                        <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer
+        view! {
+            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-slate-700">"Debtor Details"</span>
+                    <span class="text-xs text-slate-500">"Add an optional recipient address"</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer"
+                        prop:checked=has_debtor.get()
+                        on:change= move |_| set_has_debtor.set(!has_debtor.get()) />
+                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer
                                     peer-checked:after:translate-x-full peer-checked:after:border-white
                                     after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                                     after:bg-white after:border-slate-300 after:border after:rounded-full
                                     after:h-5 after:w-5 after:transition-all peer-checked:bg-swiss-red">
-                        </div>
-                    </label>
-                </div>
-            }
+                    </div>
+                </label>
+            </div>
         }
+    }
 
     #[component]
     pub fn CountingTextArea<F>(
@@ -110,7 +111,8 @@ pub mod widgets {
         on_input: F,
         max_length: usize,
     ) -> impl IntoView
-    where F: Fn(String) + 'static
+    where
+        F: Fn(String) + 'static
     {
         let current_len = move || value.get().len();
         let is_over = move || current_len() > max_length;
@@ -146,6 +148,86 @@ pub mod widgets {
             </div>
         </div>
     }
+    }
+
+    #[component]
+    pub fn CountrySelector(
+        #[prop(into)] value: Signal<Country>,
+        on_change: Callback<Country>,
+    ) -> impl IntoView {
+
+        // Setup local state.
+        let (search, set_search) = signal(String::new());
+        let (is_open, set_is_open) = signal(false);
+
+        let all_countries = Memo::new(move |_| {
+            let mut list: Vec<Country> = Country::iter().collect();
+            // Custom sort: CH and LI first, then alphabetical by readable name
+            list.sort_by(|a, b| {
+                let priority = |c: &Country| match c {
+                    Country::CH => 0,
+                    Country::LI => 1,
+                    _ => 2,
+                };
+                priority(a).cmp(&priority(b)).then_with(|| a.to_string().cmp(&b.to_string()))
+            });
+            list
+        });
+
+        let filtered_countries = Memo::new(move |_| {
+            let s = search.get().to_lowercase();
+            all_countries.get().into_iter()
+                .filter(|c| c.to_string().to_lowercase().contains(&s))
+                .collect::<Vec<_>>()
+        });
+
+        view! {
+            <div class="relative w-full">
+
+                <div
+                    class="border p-2 rounded cursor-pointer flex justify-between bg-white"
+                    on:click=move |_| set_is_open.update(|v| *v = !*v)
+                >
+                    <span>{move || value.get().to_string()}</span>
+                    <span class="text-slate-400">"▾"</span>
+                </div>
+
+
+                <Show when= move || is_open.get()>
+                    <div class="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                        <input
+                            type="text"
+                            class="w-full p-2 border-b sticky top-0 bg-slate-50 outline-none"
+                            placeholder="Search country..."
+                            prop:value=search
+                            on:input=move |ev| set_search.set(event_target_value(&ev))
+                            on:click=move |ev| ev.stop_propagation() // Prevent closing when clicking input
+                        />
+
+                    <For
+                        each=move || filtered_countries.get()
+                        key=|c| c.to_string()
+                        children=move |c| {
+                            let c_clone = c.clone().meta();
+                            view! {
+                                <div
+                                    class="p-2 hover:bg-blue-50 cursor-pointer text-sm"
+                                    on:click=move |_| {
+                                        on_change.run(c.clone());
+                                        set_is_open.set(false);
+                                        set_search.set(String::new());
+                                    }
+                                >
+                                    {c_clone.name}
+                                </div>
+                            }
+                        }
+                    />
+                    </div>
+                </Show>
+            </div>
+
+        }
     }
 
 } // widgets

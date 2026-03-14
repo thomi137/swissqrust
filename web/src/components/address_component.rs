@@ -3,12 +3,13 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
-
+use leptos::attr::{data, value};
 use leptos::prelude::*;
 use leptos::component;
-use swiss_qrust::{Address, AddressError};
+use swiss_qrust::{Address, AddressError, Country};
 
-use crate::components::widgets::FormField;
+use crate::components::widgets::{CountrySelector, FormField};
+use crate::utils::fetch_city_by_plz;
 
 #[component]
 pub fn AddressComponent<F>(
@@ -17,9 +18,33 @@ pub fn AddressComponent<F>(
     on_change: F,
     #[prop(optional, into)] class: String,
 ) -> impl IntoView
-where F: Fn(Address) + Clone + 'static
+where F: Fn(Address) + Clone + Send + Sync + 'static
 {
-    let update = on_change;
+    let update = on_change.clone();
+
+    let city_fetcher = LocalResource::new(move || {
+        let plz = address.get().plz;
+        async move {
+            if plz.len() == 4 {
+                fetch_city_by_plz(Country::CH, plz).await
+            } else {
+                None
+            }
+        }
+    });
+
+    let value = update.clone();
+    Effect::new( move |_| {
+        let data = city_fetcher.read();
+        if let Some(Some(fetched_city)) = data.as_ref() {
+            // Only update if the city is currently empty (don't overwrite user)
+            if address.get().city.is_empty() {
+                let mut a = address.get();
+                a.city = fetched_city.to_string();
+                value(a);
+            }
+        }
+    });
 
     view! {
         <div class=format!("space-y-1 {}", class)>
@@ -90,6 +115,16 @@ where F: Fn(Address) + Clone + 'static
                      })
                 />
             </div>
+
+            <CountrySelector
+                value=Signal::derive(move || address.get().country)
+                on_change=Callback::new( move |new_country| {
+                    let mut a = address.get();
+                    a.country = new_country;
+                    update(a);
+                })
+            />
+
         </div>
     }
 }

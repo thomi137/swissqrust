@@ -29,6 +29,7 @@ serde_json = "1.0.149"
 iced = { version =  "0.14.0", features = ["svg", "advanced"] }
 rfd = "0.17.2"
 base64 = "0.22.1"
+strum = {  version = "0.28.0", features = ["derive"] }
 
 [build-dependencies]
 serde =  { version = "1.0.228", features = ["derive"] }

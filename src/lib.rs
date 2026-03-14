@@ -19,6 +19,9 @@ pub mod generated;
 pub mod support;
 pub mod input;
 
+pub use serde_json::*;
+pub use strum::*;
+
 pub use bill::*;
 pub use language::*;
 pub use generated::*;
@@ -30,7 +33,7 @@ pub use input::*;
 
 /// Reads file and decides whether it is .toml or .json
 /// Maybe later used only for a CLI version, but keep it in here.
-pub fn parse_bill_data(content: &str, extension: &str) -> Result<InputBill> {
+pub fn parse_bill_data(content: &str, extension: &str) -> anyhow::Result<InputBill> {
     match extension {
         "toml" => Ok(toml::from_str(content)?),
         "json" => Ok(serde_json::from_str(content)?),

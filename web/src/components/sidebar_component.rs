@@ -132,7 +132,7 @@ pub fn Sidebar() -> impl IntoView {
                         if has_debtor.get() { "max-h-[500px] opacity-100 mt-6" } else { "max-h-0 opacity-0 pointer-events-none" }
                     )>
                         <AddressComponent
-                            title="Debtor (Optional)"
+                            title="Debtor"
                             address=Signal::derive(move || state.bill.get().debtor_address.unwrap_or_default())
                             on_change=move |new_addr| state.bill.update(|b| b.debtor_address = Some(new_addr))
                             class="p-4 bg-blue-50/30 rounded-xl border border-blue-100"

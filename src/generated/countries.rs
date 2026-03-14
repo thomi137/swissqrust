@@ -2,13 +2,19 @@
 // https://github.com/mledoze/countries
 // DO NOT EDIT BY HAND
 
+use strum::{
+    IntoEnumIterator,
+    Display,
+    EnumIter,
+};
+
 #[derive(Debug, thiserror::Error)]
 pub enum CountryParseError {
     #[error("'{0}' is not a valid ISO country code")]
     InvalidCode(String),
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, EnumIter, Display)]
 pub enum Country {
     AW,
     AF,
