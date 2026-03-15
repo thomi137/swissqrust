@@ -5,8 +5,10 @@
  */
 
 use std::str::FromStr;
-use leptos::prelude::RwSignal;
-use swiss_qrust::{Address, BillData, Country, Currency, Language, ReferenceType};
+
+use leptos::prelude::*;
+use swiss_qrust::{label, Address, BillData, Country, Currency, Language, ReferenceType};
+use crate::bui_language::{get_gui_label, Translatable};
 
 #[derive(Copy, Clone)]
 pub struct AppState {
@@ -27,7 +29,18 @@ impl AppState {
             debtor_address: RwSignal::new(None),
         }
     }
-}
+
+    pub fn t(&self, key: Translatable) -> Signal<String> {
+        let lang = self.lang;
+
+        // Signal::derive takes a move closure and makes it a Signal
+        Signal::derive(move || {
+            match key {
+                Translatable::Lib(k) => label(k, lang.get()).unwrap_or("Error").to_string(),
+                Translatable::Gui(k) => get_gui_label(k, lang.get()).to_string(),
+            }
+        })
+    }}
 
 pub fn seed_bill() -> BillData {
 

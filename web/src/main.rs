@@ -13,6 +13,7 @@ use wasm_bindgen::JsCast;
 mod components;
 mod state;
 mod utils;
+pub mod bui_language;
 
 use crate::components::*;
 
@@ -31,7 +32,7 @@ fn App() -> impl IntoView {
 
     view! {
         <main class="min-h-screen bg-slate-50 flex justify-center p-8">
-        <div class="w-full max-w-7xl flex flex-col lg:flex-row gap-12">
+        <div class="w-full max-w-7xl flex flex-col lg:flex-row">
 
             <aside class="lg:w-[450px] p-8 overflow-y-auto bg-white shadow-2xl border-r-4 border-swiss-red z-10">
                 <Sidebar />

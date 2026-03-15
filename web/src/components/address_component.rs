@@ -7,19 +7,22 @@ use leptos::attr::{data, value};
 use leptos::prelude::*;
 use leptos::component;
 use swiss_qrust::{Address, AddressError, Country};
-
+use crate::bui_language::{GuiLabelKey, Translatable};
 use crate::components::widgets::{CountrySelector, FormField};
+use crate::state;
+use crate::state::AppState;
 use crate::utils::fetch_city_by_plz;
 
 #[component]
 pub fn AddressComponent<F>(
-    title: &'static str,
+    #[prop(into)] title: Signal<String>,
     address: Signal<Address>, // Pass the signal from your state
     on_change: F,
     #[prop(optional, into)] class: String,
 ) -> impl IntoView
 where F: Fn(Address) + Clone + Send + Sync + 'static
 {
+    let state = use_context::<AppState>().expect("State context missing");
     let update = on_change.clone();
 
     let city_fetcher = LocalResource::new(move || {
@@ -48,10 +51,10 @@ where F: Fn(Address) + Clone + Send + Sync + 'static
 
     view! {
         <div class=format!("space-y-1 {}", class)>
-            <h3 class="text-xs font-black text-slate-800 mb-2 border-b border-slate-100 pb-1">{title}</h3>
+            <h3 class="text-xs font-black text-slate-400 uppercase mb-2 border-b border-slate-100 pb-1">{title}</h3>
 
             <FormField
-                label="Name"
+                label=state.t(Translatable::Gui(GuiLabelKey::Name))
                 placeholder="Company or Person Name"
                 value=Signal::derive(move || address.get().name)
                 on_input={
@@ -67,7 +70,7 @@ where F: Fn(Address) + Clone + Send + Sync + 'static
 
             <FormField
                 class="col-span-3"
-                label="Street"
+                label=state.t(Translatable::Gui(GuiLabelKey::Street))
                 value=Signal::derive(move || address.get().street.unwrap_or_default())
                 on_input={
                     let update = update.clone();
@@ -78,7 +81,7 @@ where F: Fn(Address) + Clone + Send + Sync + 'static
 
             <FormField
                 class="col-span-1"
-                label="No"
+                label=state.t(Translatable::Gui(GuiLabelKey::HouseNo))
                 value=Signal::derive(move || address.get().house_num.unwrap_or_default())
                 on_input={
                     let update = update.clone();
@@ -92,7 +95,7 @@ where F: Fn(Address) + Clone + Send + Sync + 'static
             <div class="grid grid-cols-4 gap-2">
                 <FormField
                     class="col-span-1"
-                    label="ZIP"
+                    label=state.t(Translatable::Gui(GuiLabelKey::PostalCode))
                     value=Signal::derive(move || address.get().plz)
                     on_input={
                         let update = update.clone();
@@ -104,7 +107,7 @@ where F: Fn(Address) + Clone + Send + Sync + 'static
                 />
                 <FormField
                     class="col-span-3"
-                    label="City"
+                    label=state.t(Translatable::Gui(GuiLabelKey::City))
                     value=Signal::derive(move || address.get().city)
                     on_input={
                         let update = update.clone();

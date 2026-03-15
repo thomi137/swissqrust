@@ -3,10 +3,10 @@ use thiserror::Error;
 
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Language {
+    #[default]
     De,
     Fr,
     It,
-    #[default]
     En,
 }
 impl fmt::Display for Language {
@@ -131,22 +131,6 @@ pub fn label(key: LabelKey, lang: Language) -> Result<&'static str, LanguageErro
 }
 
 /// Exports a macro for the above
-///
-/// Possible keys are:
-///
-/// `PaymentPart`,
-/// `AccountPayableTo`,
-/// `Reference`,
-/// `AdditionalInformation`,
-/// `Currency`,
-/// `Amount`,
-/// `Receipt`,
-/// `AcceptancePoint`,
-/// `SeparateBeforePayingIn`,
-/// `PayableBy`,
-/// `PayableByNameAddress`,
-/// `InFavourOf`
-///
 #[macro_export]
 macro_rules! label {
     ($key:ident) => {

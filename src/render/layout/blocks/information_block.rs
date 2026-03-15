@@ -43,9 +43,8 @@ impl <T: FontMetrics> LayoutBlock<T> for InformationBlock {
                 draw_single_line(ops, &reference.format_scor_reference(), cursor.x, &mut cursor.y, ctx.text_size);
                 cursor.advance(ctx.line_spacing + ctx.extra_spacing);
             },
-            _ => {cursor.advance(ctx.line_spacing + ctx.extra_spacing); },
+            _ => {},
         }
-        cursor.advance(ctx.line_spacing);
 
         // Unstructured message
         if self.part == SlipPart::PaymentPart && let Some(unstructured_message) = &ctx.bill_data.unstructured_message {
