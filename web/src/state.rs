@@ -7,7 +7,7 @@
 use std::str::FromStr;
 
 use leptos::prelude::*;
-use swiss_qrust::{label, Address, BillData, Country, Currency, Language, ReferenceType};
+use swiss_qrust::{label, Address, BillData, BillError, Country, Currency, Language, ReferenceType};
 use crate::bui_language::{get_gui_label, Translatable};
 
 #[derive(Copy, Clone)]
@@ -30,6 +30,20 @@ impl AppState {
         }
     }
 
+    pub fn country_name(&self, country: Country) -> Signal<String> {
+        let lang = self.lang;
+        Signal::derive( move || {
+            let meta = country.meta();
+            match lang.get() {
+                // Map your Language enum to the library's metadata fields
+                Language::De => meta.name_de.to_string(),
+                Language::Fr => meta.name_fr.to_string(),
+                Language::It => meta.name_it.to_string(),
+                Language::En | _ => meta.name.to_string(),
+            }
+        })
+    }
+
     pub fn t(&self, key: Translatable) -> Signal<String> {
         let lang = self.lang;
 
@@ -40,13 +54,14 @@ impl AppState {
                 Translatable::Gui(k) => get_gui_label(k, lang.get()).to_string(),
             }
         })
-    }}
+    }
+}
 
 pub fn seed_bill() -> BillData {
 
     let iban = "CH9300762011623852957";
     let currency = Currency::from_str("CHF").unwrap();
-    // let reference = "210000000003139471430009017";
+    let reference = "210000000003139471430009017";
 
     let creditor_address = Address {
         address_type: "S".to_string(),
@@ -58,15 +73,15 @@ pub fn seed_bill() -> BillData {
         country: Country::CH,
     };
 
-    BillData {
-        iban: iban.to_string(),
-        currency,
-        amount: None,
-        reference_type: ReferenceType::NoRef,
-        unstructured_message: None,
-        bill_information: None,
-        creditor_address,
-        debtor_address: None,
-        alternative_schemes: [None, None],
-    }
+    BillData::new(
+            iban.to_string(),
+            creditor_address,
+            None,
+            currency,
+            None,
+            ReferenceType::NoRef,
+            None,
+            None,
+            [None, None],
+        ).expect("Invalid seed bill data.")
 }

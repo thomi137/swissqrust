@@ -25,7 +25,7 @@ pub fn Sidebar() -> impl IntoView {
     let (is_expanded, set_is_expanded) = signal(false);
 
     // 1.1 Just local state. No need to put it into app state
-    let (has_debtor, set_has_debtor) = signal(false);
+    let has_debtor = RwSignal::new(false);
 
     Effect::new(move |_| {
         if has_debtor.get() {
@@ -127,8 +127,7 @@ pub fn Sidebar() -> impl IntoView {
     </div>
 
     <ToggleSwitch
-        has_debtor=has_debtor
-        set_has_debtor=set_has_debtor/>
+        has_debtor=has_debtor/>
 
     <div class=move || {
         let grid_style = if has_debtor.get() {
@@ -148,7 +147,17 @@ pub fn Sidebar() -> impl IntoView {
         <AddressComponent
             title=label!(PayableBy, state.lang.get())
             address=Signal::derive(move || state.bill.get().debtor_address.unwrap_or_default())
-            on_change=move |new_addr| state.bill.update(|b| b.debtor_address = Some(new_addr))
+            on_change=move |new_addr| {
+                state.bill.update(|b| {
+                if new_addr.city.trim().is_empty()
+                    && new_addr.plz.trim().is_empty()
+                    && new_addr.name.trim().is_empty() {
+                    b.debtor_address = None;
+                } else {
+                    b.debtor_address = Some(new_addr);
+                }
+            })
+        }
         />
         </div>
     </div>
@@ -167,8 +176,14 @@ pub fn Sidebar() -> impl IntoView {
                     placeholder="0.00"
                     class="p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-swiss-red outline-none transition-all font-bold"
                     on:input=move |ev| {
-                        let val = event_target_value(&ev).parse::<f64>().unwrap_or(0.0);
-                        state.bill.update(|b| b.amount = Some(format!("{:.2}", val)));
+                        let val = event_target_value(&ev);
+                        state.bill.update(|b| {
+                            if val.trim().is_empty() {
+                                b.amount = None;
+                            } else if let Ok(num) = val.parse::<f64>() {
+                                 b.amount = Some(format!("{:.2}", num))
+                            }
+                        });
                     }
                  />
             </div>// column 1

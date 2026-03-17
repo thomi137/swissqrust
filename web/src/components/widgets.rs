@@ -8,7 +8,7 @@ use leptos::prelude::*;
 use leptos::{component, html, ev};
 use leptos::logging::log;
 
-use swiss_qrust::{Country, LabelKey};
+use swiss_qrust::{Address, Country, LabelKey};
 use strum::IntoEnumIterator;
 use swiss_qrust::LabelKey::AdditionalInformation;
 use crate::bui_language::Translatable;
@@ -76,9 +76,29 @@ where
 
 #[component]
 pub fn ToggleSwitch(
-    #[prop(into)] has_debtor: Signal<bool>,
-    #[prop(into)] set_has_debtor: SignalSetter<bool>
+    #[prop(into)] has_debtor: RwSignal<bool>,
 ) -> impl IntoView {
+
+    let state = use_context::<AppState>().expect("state missing");
+
+    let on_toggle_debtor = move || {
+        has_debtor.update(|v| {
+            *v = !*v;
+            if *v {
+                // Initialize if opening
+                if state.debtor_address.get().is_none() {
+                    state.debtor_address.set(Some(Address::default()));
+                }
+            } else {
+                // WIPE the state if closing
+                state.debtor_address.set(None);
+                // Also update the underlying bill data for the PDF
+                state.bill.update(|b| b.debtor_address = None);
+            }
+        });
+    };
+
+
     view! {
         <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
             <div class="flex flex-col">
@@ -88,7 +108,7 @@ pub fn ToggleSwitch(
             <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" class="sr-only peer"
                     prop:checked=has_debtor.get()
-                    on:change= move |_| set_has_debtor.set(!has_debtor.get()) />
+                    on:change= move |_| has_debtor.set(!has_debtor.get()) />
                 <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer
                                 peer-checked:after:translate-x-full peer-checked:after:border-white
                                 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
@@ -154,6 +174,8 @@ pub fn CountrySelector(
     on_change: Callback<Country>,
 ) -> impl IntoView {
 
+    let state = use_context::<AppState>().expect("state missing");
+
     // Setup local state.
     let (search, set_search) = signal(String::new());
     let (is_open, set_is_open) = signal(false);
@@ -191,7 +213,7 @@ pub fn CountrySelector(
         all_countries.get().into_iter()
             .filter(|c| {
                 let code = c.to_string().to_lowercase();
-                let full_name = c.meta().name.to_lowercase();
+                let full_name = state.country_name(c.clone()).get().to_lowercase();
                 code.contains(&s) || full_name.contains(&s)
             })
             .collect::<Vec<_>>()
@@ -209,8 +231,9 @@ pub fn CountrySelector(
             </div>
 
             <Show when= move || is_open.get()>
-                <div class="absolute z-[100] w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto\
-                            animate-in fade-in-0 zoom-in-95 duration-200 origin-top">
+                <div class="absolute z-[100] w-full mt-1 bg-white border rounded shadow-lg \
+                max-h-60 overflow-hidden flex flex-col \
+                animate-in fade-in-0 zoom-in-95 duration-200 origin-top">
                     <input
                         type="text"
                         class="w-full p-2 border-b sticky top-0 bg-slate-50 outline-none"
@@ -219,12 +242,14 @@ pub fn CountrySelector(
                         on:input=move |ev| set_search.set(event_target_value(&ev))
                         on:click=move |ev| ev.stop_propagation() // Prevent closing when clicking input
                     />
-
+                <div class="overflow-y-auto min-h-0 flex-1">
                 <For
                     each=move || filtered_countries.get()
                     key=|c| c.to_string()
                     children=move |c| {
                         let c_clone = c.clone().meta();
+                        let country_name = state.country_name(c.clone());
+
                         view! {
                             <div
                                 class="p-2 hover:bg-blue-50 cursor-pointer text-sm"
@@ -234,11 +259,12 @@ pub fn CountrySelector(
                                     set_search.set(String::new());
                                 }
                             >
-                                {format!("{} - {}", c_clone.flag.unwrap(), c_clone.name)}
+                                {format!("{} - {}", c_clone.flag.unwrap_or_default(), country_name.get())}
                             </div>
                         }
                     }
                 />
+                </div>
                 </div>
             </Show>
         </div>
