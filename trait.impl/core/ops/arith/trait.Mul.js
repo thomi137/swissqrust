@@ -1,5 +1,5 @@
 (function() {
-    const implementors = Object.fromEntries([["swiss_qrust",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.94.0/core/ops/arith/trait.Mul.html\" title=\"trait core::ops::arith::Mul\">Mul</a> for <a class=\"struct\" href=\"swiss_qrust/render/layout/geometry/struct.Mm.html\" title=\"struct swiss_qrust::render::layout::geometry::Mm\">Mm</a>",0]]]]);
+    const implementors = Object.fromEntries([["swiss_qrust",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.97.1/core/ops/arith/trait.Mul.html\" title=\"trait core::ops::arith::Mul\">Mul</a> for <a class=\"struct\" href=\"swiss_qrust/render/layout/geometry/struct.Mm.html\" title=\"struct swiss_qrust::render::layout::geometry::Mm\">Mm</a>",0]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {

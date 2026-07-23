@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["address","bill_data","qr_bill","reference_type"]};
+window.SIDEBAR_ITEMS = {"mod":["address","bill_data","qr_bill","reference_type","swico"]};

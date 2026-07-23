@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["InputBill"]};
+window.SIDEBAR_ITEMS = {"struct":["InputBill","InputPaymentCondition","InputRateDetail","InputSwicoBillInformation"]};
