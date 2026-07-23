@@ -14,7 +14,6 @@ use crate::support::utils::{is_in_extended_sps_charset,
                             remove_whitespace
 };
 
-
 /// Charset Error
 #[derive(Debug, PartialEq)]
 pub struct SPSCharsetError {

@@ -3,8 +3,9 @@
  * Licensed under MIT License
  * https://opensource.org/licenses/MIT
  */
+use std::num::ParseIntError;
 
-/// Damm Table for testing QR Reference against mod-10
+/// Cyclic Mod-10 Vector for validating and calculating ESR Checksum
 const MOD_10: [u8; 10] = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
 
 /// Helpers for String manipultion or checking.
@@ -54,11 +55,11 @@ pub fn is_qr_iban(s: &str) -> bool {
         .skip(4)
         .take(5);
 
-    let mut value: u16 = 0;
+    let mut value: u32 = 0;
 
     for c in &mut iter {
         let digit = match c.to_digit(10) {
-            Some(d) => d as u16,
+            Some(d) => d,
             None => return false,
         };
 
@@ -67,7 +68,7 @@ pub fn is_qr_iban(s: &str) -> bool {
 
     // let slice: u16 = s[4..9].parse().unwrap();
 
-    (30000u16..=31999u16).contains(&value)
+    (30000u32..=31999u32).contains(&value)
 }
 
 /// Used for checking QR Reference for digits only. Fails at first non-digit
@@ -168,3 +169,143 @@ pub fn mod10(reference: &str) -> bool {
     (10 - carry).is_multiple_of(10)
 }
 
+/// Generates QR IBAN with Checksum
+///
+/// # Arguments
+///
+/// * country_prefix - An ISO 3166-1 alpha-2 Country code.
+/// * raw - IBAN string from pos 5..21 (account number with QR-IID)
+///
+/// # Returns
+///
+/// * New IBAN with Checksum. NOTE: The function is used to calculate a valid Swiss/LI IBAN. As such, its use
+/// is not limited to QR IBANS Only.
+///
+/// # Examples
+///
+/// ```
+/// # use swiss_qrust::generate_iban_with_checksum;
+/// let iban = generate_iban_with_checksum("BE", "435411161155").unwrap();
+/// assert_eq!(iban, "BE31435411161155");
+/// ```
+///
+/// ```
+/// # use swiss_qrust::generate_iban_with_checksum;;
+/// let iban = generate_iban_with_checksum("GR", "0110 1050 0000 1054 7023 795").unwrap();
+/// assert_eq!(iban, "GR1601101050000010547023795");
+/// ```
+pub fn generate_iban_with_checksum(cty: &str, raw: &str) -> Result<String, ParseIntError> {
+
+    let raw = raw.chars().filter(|ch| !ch.is_whitespace()).collect::<String>();
+
+    let mut suffix = String::new();
+    for c in cty.chars(){
+        if let Some(digit) = c.to_digit(36) {
+            suffix.push_str(&digit.to_string());
+        }
+    }
+    suffix.push_str("00");
+    let calc_string = format!("{}{}", raw, suffix);
+
+    let mut remainder = 0;
+    for c in calc_string.chars() {
+        let digit = c.to_digit(10).unwrap();
+        remainder = (remainder * 10 + digit) % 97;
+    }
+
+    let check_digit = 98 - remainder;
+
+    Ok(format!("{}{:02}{}", cty, check_digit, raw))
+
+}
+
+/// Generates QR Reference with Checksum
+///
+/// # Arguments
+///
+/// * raw - numeric string of up to 26 chars length
+///
+/// # Returns
+///
+/// * QRR (ESR) String of 27 chars, last being the checksum
+///
+/// # Example
+/// ```
+/// # use swiss_qrust::utils::generate_qrr_with_checksum;
+/// let with_checksum = generate_qrr_with_checksum("21000000000313947143000901");
+/// assert_eq!(with_checksum.as_ref().unwrap().len(), 27);
+/// assert_eq!(with_checksum.unwrap(), "210000000003139471430009017");
+/// ```
+///
+/// ```
+/// # use swiss_qrust::generate_qrr_with_checksum;
+/// let with_checksum = generate_qrr_with_checksum("18 7858");
+/// assert_eq!(with_checksum.as_ref().unwrap().len(), 27);
+/// assert_eq!(with_checksum.unwrap(), "000000000000000000001878583");
+/// ```
+pub fn generate_qrr_with_checksum(raw: &str) -> Result<String, ParseIntError> {
+
+    let raw = raw.chars().filter(|ch| !ch.is_whitespace()).collect::<String>();
+
+    let mut carry = 0u8;
+
+    for char in raw.chars() {
+        if let Some(digit) = char.to_digit(10) {
+            carry = MOD_10[(carry as usize + digit as usize) % 10];
+        }
+    }
+
+    let checksum = (10 - carry) % 10;
+
+    Ok(format!("{:0>26}{}", raw, checksum))
+}
+
+/// Generate SCOR (ISO 11649) Reference with Checksum
+///
+/// # Arguments
+///
+/// * raw - alphanumeric string of up to 21 chars length
+///
+/// # Returns
+///
+/// * SCOR Reference number of up to 25 chars, first 4 being 'RF' + XX, where XX is a two-digit checksum.
+///
+/// # Examples
+///
+/// ```
+/// # use swiss_qrust::generate_iso11649_with_checksum;
+/// let input = "5390075470Y";
+/// let with_checksum = generate_iso11649_with_checksum(input);
+/// assert_eq!(with_checksum.unwrap(), "RF185390075470Y");
+/// ```
+///
+/// ```
+/// # use swiss_qrust::generate_iso11649_with_checksum;
+/// let input = "1234 5";
+/// let with_checksum = generate_iso11649_with_checksum(input);
+/// assert_eq!(with_checksum.unwrap(), "RF7812345");
+/// ```
+pub fn generate_iso11649_with_checksum(raw: &str) -> Result<String, ParseIntError> {
+
+    let raw = raw.chars().filter(|ch| !ch.is_whitespace()).collect::<String>();
+
+    let mut numeric_str = String::new();
+    for c in raw.chars().filter(|ch| ch.is_alphanumeric()) {
+        if let Some(d) = c.to_digit(36) {
+            numeric_str.push_str(&d.to_string());
+        }
+    }
+
+    numeric_str.push_str("271500"); // "RF" converted + "00"
+
+    // Calculate mod 97 using Horner's method for big numbers.
+    let mut remainder = 0;
+    for c in numeric_str.chars() {
+        let digit = c.to_digit(10).unwrap();
+        remainder = (remainder * 10 + digit) % 97;
+    }
+
+    let check_digit = 98 - remainder;
+
+    Ok(format!("RF{:02}{}", check_digit, raw))
+}

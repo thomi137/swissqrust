@@ -144,12 +144,20 @@ impl<'a> QrBill
         //Trailer - End of Payment Data
         qr_text.append_data_field(Some(TRAILER_EPD));
 
-        // BIll Information
-        if let Some(billinfo) = &self.bill_data.bill_information {
-            qr_text.append_data_field(Some(billinfo));
+        // Bill Information (StrdBkgInf) - status "A" (additional): may only
+        // be omitted outright when no further field follows. Since AltPmt
+        // may follow, an empty placeholder must be emitted here whenever any
+        // alternative scheme is present, so positional ordering is preserved.
+        let has_alt_scheme = self.bill_data.alternative_schemes.iter().any(Option::is_some);
+        match &self.bill_data.bill_information {
+            Some(billinfo) => qr_text.append_data_field(Some(billinfo)),
+            None if has_alt_scheme => qr_text.append_data_field(None),
+            None => {}
         }
 
-        // Alternative Schemes
+        // Alternative Schemes - a repeating group; skipping absent
+        // occurrences is fine since order between occurrences carries no
+        // positional meaning.
         for scheme in &self.bill_data.alternative_schemes {
             if let Some(scheme) = scheme {
                 qr_text.append_data_field(Some(scheme));
@@ -214,6 +222,55 @@ pub fn qr_code(bill: &BillData) -> Result<QrCode, QRBillError> {
     QrBill::new(bill)
         .and_then(|b| b.create_qr_text())
         .and_then(|txt| encode_text_to_qr_code(&txt))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{Address, Currency};
+
+    fn address() -> Address {
+        Address::new("Health insurance fit&kicking", Some("Am Wasser"), Some("1"), "3000", "Bern", "CH").unwrap()
+    }
+
+    fn qr_bill_bill_data() -> BillData {
+        BillData::new(
+            "CH64 3196 1000 0044 2155 7".to_string(),
+            address(),
+            None,
+            Currency::CHF,
+            None,
+            ReferenceType::QrRef("000008207791225857421286694".to_string()),
+            None,
+            None,
+            [None, None],
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn strd_bkg_inf_placeholder_preserves_alt_pmt_position_when_billing_info_absent() {
+        let mut bill = qr_bill_bill_data();
+        bill.alternative_schemes = [Some("eBill/B/sarah.beispiel@einfach-zahlen.ch".to_string()), None];
+
+        let text = QrBill::new(&bill).unwrap().create_qr_text().unwrap();
+        let fields: Vec<&str> = text.split("\r\n").collect();
+
+        let trailer_idx = fields.iter().position(|&f| f == "EPD").unwrap();
+        assert_eq!(
+            fields[trailer_idx + 1], "",
+            "StrdBkgInf must be an empty placeholder (not omitted) when AltPmt follows"
+        );
+        assert_eq!(fields[trailer_idx + 2], "eBill/B/sarah.beispiel@einfach-zahlen.ch");
+    }
+
+    #[test]
+    fn strd_bkg_inf_omitted_when_nothing_follows() {
+        let bill = qr_bill_bill_data();
+
+        let text = QrBill::new(&bill).unwrap().create_qr_text().unwrap();
+        assert!(text.ends_with("EPD"));
+    }
 }
 
 

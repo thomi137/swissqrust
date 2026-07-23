@@ -10,6 +10,7 @@ use crate::{BillData, Column, Language, LayoutStrategy, RenderContext, SlipPart}
 use crate::constants::*;
 use crate::block_elements::{ColumnCursor, LayoutBlock};
 use crate::blocks::amount_block::AmountBlock;
+use crate::blocks::further_information_block::FurtherInformationBlock;
 use crate::blocks::information_block::InformationBlock;
 use crate::blocks::qr_block::QrBlock;
 use crate::blocks::title_block::TitleBlock;
@@ -29,6 +30,7 @@ impl<T: FontMetrics> PaymentPartLayout<T> {
                 Box::new(QrBlock),
                 Box::new(SpacerBlock { min_height: Mm(260f32) }),
                 Box::new(AmountBlock { part: SlipPart::PaymentPart, amount_box_width: AMOUNT_BOX_WIDTH_PP, amount_box_height: AMOUNT_BOX_HEIGHT_PP }),
+                Box::new(FurtherInformationBlock),
             ]
         }
     }
@@ -39,6 +41,7 @@ impl <T: FontMetrics> LayoutStrategy<T> for PaymentPartLayout<T> {
     const TEXT_SIZE: Pt =  PP_TEXT_PREF_FONT_SIZE;
     const TITLE_SIZE: Pt = TITLE_FONT_SIZE;
     const MAX_HEIGHT: Mm = PAYMENT_PART_MAX_HEIGHT;
+    const LINE_SPACING: Pt = PP_LINE_SPACING;
 
     fn render(&mut self,
               bill_data: &BillData,

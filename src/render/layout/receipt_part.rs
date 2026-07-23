@@ -40,6 +40,7 @@ impl <T: FontMetrics> LayoutStrategy<T> for ReceiptLayout<T> {
         const TEXT_SIZE: Pt = RC_TEXT_PREF_FONT_SIZE;
         const TITLE_SIZE: Pt = TITLE_FONT_SIZE;
         const MAX_HEIGHT: Mm = RECEIPT_PART_MAX_HEIGHT;
+        const LINE_SPACING: Pt = RC_LINE_SPACING;
 
         fn render(&mut self, bill_data: &BillData, language: Language, metrics: &T, ops: &mut Vec<DrawOp>) {
 

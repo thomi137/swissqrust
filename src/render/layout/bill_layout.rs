@@ -23,6 +23,11 @@ pub trait LayoutStrategy<T: FontMetrics> {
     const TITLE_SIZE: Pt;
     const MAX_HEIGHT: Mm;
 
+    /// Line spacing (Zeilenabstand) mandated by the Style Guide "Beschriftung
+    /// als Muster" table: 9pt on the receipt, 11pt on the payment part.
+    /// This is a fixed typographic value, not derived from font metrics.
+    const LINE_SPACING: Pt;
+
     fn render(&mut self,
               bill_data: &BillData,
               language: Language,
@@ -68,7 +73,7 @@ impl<'a, T: FontMetrics> RenderContext<'a, T> {
             label_size: S::LABEL_SIZE,
             text_size: S::TEXT_SIZE,
             title_size: S::TITLE_SIZE,
-            line_spacing: metrics.line_height_mm(FontStyle::Regular, S::TEXT_SIZE),
+            line_spacing: S::LINE_SPACING.to_mm(),
             label_ascender: metrics.ascender_mm(FontStyle::Bold, S::LABEL_SIZE),
             text_ascender: metrics.ascender_mm(FontStyle::Regular, S::TEXT_SIZE),
             title_ascender: metrics.ascender_mm(FontStyle::Bold, S::TITLE_SIZE),

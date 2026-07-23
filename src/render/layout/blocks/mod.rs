@@ -4,6 +4,7 @@
  * https://opensource.org/licenses/MIT
  */
 pub mod amount_block;
+pub mod further_information_block;
 pub mod information_block;
 pub mod qr_block;
 pub mod title_block;

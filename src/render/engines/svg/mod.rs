@@ -6,6 +6,7 @@
 pub mod svg_draw_op_handler;
 pub mod fonts;
 mod render_svg_bill;
+mod perforation;
 
 
 pub use render_svg_bill::*;

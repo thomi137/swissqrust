@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2026 Thomas Prosser 
  * Licensed under MIT License
@@ -7,7 +8,7 @@
 use serde::{Serialize, Deserialize};
 use thiserror::Error;
 use crate::Country;
-use crate::support::validators::is_valid_iso_3661_1_country;
+use crate::support::validators::{is_valid_iso_3661_1_country, is_valid_sps_charset, SPSCharsetError};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub enum AddressIdentity {
@@ -34,6 +35,8 @@ pub enum AddressError {
     AddressCityError,
     #[error("invalid country code: {0}")]
     AddressCountryError(String),
+    #[error(transparent)]
+    AddressCharsetError(#[from] SPSCharsetError),
 }
 
 /// No need for unstructured address
@@ -126,6 +129,17 @@ impl Address {
         let country_enum = is_valid_iso_3661_1_country(&country)
             .map_err(|e| AddressError::AddressCountryError(e.to_string()))?;
 
+        // Character set (spec 4.1.1): applies to every general text field.
+        is_valid_sps_charset(&name)?;
+        if let Some(ref s) = street {
+            is_valid_sps_charset(s)?;
+        }
+        if let Some(ref h) = house_num {
+            is_valid_sps_charset(h)?;
+        }
+        is_valid_sps_charset(&plz)?;
+        is_valid_sps_charset(&city)?;
+
         Ok(Self {
             address_type: ADDRESS_TYPE.into(),
             name,
@@ -180,5 +194,21 @@ impl TryFrom<InputAddress> for Address {
             &input.city,
             &input.country,
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rejects_name_outside_permitted_charset() {
+        let err = Address::new("Hello 🤣", None, None, "3000", "Bern", "CH").unwrap_err();
+        assert!(matches!(err, AddressError::AddressCharsetError(_)));
+    }
+
+    #[test]
+    fn accepts_extended_sps_charset_in_name() {
+        assert!(Address::new("Șipi Müller € AG", None, None, "3000", "Bern", "CH").is_ok());
     }
 }

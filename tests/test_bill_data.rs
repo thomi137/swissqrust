@@ -65,7 +65,7 @@ fn test_correct_toml_read() {
     let content = fs::read_to_string("./tests/data/valid_input/normal_slip_valid.toml").unwrap();
     let input: InputBill = toml::from_str(&content).unwrap();
 
-    assert_eq!(input.iban, "CH9300762011623852957");
+    assert_eq!(input.iban, "CH6431961000004421557");
     assert_eq!(input.currency, "CHF");
     assert_eq!(input.amount, Some("199.95".to_string()));
     assert_eq!(input.reference, Some("210000000003139471430009017".to_string()));
@@ -80,7 +80,7 @@ fn test_try_from_input_bill() {
     let bill = BillData::try_from(input).unwrap();
 
     assert_eq!(bill.currency.to_string(), "CHF");
-    assert_eq!(bill.iban.to_string(), "CH9300762011623852957");
+    assert_eq!(bill.iban.to_string(), "CH6431961000004421557");
     assert_eq!(bill.creditor_address.name.to_string(), "Robert Schneider AG");
 }
 

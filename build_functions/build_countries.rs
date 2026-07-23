@@ -142,7 +142,7 @@ pub fn generate() {
     let generated = format!(
         r#"// AUTO-GENERATED FROM mledoze/countries (ODbL 1.0)
 // https://github.com/mledoze/countries
-// DO NOT EDIT BY HAND
+// ⚠️ DO NOT EDIT BY HAND
 
 use strum::{{
     IntoEnumIterator,

@@ -4,20 +4,343 @@
   ~ https://opensource.org/licenses/MIT
   -->
 
-<!-- examples/web/index.html -->
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Swiss QR - Enterprise</title>
+    <title>Swiss QR</title>
+
+    <!-- Registered before the Rust/wasm link below so its listener for
+         Trunk's "TrunkApplicationStarted" event is attached in time. -->
+    <link data-trunk rel="copy-file" href="app.js" />
+    <script defer src="app.js"></script>
+    <link data-trunk rel="copy-file" href="vendor/alpine.min.js" />
+    <script defer src="alpine.min.js"></script>
+
     <!-- Trunk handles the JS/WASM injection automatically -->
     <link data-trunk rel="rust" data-path="main.rs" data-type="main" />
     <!-- Tailwind -->
     <link data-trunk rel="tailwind-css" href="input.css" data-config="tailwind.config.js" />
+    <link data-trunk rel="copy-file" href="../assets/png/icon.png" />
+    <link rel="icon" href="icon.png" />
 </head>
-<body>
- <!-- Trunk will inject the JS/WASM here -->
+<body class="bg-slate-50" x-data="app()" x-init="init()">
+
+    <header class="fixed top-0 inset-x-0 h-16 bg-white border-b border-slate-200 z-50">
+        <div class="max-w-7xl mx-auto h-full flex items-center px-8">
+            <div class="flex items-center">
+                <img src="icon.png" alt="" class="w-8 h-8 mr-3" />
+                <span class="font-black text-slate-900 text-lg tracking-tight">Swiss QR</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24 min-h-screen lg:h-screen flex justify-center p-8 lg:overflow-hidden">
+    <div class="w-full max-w-7xl lg:h-full flex flex-col lg:flex-row lg:items-stretch gap-8">
+
+        <!-- Sidebar: same form as before, restyled flatter/lighter (Todoist-style) -->
+        <aside class="lg:w-[450px] shrink-0 bg-white rounded-2xl shadow-xl border border-slate-100 p-8 lg:overflow-y-auto">
+
+            <!-- IBAN -->
+            <div class="pb-6 mb-6 border-b border-slate-200">
+                <div class="group flex flex-col mb-6">
+                    <label class="text-xs font-black text-slate-400 group-focus-within:text-red-600 transition-colors">IBAN</label>
+                    <input
+                        type="text"
+                        x-model="bill.iban"
+                        @focus="onIbanFocus()"
+                        @blur="onIbanBlur()"
+                        :class="ibanCleaned && !ibanValid ? 'border-red-500 bg-red-50' : 'border-slate-300'"
+                        class="w-full p-2 border rounded font-mono outline-none"
+                    />
+                </div>
+
+                <!-- Creditor address -->
+                <div class="space-y-1">
+                    <h3 class="text-xs font-black text-slate-400 uppercase mb-2 border-b border-slate-100 pb-1" x-text="labels.AccountPayableTo"></h3>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.Name"></label>
+                        <input type="text" :placeholder="labels.NamePlaceholder" x-model="bill.creditor_address.name"
+                            :class="!bill.creditor_address.name ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50'"
+                            class="w-full p-2.5 text-sm font-medium border rounded-lg outline-none" />
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="flex flex-col gap-1 col-span-3">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.Street"></label>
+                            <input type="text" x-model="bill.creditor_address.street"
+                                class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                        </div>
+                        <div class="flex flex-col gap-1 col-span-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.HouseNo"></label>
+                            <input type="text" x-model="bill.creditor_address.house_num"
+                                class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-2">
+                        <div class="flex flex-col gap-1 col-span-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.PostalCode"></label>
+                            <input type="text" x-model="bill.creditor_address.plz"
+                                :class="!bill.creditor_address.plz ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50'"
+                                class="w-full p-2.5 text-sm font-medium border rounded-lg outline-none" />
+                        </div>
+                        <div class="flex flex-col gap-1 col-span-3">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.City"></label>
+                            <input type="text" x-model="bill.creditor_address.city"
+                                :class="!bill.creditor_address.city ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50'"
+                                class="w-full p-2.5 text-sm font-medium border rounded-lg outline-none" />
+                        </div>
+                    </div>
+
+                    <div class="relative w-full z-40" @click.outside="countryDropdown.creditor.open = false">
+                        <div class="border border-slate-200 p-2 rounded cursor-pointer flex justify-between bg-slate-50"
+                             data-testid="creditor-country-toggle"
+                             @click="countryDropdown.creditor.open = !countryDropdown.creditor.open">
+                            <span x-text="bill.creditor_address.country"></span>
+                            <span class="text-slate-400">&#9662;</span>
+                        </div>
+                        <div x-show="countryDropdown.creditor.open" x-cloak
+                             class="absolute z-[100] w-full mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-60 overflow-hidden flex flex-col">
+                            <input type="text" x-model="countryDropdown.creditor.search" :placeholder="labels.SearchCountry"
+                                class="w-full p-2 border-b border-slate-100 sticky top-0 bg-slate-50 outline-none" />
+                            <div class="overflow-y-auto min-h-0 flex-1">
+                                <template x-for="c in filteredCountries('creditor')" :key="c.code">
+                                    <div class="p-2 hover:bg-blue-50 cursor-pointer text-sm"
+                                         data-testid="creditor-country-option" :data-country="c.code"
+                                         @click="selectCountry('creditor', c.code)"
+                                         x-text="`${c.flag} - ${c.name}`"></div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference -->
+            <div class="pb-6 mb-6 border-b border-slate-200">
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.Reference"></label>
+                <div class="flex gap-2 mt-1">
+                    <input type="text" x-model="bill.reference"
+                        :placeholder="isQrIban ? labels.QrReferencePlaceholder : labels.ScorReferencePlaceholder"
+                        :class="referenceError ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50'"
+                        class="flex-1 p-2.5 text-sm font-mono border rounded-lg outline-none" />
+                    <button type="button" @click="proposeReference()" data-testid="propose-reference"
+                        class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-500 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg" x-text="labels.Propose"></button>
+                </div>
+                <div class="h-4">
+                    <p class="text-[10px] text-swiss-red font-medium" data-testid="reference-error" x-show="referenceError" x-text="referenceError"></p>
+                </div>
+            </div>
+
+            <!-- Debtor toggle -->
+            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 mb-6">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-slate-700" x-text="labels.DebtorToggle"></span>
+                    <span class="text-xs text-slate-500" x-text="labels.DebtorSubtitle"></span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" x-model="hasDebtor" />
+                    <div class="w-11 h-6 bg-slate-300 rounded-full peer
+                                peer-checked:after:translate-x-full peer-checked:after:border-white
+                                after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                after:bg-white after:border-slate-300 after:border after:rounded-full
+                                after:h-5 after:w-5 after:transition-all peer-checked:bg-swiss-red"></div>
+                </label>
+            </div>
+
+            <!-- Debtor address -->
+            <div x-show="hasDebtor" x-cloak class="pb-6 mb-6 border-b border-slate-200 space-y-1">
+                <h3 class="text-xs font-black text-slate-400 uppercase mb-2 border-b border-slate-100 pb-1" x-text="labels.PayableBy"></h3>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.Name"></label>
+                    <input type="text" :placeholder="labels.NamePlaceholder" x-model="bill.debtor_address.name"
+                        class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                </div>
+
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="flex flex-col gap-1 col-span-3">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.Street"></label>
+                        <input type="text" x-model="bill.debtor_address.street"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                    <div class="flex flex-col gap-1 col-span-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.HouseNo"></label>
+                        <input type="text" x-model="bill.debtor_address.house_num"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2">
+                    <div class="flex flex-col gap-1 col-span-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.PostalCode"></label>
+                        <input type="text" x-model="bill.debtor_address.plz"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                    <div class="flex flex-col gap-1 col-span-3">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.City"></label>
+                        <input type="text" x-model="bill.debtor_address.city"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                </div>
+
+                <div class="relative w-full z-30" @click.outside="countryDropdown.debtor.open = false">
+                    <div class="border border-slate-200 p-2 rounded cursor-pointer flex justify-between bg-slate-50"
+                         data-testid="debtor-country-toggle"
+                         @click="countryDropdown.debtor.open = !countryDropdown.debtor.open">
+                        <span x-text="bill.debtor_address.country"></span>
+                        <span class="text-slate-400">&#9662;</span>
+                    </div>
+                    <div x-show="countryDropdown.debtor.open" x-cloak
+                         class="absolute z-[100] w-full mt-1 bg-white border border-slate-200 rounded shadow-lg max-h-60 overflow-hidden flex flex-col">
+                        <input type="text" x-model="countryDropdown.debtor.search" :placeholder="labels.SearchCountry"
+                            class="w-full p-2 border-b border-slate-100 sticky top-0 bg-slate-50 outline-none" />
+                        <div class="overflow-y-auto min-h-0 flex-1">
+                            <template x-for="c in filteredCountries('debtor')" :key="c.code">
+                                <div class="p-2 hover:bg-blue-50 cursor-pointer text-sm"
+                                     data-testid="debtor-country-option" :data-country="c.code"
+                                     @click="selectCountry('debtor', c.code)"
+                                     x-text="`${c.flag} - ${c.name}`"></div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional information -->
+            <div class="pb-6 mb-6 border-b border-slate-200">
+                <div class="relative group">
+                    <textarea
+                        x-model="bill.unstructured_message"
+                        maxlength="140"
+                        placeholder=" "
+                        :class="bill.unstructured_message.length > 140 ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50'"
+                        class="peer w-full min-h-[100px] p-4 pt-6 text-sm border-2 rounded-xl outline-none resize-none"></textarea>
+                    <label class="absolute left-4 top-2 text-[10px] font-black uppercase text-slate-400 pointer-events-none
+                                  peer-placeholder-shown:top-6 peer-placeholder-shown:text-sm peer-placeholder-shown:font-bold
+                                  peer-focus:top-2 peer-focus:text-[10px] peer-focus:text-red-600"
+                           x-text="labels.AdditionalInformation"></label>
+                    <div class="absolute bottom-2 right-4 text-[10px] font-bold tracking-widest text-slate-300"
+                         x-text="`${bill.unstructured_message.length}/140`"></div>
+                </div>
+            </div>
+
+            <!-- Swico toggle -->
+            <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 mb-2">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-slate-700" x-text="labels.SwicoToggle"></span>
+                    <span class="text-xs text-slate-500" x-text="labels.SwicoSubtitle"></span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" class="sr-only peer" x-model="hasSwico" data-testid="swico-toggle" />
+                    <div class="w-11 h-6 bg-slate-300 rounded-full peer
+                                peer-checked:after:translate-x-full peer-checked:after:border-white
+                                after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                after:bg-white after:border-slate-300 after:border after:rounded-full
+                                after:h-5 after:w-5 after:transition-all peer-checked:bg-swiss-red"></div>
+                </label>
+            </div>
+
+            <!-- Swico fields -->
+            <div x-show="hasSwico" x-cloak class="pb-6 mb-6 border-b border-slate-200 space-y-1">
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.InvoiceNumber"></label>
+                        <input type="text" x-model="swico.invoice_number" data-testid="swico-invoice-number"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.InvoiceDate"></label>
+                        <input type="date" x-model="swico.invoice_date" data-testid="swico-invoice-date"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.CustomerReference"></label>
+                    <input type="text" x-model="swico.customer_reference" data-testid="swico-customer-reference"
+                        class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.VatRate"></label>
+                        <input type="text" inputmode="decimal" placeholder="0.0" x-model="swico.vat_rate" data-testid="swico-vat-rate"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.DiscountPercent"></label>
+                        <input type="text" inputmode="decimal" placeholder="0.0" x-model="swico.discount_percent" data-testid="swico-discount-percent"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-text="labels.DiscountDays"></label>
+                        <input type="text" inputmode="numeric" placeholder="0" x-model="swico.discount_days" data-testid="swico-discount-days"
+                            class="w-full p-2.5 text-sm font-medium border border-slate-200 bg-slate-50 rounded-lg outline-none" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amount / currency -->
+            <div class="pb-6 mb-6 border-b border-slate-200">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase" x-text="labels.Amount"></label>
+                        <input type="text" inputmode="decimal" placeholder="0.00" x-model="bill.amount"
+                            class="p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-swiss-red outline-none font-bold" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase" x-text="labels.Currency"></label>
+                        <select x-model="bill.currency"
+                            class="p-3 bg-slate-50 rounded-xl border-2 border-transparent focus:border-swiss-red outline-none appearance-none font-bold">
+                            <option value="CHF">CHF</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Language -->
+            <div class="flex flex-col gap-2 mb-6">
+                <label class="text-[10px] font-black text-slate-400 uppercase" x-text="labels.Language"></label>
+                <div class="flex bg-slate-100 p-1 rounded-xl">
+                    <template x-for="l in ['De', 'Fr', 'It', 'En']" :key="l">
+                        <button
+                            @click="lang = l"
+                            :data-testid="`lang-${l}`"
+                            :class="lang === l ? 'bg-white shadow text-slate-900' : 'text-slate-400 hover:text-slate-600'"
+                            class="flex-1 py-2 text-xs font-bold rounded-lg transition-all"
+                            x-text="l"></button>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Download -->
+            <div class="pt-2">
+                <button
+                    @click="download()"
+                    data-testid="download"
+                    class="group relative w-full py-5 bg-slate-900 text-white font-black rounded-2xl shadow-xl hover:bg-swiss-red active:scale-95 transition-all overflow-hidden"
+                >
+                    <span class="relative z-10 tracking-widest uppercase text-xs" x-text="labels.DownloadPdf"></span>
+                    <div class="absolute inset-0 bg-swiss-red translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                </button>
+                <p class="mt-4 text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest" data-testid="status" x-text="status"></p>
+            </div>
+        </aside>
+
+        <!-- Preview: stays in place (no page scroll on lg:+) while the sidebar scrolls internally -->
+        <section class="flex-1 relative min-w-0 flex lg:items-center">
+            <div class="w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
+                <div class="relative w-full max-w-[210mm] aspect-[2/1] mx-auto rounded-lg ring-1 ring-slate-100 overflow-hidden">
+                    <div class="w-full h-full" x-html="previewSvg"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    </main>
 </body>
 </html>

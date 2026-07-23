@@ -6,7 +6,6 @@
 
 use std::fmt::{Display, Formatter};
 use serde::{Deserialize, Serialize};
-
 use crate::support::validators::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -40,7 +39,6 @@ impl ReferenceType {
     //! * Returns `ReferenceError::InvalidIso11649Reference` if the value is a creditor reference, but not valid.
     //!
     //! # Examples
-    //!
     //! ```
     //! use swiss_qrust::ReferenceType;
     //! let ref_type = ReferenceType::infer("RF18539007547034").unwrap();
@@ -69,6 +67,13 @@ impl ReferenceType {
         Err(ReferenceError::InvalidReference)
     }
 
+    /// Code for the QR data structure
+    ///
+    /// # Arguments
+    /// * Self
+    ///
+    /// # Returns
+    /// `NON`, `QRR`, `SCOR` based on Type.
     pub fn code(&self) -> &'static str {
         match self {
             ReferenceType::NoRef => "NON",

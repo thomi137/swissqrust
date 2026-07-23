@@ -36,6 +36,8 @@ pub enum LabelKey {
     PayableBy,
     PayableByNameAddress,
     InFavourOf,
+    BillingInformation,
+    AlternativeProcedures,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Error)]
@@ -110,6 +112,16 @@ const LABELS: &[(LabelKey, Language, &str)] = &[
     (LabelKey::InFavourOf, Language::Fr, "En faveur de"),
     (LabelKey::InFavourOf, Language::It, "A favore di"),
     (LabelKey::InFavourOf, Language::En, "In favour of"),
+
+    (LabelKey::BillingInformation, Language::De, "Rechnungsinformationen"),
+    (LabelKey::BillingInformation, Language::Fr, "Information de facture"),
+    (LabelKey::BillingInformation, Language::It, "Informazioni per la fattura"),
+    (LabelKey::BillingInformation, Language::En, "Billing information"),
+
+    (LabelKey::AlternativeProcedures, Language::De, "Alternative Verfahren"),
+    (LabelKey::AlternativeProcedures, Language::Fr, "Procédures alternatives"),
+    (LabelKey::AlternativeProcedures, Language::It, "Procedure alternative"),
+    (LabelKey::AlternativeProcedures, Language::En, "Alternative procedures"),
 
 ];
 

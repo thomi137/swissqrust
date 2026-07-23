@@ -12,6 +12,7 @@ use base64::{engine::general_purpose, Engine as _};
 use crate::{DrawOp, LIBERATION_SANS_BOLD_TTF, LIBERATION_SANS_REGULAR_TTF, MM_PER_PT};
 use crate::pdf::render_bill::RenderError;
 use crate::render::qr_renderers::{render_qr_svg, add_swiss_cross};
+use super::perforation::add_perforation_marks;
 
 /// Handles SVG rendering operations
 pub fn execute_bill_ops_svg (
@@ -93,6 +94,9 @@ pub fn execute_bill_ops_svg (
             },
         }
     }
+
+    doc = add_perforation_marks(doc);
+
     Ok(doc.to_string())
 }
 

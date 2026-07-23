@@ -48,6 +48,30 @@ It will compile to a release version and package it into a .dmg file for macOS.
 Currently, the developer does not have access to a windows or linux machine, so if you would like
 to help, please let him know. Or better yet, send a PR. Icons and assets are there and hooked up in the Cargo.toml.
 
+## Web (WASM)
+
+The `web/` directory is a small [Trunk](https://trunkrs.dev/)-based single-page app that compiles
+`swiss_qrust` to WebAssembly and renders the QR-bill live in the browser as you fill in the form.
+
+Prerequisites (one-time):
+
+```
+cargo install trunk
+rustup target add wasm32-unknown-unknown
+```
+
+Run it:
+
+```
+cd web
+trunk serve --open
+```
+
+This builds the wasm bundle, serves it at `http://127.0.0.1:8080`, and opens it in your browser.
+Trunk watches both `web/` and the core `../src` library, so it rebuilds automatically on changes
+to either. Run `trunk build --release` from `web/` instead if you just want the static output
+(in `web/dist/`) without starting a dev server.
+
 ## Outlook
 
 1. Implement the rest of the Swiss QR specification

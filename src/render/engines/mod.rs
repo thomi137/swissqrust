@@ -12,6 +12,7 @@ pub mod svg;
 pub mod png_renderers;
 pub mod qr_renderers;
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum FontStyle {
     Regular,
     Bold,

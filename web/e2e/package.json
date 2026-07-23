@@ -1,0 +1,11 @@
+{
+  "name": "swiss-qrust-web-e2e",
+  "private": true,
+  "description": "Headless-Chrome regression scripts for the web/ app. Not part of the Rust build.",
+  "scripts": {
+    "test": "node typing.test.js && node reference.test.js && node smoke.test.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.3.0"
+  }
+}

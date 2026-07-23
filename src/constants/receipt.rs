@@ -12,3 +12,8 @@ pub const ACCEPTANCE_POINT_SECTION_TOP: Mm = Mm(23f32);
 pub const RC_LABEL_PREF_FONT_SIZE: Pt = Pt(6f32);
 pub const RC_TEXT_PREF_FONT_SIZE: Pt = Pt(8f32);
 pub const RC_TEXT_AP_FONT_SIZE: Pt = Pt(6f32);
+
+/// Style Guide p.15 "Beschriftung als Muster": Zeilenabstand Empfangsschein.
+pub const RC_LINE_SPACING: Pt = Pt(9f32);
+/// Style Guide p.15: Zeilenabstand "Betrag E" (differs from the general 9pt).
+pub const RC_AMOUNT_LINE_SPACING: Pt = Pt(11f32);

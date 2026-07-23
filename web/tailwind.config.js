@@ -7,7 +7,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
-        "**/*.rs", // This looks at your main.rs in the same folder
+        "*.html", // Markup lives in index.html now (Alpine.js-driven)
+        "**/*.rs",
     ],
     theme: {
         extend: {
