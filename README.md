@@ -60,7 +60,7 @@ cargo install trunk
 rustup target add wasm32-unknown-unknown
 ```
 
-Run it:
+### Start (dev server)
 
 ```
 cd web
@@ -68,9 +68,35 @@ trunk serve --open
 ```
 
 This builds the wasm bundle, serves it at `http://127.0.0.1:8080`, and opens it in your browser.
-Trunk watches both `web/` and the core `../src` library, so it rebuilds automatically on changes
-to either. Run `trunk build --release` from `web/` instead if you just want the static output
-(in `web/dist/`) without starting a dev server.
+`web/Trunk.toml` tells Trunk to watch both `web/` and the core `../src` library, so it rebuilds
+automatically when either changes - without it, Trunk only watches `web/` and edits to the library
+silently go stale. Add `--no-autoreload` if you don't want the browser tab to force-refresh on every
+rebuild (it still rebuilds in the background; just refresh manually when you want the update).
+
+To run it detached from your terminal (so it survives closing the shell), e.g.:
+
+```
+cd web
+nohup trunk serve --port 8080 --no-autoreload true > /tmp/trunk_serve.log &
+```
+
+### Stop
+
+If running in the foreground, `Ctrl+C`. If started detached as above, find and kill the process:
+
+```
+lsof -i :8080 -sTCP:LISTEN   # note the PID
+kill <PID>
+```
+
+### Build (static output, no server)
+
+```
+cd web
+trunk build --release
+```
+
+Produces the static bundle in `web/dist/` with no dev server involved.
 
 ## Outlook
 
