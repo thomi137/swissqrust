@@ -76,3 +76,79 @@ fn draw_alt_procedure_line<T: FontMetrics>(
         });
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::render::layout::payment_part::PaymentPartLayout;
+    use crate::render::engines::svg::fonts::SvgFontLibrary;
+    use crate::{BillData, InputBill, Language, RenderContext};
+
+    fn ctx_and_fonts() -> (BillData, SvgFontLibrary) {
+        let toml = r#"
+iban = "CH93 0076 2011 6238 5295 7"
+currency = "CHF"
+
+[creditor_address]
+name = "Robert Schneider AG"
+street = "Rue du Lac"
+house_num = "1268"
+plz = "2501"
+city = "Biel"
+country = "CH"
+"#;
+        let input: InputBill = toml::from_str(toml).unwrap();
+        (BillData::try_from(input).unwrap(), SvgFontLibrary::new())
+    }
+
+    #[test]
+    fn splits_bold_name_from_regular_rest_at_first_slash() {
+        let (bill, fonts) = ctx_and_fonts();
+        let ctx = RenderContext::for_strategy::<PaymentPartLayout<SvgFontLibrary>>(&bill, Language::De, &fonts);
+
+        let mut ops = Vec::new();
+        draw_alt_procedure_line(&mut ops, &ctx, "eBill/B/simon.muster@example.com", Mm(0.0), Mm(0.0), Mm(100.0));
+
+        assert_eq!(ops.len(), 2, "expected a bold name segment and a regular rest segment");
+        let DrawOp::Text { text: name, bold: name_bold, .. } = &ops[0] else { panic!("expected Text") };
+        let DrawOp::Text { text: rest, bold: rest_bold, .. } = &ops[1] else { panic!("expected Text") };
+        assert_eq!(name, "eBill/");
+        assert!(name_bold);
+        assert_eq!(rest, "B/simon.muster@example.com");
+        assert!(!rest_bold);
+    }
+
+    #[test]
+    fn scheme_without_a_slash_is_drawn_as_bold_name_only() {
+        let (bill, fonts) = ctx_and_fonts();
+        let ctx = RenderContext::for_strategy::<PaymentPartLayout<SvgFontLibrary>>(&bill, Language::De, &fonts);
+
+        let mut ops = Vec::new();
+        draw_alt_procedure_line(&mut ops, &ctx, "NoSlashHere", Mm(0.0), Mm(0.0), Mm(100.0));
+
+        // No second (regular-weight) segment should be pushed when there's
+        // nothing left after the name - an empty DrawOp::Text would still
+        // "work" but is a wasted/misleading draw op.
+        assert_eq!(ops.len(), 1, "expected only the bold name segment, no empty rest segment");
+        let DrawOp::Text { text: name, bold: name_bold, .. } = &ops[0] else { panic!("expected Text") };
+        assert_eq!(name, "NoSlashHere");
+        assert!(name_bold);
+    }
+
+    #[test]
+    fn rest_is_truncated_to_fit_available_width() {
+        let (bill, fonts) = ctx_and_fonts();
+        let ctx = RenderContext::for_strategy::<PaymentPartLayout<SvgFontLibrary>>(&bill, Language::De, &fonts);
+
+        let long_rest = "a-very-long-identifier-that-will-not-fit-in-a-narrow-column@example.com";
+        let scheme = format!("eBill/{long_rest}");
+
+        let mut ops = Vec::new();
+        // Deliberately narrow: enough for the bold name, not for the rest.
+        draw_alt_procedure_line(&mut ops, &ctx, &scheme, Mm(0.0), Mm(0.0), Mm(20.0));
+
+        let DrawOp::Text { text: rest, .. } = &ops[1] else { panic!("expected a truncated rest segment") };
+        assert!(rest.ends_with('…'), "expected truncation ellipsis, got {rest:?}");
+        assert!(rest.len() < long_rest.len());
+    }
+}

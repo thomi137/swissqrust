@@ -191,3 +191,76 @@ pub fn draw_corner_marks(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{CORNER_MARKS_AMOUNT_POLYLINES, CORNER_MARKS_AMOUNT_VIEWBOX};
+
+    fn test_rect() -> QRBillLayoutRect {
+        QRBillLayoutRect { x: Mm(10.0), y: Mm(50.0), width: Mm(30.0), height: Mm(10.0) }
+    }
+
+    #[test]
+    fn corner_marks_stay_within_rect_bounds() {
+        let rect = test_rect();
+        let mut ops = Vec::new();
+        draw_corner_marks(&mut ops, rect, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES);
+
+        assert!(!ops.is_empty());
+        for op in &ops {
+            let DrawOp::Line { from, to, .. } = op else { panic!("expected DrawOp::Line") };
+            for (x, LayoutY(y)) in [from, to] {
+                assert!(
+                    x.0 >= rect.x.0 - 0.01 && x.0 <= rect.x.0 + rect.width.0 + 0.01,
+                    "corner mark x={} escaped rect x-bounds [{}, {}]", x.0, rect.x.0, rect.x.0 + rect.width.0
+                );
+                assert!(
+                    y.0 >= rect.y.0 - 0.01 && y.0 <= rect.y.0 + rect.height.0 + 0.01,
+                    "corner mark y={} escaped rect y-bounds [{}, {}]", y.0, rect.y.0, rect.y.0 + rect.height.0
+                );
+            }
+        }
+    }
+
+    /// Characterizes the current, visually-verified anchor mapping: the
+    /// artwork's own top-quadrant marks (small y in the source viewbox) are
+    /// anchored to the *bottom* of the target rect, and vice versa - the
+    /// opposite of what the "top"/`rect.y + height` naming suggests on a
+    /// naive reading. This looks backwards, and it was "fixed" (inverted)
+    /// once already during development, which broke the payment-part amount
+    /// box's rendering - see the anchor() y computation above before
+    /// changing this. If this test starts failing because you "corrected"
+    /// that mapping, re-verify against a real rendered PDF/SVG first.
+    #[test]
+    fn artwork_top_quadrant_marks_anchor_to_rect_bottom() {
+        let rect = test_rect();
+        let (vb_w, vb_h) = CORNER_MARKS_AMOUNT_VIEWBOX;
+        let mid_y = rect.y.0 + rect.height.0 / 2.0;
+
+        let mut ops = Vec::new();
+        draw_corner_marks(&mut ops, rect, CORNER_MARKS_AMOUNT_VIEWBOX, CORNER_MARKS_AMOUNT_POLYLINES);
+
+        let mut offset = 0usize;
+        for poly in CORNER_MARKS_AMOUNT_POLYLINES {
+            let segment_count = poly.points.len() - 1;
+            let (fx, fy) = poly.points[0];
+            let source_top = fy < vb_h / 2.0;
+            let source_left = fx < vb_w / 2.0;
+
+            let segment = &ops[offset..offset + segment_count];
+
+            for op in segment {
+                let DrawOp::Line { from, to, .. } = op else { panic!("expected DrawOp::Line") };
+                for (_, LayoutY(y)) in [from, to] {
+                    if source_top {
+                        assert!(y.0 > mid_y, "artwork top-quadrant mark (left={source_left}) expected in rect's bottom half, got y={}", y.0);
+                    } else {
+                        assert!(y.0 < mid_y, "artwork bottom-quadrant mark (left={source_left}) expected in rect's top half, got y={}", y.0);
+                    }
+                }
+            }
+            offset += segment_count;
+        }
+    }
+}

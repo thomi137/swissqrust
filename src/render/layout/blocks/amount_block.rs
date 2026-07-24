@@ -124,3 +124,64 @@ fn amount_box_geometry(
         },
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::constants::PP_AMOUNT_LINE_SPACING;
+
+    #[test]
+    fn receipt_box_starts_past_the_betrag_label() {
+        let base_x = Mm(5.0);
+        let rect = amount_box_geometry(SlipPart::Receipt, base_x, Mm(100.0), Mm(30.0), Mm(10.0));
+
+        // Must clear CURRENCY_WIDTH_RC (where the "Betrag" label starts) -
+        // this box sits *beside* the label, not below it (see box_top_y:
+        // Receipt is flush with the label row).
+        assert!(rect.x > base_x + CURRENCY_WIDTH_RC);
+        assert_eq!(rect.x, base_x + CURRENCY_WIDTH_RC + Mm(10.0));
+        assert_eq!(rect.width, Mm(30.0));
+        assert_eq!(rect.height, Mm(10.0));
+    }
+
+    #[test]
+    fn payment_part_box_starts_before_the_betrag_label() {
+        let base_x = Mm(67.0);
+        let rect = amount_box_geometry(SlipPart::PaymentPart, base_x, Mm(100.0), Mm(40.0), Mm(15.0));
+
+        // Unlike the Receipt, this box starts *before* CURRENCY_WIDTH_PP
+        // (where "Betrag" starts) - it sits below both labels, not beside
+        // one of them. box_top_y accounts for that by anchoring the
+        // PaymentPart box to the value row instead of the label row.
+        assert!(rect.x < base_x + CURRENCY_WIDTH_PP);
+        assert_eq!(rect.x, base_x + Mm(11.0));
+        assert_eq!(rect.width, Mm(40.0));
+        assert_eq!(rect.height, Mm(15.0));
+    }
+
+    /// `SpacerBlock { min_height: Mm(260) }` (in `ReceiptLayout`/
+    /// `PaymentPartLayout`) is a bare literal, not derived from
+    /// `AMOUNT_SECTION_TOP` in code - the two must be kept numerically
+    /// consistent by hand. This pins that relationship down so a future
+    /// change to either constant fails loudly here instead of silently
+    /// desyncing the cursor from the spec's absolute section-top position.
+    #[test]
+    fn amount_section_top_matches_spacer_block_clamp_height() {
+        assert_eq!(A4_PAGE_HEIGHT - AMOUNT_SECTION_TOP, Mm(260.0));
+        assert_eq!(A4_PAGE_HEIGHT - PP_AMOUNT_SECTION_TOP, Mm(260.0));
+    }
+
+    #[test]
+    fn payment_part_box_sits_one_row_below_the_receipt_reference_point() {
+        // Both parts share the same AMOUNT_SECTION_TOP anchor; the
+        // PaymentPart's box_top_y formula adds one amount-row-spacing on
+        // top of it (see box_top_y in `render` above), the Receipt's
+        // doesn't. Assert that relationship directly so a future edit that
+        // makes them symmetric again (as happened earlier this project) is
+        // caught by a test instead of a rendered PDF.
+        let receipt_top = A4_PAGE_HEIGHT - AMOUNT_SECTION_TOP;
+        let payment_part_top = A4_PAGE_HEIGHT - PP_AMOUNT_SECTION_TOP + PP_AMOUNT_LINE_SPACING.to_mm();
+        assert_eq!(payment_part_top, receipt_top + PP_AMOUNT_LINE_SPACING.to_mm());
+        assert!(payment_part_top > receipt_top);
+    }
+}
