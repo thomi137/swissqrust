@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["cli","traits","utils","validators"]};
+window.SIDEBAR_ITEMS = {"mod":["traits","utils","validators"]};
