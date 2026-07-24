@@ -22,11 +22,11 @@ if [[ "${1:-}" == "--ci" ]]; then
 fi
 
 echo "==> Unit + integration tests (cargo nextest)"
-cargo nextest run --package swiss_qrust ${profile_args[@]+"${profile_args[@]}"} "$@"
+cargo nextest run --package swiss_qrust --all-features ${profile_args[@]+"${profile_args[@]}"} "$@"
 
 echo
 echo "==> Doc tests (cargo test --doc; nextest doesn't run these)"
-cargo test --doc --package swiss_qrust
+cargo test --doc --package swiss_qrust --all-features
 
 if [[ "${profile_args[*]:-}" == *ci* ]]; then
     echo

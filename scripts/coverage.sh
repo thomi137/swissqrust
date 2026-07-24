@@ -17,7 +17,7 @@ cd "$(dirname "$0")/.."
 cargo llvm-cov clean --package swiss_qrust
 
 echo "==> Unit + integration tests (cargo nextest, instrumented)"
-cargo llvm-cov nextest --package swiss_qrust --no-report
+cargo llvm-cov nextest --package swiss_qrust --all-features --no-report
 
 # Doc-test coverage needs `--doctests`, which is unstable and only accepted
 # by a nightly rustc (it passes -Z unstable-options/--persist-doctests under

@@ -8,6 +8,7 @@
 use pdf_writer::{Content, Name};
 #[cfg(feature = "pdf-debug")]
 use crate::{PT_PER_MM};
+#[cfg(feature = "pdf-debug")]
 use crate::render::engines::pdf::pdf_helpers::PDFBuilder;
 
 #[cfg(feature = "pdf-debug")]

@@ -11,6 +11,15 @@ repository = "https://github.com/thomi137/swissqrust"
 readme = "README.md"
 keywords = ["qr-bill", "swiss", "invoice", "pdf", "qrcode"]
 categories = ["finance", "rendering", "encoding"]
+# build.rs (build_functions/) regenerates these from assets/data/countries.json
+# and assets/svg/*.svg on every build - shipping the checked-in copies would
+# just be dead weight (and a staleness risk) in the published tarball.
+exclude = [
+    "src/generated/countries.rs",
+    "src/generated/cross.rs",
+    "src/generated/corner_marks_amount.rs",
+    "src/generated/corner_marks_payable_by.rs",
+]
 
 [lib]
 name = "swiss_qrust"

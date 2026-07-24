@@ -43,6 +43,7 @@ jobs:
         run: |
           cargo llvm-cov nextest \
             --package swiss_qrust \
+            --all-features \
             --profile ci \
             --lcov --output-path lcov.info
 
