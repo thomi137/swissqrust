@@ -1,6 +1,12 @@
 use std::fmt;
 use thiserror::Error;
 
+/// Language for the fixed labels printed on the slip ("Payable to", "Currency",
+/// "Amount", ...) - not the language of any user-supplied text such as the
+/// unstructured message, which is passed through unchanged.
+///
+/// Defaults to [`Language::De`], matching the rest of this crate's tooling
+/// (the web frontend defaults to German too).
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Language {
     #[default]
@@ -188,6 +194,6 @@ mod tests {
 
     #[test]
     fn test_default() {
-        assert_eq!(label!(InFavourOf), "In favour of");
+        assert_eq!(label!(InFavourOf), "Zugunsten");
     }
 }

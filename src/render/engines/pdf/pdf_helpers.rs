@@ -132,6 +132,11 @@ impl Default for PDFBuilder {
 }
 
 
+/// Renders `bill_data` and writes the resulting PDF straight to `path`.
+///
+/// Convenience wrapper around [`render_bill_to_pdf`] for the common
+/// "render to a file" case; use `render_bill_to_pdf` directly if you need
+/// the bytes (e.g. to serve over HTTP instead of writing to disk).
 pub fn create_pdf(
     path: &str,
     language: Language,

@@ -9,6 +9,13 @@ use serde::Deserialize;
 use crate::address::InputAddress;
 use crate::{BillError, Currency};
 
+/// Raw, unvalidated bill data as read from TOML/JSON (see [`crate::parse_bill_data`]).
+///
+/// This is a `serde`-deserializable mirror of the input file format - it
+/// accepts whatever the file contains, including values that don't satisfy
+/// the QR-bill spec. Convert it to a [`crate::BillData`] via `TryFrom` to
+/// validate and get something renderable; that conversion is where IBAN,
+/// reference, and formatting rules are actually enforced.
 #[derive(Debug, Deserialize)]
 pub struct InputBill {
     pub iban: String,

@@ -77,6 +77,13 @@ impl Display for QRCountry {
         }
     }
 }
+/// A validated Swiss QR-bill, ready to render.
+///
+/// Build one via `BillData::try_from(input_bill)` or [`BillData::new`] -
+/// both enforce the spec's structural rules (IBAN checksum, QR-IBAN/QR-
+/// reference pairing, amount format, message length limits, ...), returning
+/// a [`BillError`] on the first violation. There is no way to construct an
+/// invalid `BillData` outside this module.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct BillData {
     pub iban: String,

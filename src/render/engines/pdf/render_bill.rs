@@ -13,6 +13,10 @@ use crate::qr_bill::qr_code;
 #[cfg(feature = "pdf-debug")]
 use crate::render::debug_overlay::draw_debug_overlay;
 
+/// Errors from the rendering pipeline itself (PDF/font setup, QR encoding,
+/// ...) - as opposed to [`crate::BillError`], which covers invalid bill
+/// *data*. A [`BillData`] that was successfully constructed should never
+/// fail to render; if it does, that's a bug in this crate.
 #[derive(Debug, PartialEq, Error)]
 pub enum RenderError {
     #[error("Failed to create PDF builder")]
@@ -27,16 +31,32 @@ pub enum RenderError {
     QrCodeGenerationError,
 }
 
-/// Renders a bill to a set of PDF operations.
+/// Renders `bill` to a complete, single-page A4 PDF document (receipt and
+/// payment part, as raw bytes ready to write to a file or serve over HTTP).
 ///
-/// # Arguments:
-/// * `bill` - Data of the bill
-/// * `language` - Language of the bill
+/// [`crate::pdf::create_pdf`] wraps this and writes straight to a path if
+/// you don't need the bytes themselves.
 ///
-/// # Returns
+/// ```
+/// use swiss_qrust::{BillData, InputBill, Language};
 ///
-/// A vector of raw bytes representing the PDF content.
-///
+/// # let toml = r#"
+/// # iban = "CH93 0076 2011 6238 5295 7"
+/// # currency = "CHF"
+/// # amount = "199.95"
+/// # [creditor_address]
+/// # name = "Robert Schneider AG"
+/// # street = "Rue du Lac"
+/// # house_num = "1268"
+/// # plz = "2501"
+/// # city = "Biel"
+/// # country = "CH"
+/// # "#;
+/// let bill = BillData::try_from(toml::from_str::<InputBill>(toml)?)?;
+/// let pdf_bytes = swiss_qrust::pdf::render_bill_to_pdf(&bill, Language::De)?;
+/// assert!(pdf_bytes.starts_with(b"%PDF"));
+/// # Ok::<(), anyhow::Error>(())
+/// ```
 pub fn render_bill_to_pdf(bill: &BillData, language: Language) -> Result<Vec<u8>, RenderError>  {
 
      // --- 1. Create PDF builder ---

@@ -8,12 +8,7 @@
 //! billing information some Swiss accounting software puts into the
 //! QR-bill's `StrdBkgInf` field, per Implementation Guidelines 4.3.3 and
 //! Annex D. Not part of the SIX standardisation itself - Swico publishes
-//! and owns the S1 syntax (http://swiss-qr-invoice.org/downloads/qr-bill-s1-syntax-de.pdf).
-//!
-//! Field tags and encoding mirror the reference implementation at
-//! https://github.com/manuelbl/SwissQRBill (SwicoBillInformation /
-//! SwicoS1Encoder / SwicoS1Decoder).
-
+//! and owns the S1 syntax (<http://swiss-qr-invoice.org/downloads/qr-bill-s1-syntax-de.pdf>).
 use chrono::{Days, NaiveDate};
 use crate::BillError;
 use crate::input::InputSwicoBillInformation;

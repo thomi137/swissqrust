@@ -15,7 +15,7 @@ pub enum QRBillError {
     QrEncodingFailed,
 }
 
-/// According to the [spec] (https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.3-de.pdf)
+/// According to the [spec](https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.3-de.pdf)
 /// section 4.1.4, there are two allowed line separators.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub enum LineSeparator{

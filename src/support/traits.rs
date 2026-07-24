@@ -5,7 +5,7 @@
  */
 
 /// Formatting strings for printing in PDF
-/// The (SIX Specificationà)[https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.3-de.pdf]
+/// The [SIX Specification](https://www.six-group.com/dam/download/banking-services/standardization/qr-bill/ig-qr-bill-v2.3-de.pdf)
 /// expects these to be adhered to.
 pub trait SwissQRFormatter {
     fn format_iban(&self) -> String;
