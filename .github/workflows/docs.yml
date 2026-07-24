@@ -19,7 +19,7 @@ jobs:
 
       - name: Generate Documentation
         run: |
-          cargo doc --no-deps
+          cargo doc --no-deps --package swiss_qrust
           # Redirect the root to your crate's specific doc page
           echo "<meta http-equiv=\"refresh\" content=\"0; url=swiss_qrust/index.html\">" > target/doc/index.html
 

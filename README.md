@@ -3,6 +3,7 @@
 [![swiss_qrust](https://github.com/thomi137/swissqrust/actions/workflows/rust.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/rust.yml) 
 [![swiss_qrust](https://github.com/thomi137/swissqrust/actions/workflows/ci.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/ci.yml)
 [![Deploy Documentation](https://github.com/thomi137/swissqrust/actions/workflows/docs.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/docs.yml)
+[![codecov](https://codecov.io/gh/thomi137/swissqrust/branch/master/graph/badge.svg)](https://codecov.io/gh/thomi137/swissqrust)
 [![Rust 1.90.0+](https://img.shields.io/badge/rust-1.87.0+-orange.svg)](https://www.rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -103,10 +104,3 @@ trunk build --release
 ```
 
 Produces the static bundle in `web/dist/` with no dev server involved.
-
-## Outlook
-
-1. Implement the rest of the Swiss QR specification
-2. Add more examples, particularly a WASM example.
-3. Add more tests
-4. Add more documentation or better yet, start the documentaton...

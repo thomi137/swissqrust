@@ -3,8 +3,14 @@ members = ["cli", "gui", "web"]
 
 [package]
 name = "swiss_qrust"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
+description = "Generate Swiss QR-bill (QR-Rechnung / QR-facture / QR-fattura) payment slips as PDF or SVG, per the Swiss Payment Standards implementation guidelines."
+license = "MIT"
+repository = "https://github.com/thomi137/swissqrust"
+readme = "README.md"
+keywords = ["qr-bill", "swiss", "invoice", "pdf", "qrcode"]
+categories = ["finance", "rendering", "encoding"]
 
 [lib]
 name = "swiss_qrust"

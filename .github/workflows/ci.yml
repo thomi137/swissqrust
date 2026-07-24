@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ dev, test ]
+    branches: [ dev, test, master ]
   pull_request:
 
 permissions:
@@ -27,21 +27,24 @@ jobs:
       # Install tools
       # ----------------------------
 
-      - name: Install cargo-nextest
-        run: cargo install cargo-nextest --locked
-
-      #- name: Install cargo-llvm-cov
-      #  run: cargo install cargo-llvm-cov --locked
+      - name: Install cargo-nextest and cargo-llvm-cov
+        uses: taiki-e/install-action@v2
+        with:
+          tool: nextest,cargo-llvm-cov
 
       # ----------------------------
-      # Run tests (JUnit output)
+      # Run tests under coverage instrumentation (one pass gives us both
+      # the JUnit report and the LCOV coverage data - the nextest `ci`
+      # profile's junit output, from .config/nextest.toml, applies
+      # regardless of the coverage instrumentation).
       # ----------------------------
 
       - name: Run tests with nextest
         run: |
-          cargo nextest run \
-            --all-features \
-            --profile ci
+          cargo llvm-cov nextest \
+            --package swiss_qrust \
+            --profile ci \
+            --lcov --output-path lcov.info
 
       - name: Upload test report
         if: always()
@@ -52,30 +55,15 @@ jobs:
           reporter: java-junit
 
       # ----------------------------
-      # Generate coverage
-      # ----------------------------
-
-      #- name: Generate coverage (HTML + LCOV)
-      #  run: |
-      #    cargo llvm-cov \
-      #      --all-features \
-      #      --workspace \
-      #      --lcov \
-       #     --output-path lcov.info \
-       #     --html
-
-      #- name: Upload coverage HTML artifact
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: coverage-html
-      #    path: target/llvm-cov/html
-
-      # ----------------------------
       # Upload coverage to Codecov
       # ----------------------------
 
-      #- name: Upload coverage to Codecov
-      #  uses: codecov/codecov-action@v4
-      #  with:
-      #    files: lcov.info
-      #    fail_ci_if_error: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: lcov.info
+          # Codecov requires a token even for public repos; add one at
+          # https://codecov.io (sign in with GitHub, no install needed)
+          # and store it as the CODECOV_TOKEN repo secret.
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
