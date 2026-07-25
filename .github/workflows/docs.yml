@@ -28,3 +28,8 @@ jobs:
         with:
           folder: target/doc
           branch: gh-pages # Deploys to a separate branch for hosting
+          # This action cleans the target branch to match `folder` by default,
+          # which would wipe dev/bench/ - the benchmark history dashboard
+          # that bench.yml maintains on this same branch.
+          clean-exclude: |
+            dev/bench

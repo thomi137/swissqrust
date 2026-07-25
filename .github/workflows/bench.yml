@@ -1,0 +1,54 @@
+name: Benchmarks
+
+on:
+  # Chained after Deploy Documentation (rather than its own push-to-master
+  # trigger) so the two jobs never race writing to the same gh-pages branch.
+  workflow_run:
+    workflows: ["Deploy Documentation"]
+    types: [completed]
+    branches: [master]
+
+permissions:
+  contents: write # Required to push benchmark history to the gh-pages branch
+
+jobs:
+  bench:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Run benchmarks
+        run: cargo bench -p swiss_qrust --bench render_bench
+
+      # criterion's own --output-format bencher (as of criterion 0.8) splits
+      # the benchmark name and the "bench: N ns/iter" line across separate
+      # lines/streams, so it doesn't actually match the combined
+      # "test <name> ... bench: ..." line the action's 'cargo' tool parser
+      # expects. Read criterion's persisted per-benchmark JSON stats instead
+      # and feed the action's own customSmallerIsBetter format directly.
+      - name: Convert criterion output to benchmark-action format
+        run: python3 scripts/criterion_to_benchmark_json.py > output.json
+
+      - name: Store benchmark result and update history
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'customSmallerIsBetter'
+          output-file-path: output.json
+          gh-pages-branch: gh-pages
+          benchmark-data-dir-path: dev/bench
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          # Flag (but don't fail CI on) a >50% regression - shared CI
+          # runners are noisy, so this is a heads-up, not a hard gate.
+          alert-threshold: '150%'
+          fail-on-alert: false

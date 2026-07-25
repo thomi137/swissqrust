@@ -4,6 +4,7 @@
 [![swiss_qrust](https://github.com/thomi137/swissqrust/actions/workflows/ci.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/ci.yml)
 [![Deploy Documentation](https://github.com/thomi137/swissqrust/actions/workflows/docs.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/docs.yml)
 [![codecov](https://codecov.io/gh/thomi137/swissqrust/branch/master/graph/badge.svg)](https://codecov.io/gh/thomi137/swissqrust)
+[![Benchmarks](https://github.com/thomi137/swissqrust/actions/workflows/bench.yml/badge.svg)](https://thomi137.github.io/swissqrust/dev/bench/)
 [![Rust 1.90.0+](https://img.shields.io/badge/rust-1.87.0+-orange.svg)](https://www.rust-lang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
