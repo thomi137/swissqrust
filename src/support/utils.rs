@@ -209,7 +209,10 @@ pub fn generate_iban_with_checksum(cty: &str, raw: &str) -> Result<String, Parse
 
     let mut remainder = 0;
     for c in calc_string.chars() {
-        let digit = c.to_digit(10).unwrap();
+        // `raw` is caller-controlled and only whitespace-stripped above, so
+        // it can contain non-digit characters - route that through the
+        // `Result` this function already promises instead of panicking.
+        let digit = c.to_string().parse::<u32>()?;
         remainder = (remainder * 10 + digit) % 97;
     }
 

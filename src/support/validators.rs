@@ -4,8 +4,6 @@
  * https://opensource.org/licenses/MIT
  */
 
-use std::fmt;
-use std::fmt::{Display, Formatter};
 use thiserror::Error;
 use crate::Country;
 use crate::support::utils;
@@ -15,53 +13,25 @@ use crate::support::utils::{is_in_extended_sps_charset,
 };
 
 /// Charset Error
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Error)]
+#[error("Found invalid character {invalid} at {index}")]
 pub struct SPSCharsetError {
-        invalid: char,
-        index: usize,
+    invalid: char,
+    index: usize,
 }
-
-impl Display for SPSCharsetError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-
-        let SPSCharsetError { invalid, index } = self;
-        write!(f, "Found invalid character {} at {}", invalid, index)
-
-    }
-}
-
-impl std::error::Error for SPSCharsetError {}
 
 /// IBAN Errors
-///
-// TODO: Make a thiserror enum.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum IbanError{
-    IncorrectLength{expected: usize, actual: usize},
+#[derive(Debug, Clone, Copy, PartialEq, Error)]
+pub enum IbanError {
+    #[error("Incorrect length expected {expected} got {actual}")]
+    IncorrectLength { expected: usize, actual: usize },
+    #[error("Incorrect country code. Must be CH or LI")]
     IncorrectCountryCode,
+    #[error("Invalid character")]
     InvalidCharacter,
+    #[error("Invalid Iban")]
     InvalidIban,
 }
-impl Display for IbanError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            IbanError::IncorrectLength { expected, actual } => { 
-                write!(f, "Incorrect length expected {} got {}", expected, actual)
-            },
-            IbanError::IncorrectCountryCode => {
-                write!(f, "Incorrect country code. Must be CH or LI")
-            },
-            IbanError::InvalidCharacter => {
-                f.write_str("Invalid character")
-            },
-            IbanError::InvalidIban => {
-                f.write_str("Invalid Iban")
-            }
-        }
-    }
-}
-
-impl std::error::Error for IbanError {}
 
 #[derive(Debug, Error)]
 pub enum CountryValidationError {
@@ -146,9 +116,15 @@ pub fn is_valid_iban(iban: &str) -> Result<(), IbanError>  {
             actual: iban.len(),
         })}
 
-    let rearranged = iban[4..]
-        .chars()
-        .chain(iban[..4].chars());
+    // Byte-slicing (`iban[4..]`) would panic if a multi-byte character
+    // straddles the 4-byte mark - the country-code check above only
+    // rejects the *first two* characters, so anything after "CH"/"LI" is
+    // still caller-controlled and unchecked at this point. Rotate by char
+    // instead so arbitrary Unicode input can only ever fail validation,
+    // never panic.
+    let mut chars: Vec<char> = iban.chars().collect();
+    let head: Vec<char> = chars.drain(..chars.len().min(4)).collect();
+    let rearranged = chars.into_iter().chain(head);
 
     let mut remainder: u32 = 0;
 
