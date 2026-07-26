@@ -7,11 +7,8 @@ use svg::node::element::Line as SvgLine;
 use svg::Document;
 
 /// Style Guide p.7: on the printed/PDF output, the QR-bill is separated from
-/// the rest of the document by a dashed perforation line with a scissors
-/// symbol (ZapfDingbats), both along its top edge and between receipt and
-/// payment part. Those are print-cut marks, not meaningful in an on-screen
-/// preview - the PDF engine (`pdf_helpers.rs`) already draws them for the
-/// actual output. Here we only keep a plain divider between receipt and
+/// the rest of the document by a dashed perforation line
+/// Here we only keep a plain divider between receipt and
 /// payment part, to visually separate the two without implying a real
 /// perforation/cut mark exists on screen.
 pub fn add_perforation_marks(mut doc: Document) -> Document {

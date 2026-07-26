@@ -1,6 +1,5 @@
 # swissqrust
 
-[![swiss_qrust](https://github.com/thomi137/swissqrust/actions/workflows/rust.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/rust.yml) 
 [![swiss_qrust](https://github.com/thomi137/swissqrust/actions/workflows/ci.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/ci.yml)
 [![Deploy Documentation](https://github.com/thomi137/swissqrust/actions/workflows/docs.yml/badge.svg)](https://github.com/thomi137/swissqrust/actions/workflows/docs.yml)
 [![codecov](https://codecov.io/gh/thomi137/swissqrust/branch/master/graph/badge.svg)](https://codecov.io/gh/thomi137/swissqrust)
