@@ -58,7 +58,7 @@ to help, please let him know. Or better yet, send a PR. Icons and assets are the
 
 ## Web (WASM)
 
-The `crates/web/` directory is a small [Trunk](https://trunkrs.dev/)-based single-page app that compiles
+The `crates/web/` directory is a small [Trunk](https://github.com/trunk-rs/trunk)-based single-page app that compiles
 `swiss_qrust` to WebAssembly and renders the QR-bill live in the browser as you fill in the form.
 
 Prerequisites (one-time):
