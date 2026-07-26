@@ -10,6 +10,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Swiss QR</title>
+    <meta name="description" content="Generate valid Swiss QR-bill payment slips (PDF or SVG) right in your browser. Free and open source." />
+    <link rel="canonical" href="https://swissqrust.prosser.ch/" />
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://swissqrust.prosser.ch/" />
+    <meta property="og:site_name" content="Swiss QR-Bill Generator" />
+    <meta property="og:title" content="Swiss QR-Bill Generator" />
+    <meta property="og:description" content="Generate valid Swiss QR-bill payment slips (PDF or SVG) right in your browser. Free and open source." />
+    <meta property="og:image" content="https://swissqrust.prosser.ch/icon.png" />
+
+    <!-- X / Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Swiss QR-Bill Generator" />
+    <meta name="twitter:description" content="Generate valid Swiss QR-bill payment slips (PDF or SVG) right in your browser. Free and open source." />
+    <meta name="twitter:image" content="https://swissqrust.prosser.ch/icon.png" />
 
     <!-- Registered before the Rust/wasm link below so its listener for
          Trunk's "TrunkApplicationStarted" event is attached in time. -->
@@ -22,7 +38,7 @@
     <link data-trunk rel="rust" data-path="main.rs" data-type="main" />
     <!-- Tailwind -->
     <link data-trunk rel="tailwind-css" href="input.css" data-config="tailwind.config.js" />
-    <link data-trunk rel="copy-file" href="../assets/png/icon.png" />
+    <link data-trunk rel="copy-file" href="../../assets/png/icon.png" />
     <link rel="icon" href="icon.png" />
 </head>
 <body class="bg-slate-50" x-data="app()" x-init="init()">
