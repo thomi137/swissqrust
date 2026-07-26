@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785028835733,
+  "lastUpdate": 1785029155214,
   "repoUrl": "https://github.com/thomi137/swissqrust",
   "entries": {
     "Benchmark": [
@@ -59,6 +59,36 @@ window.BENCHMARK_DATA = {
           {
             "name": "render_bill_to_svg",
             "value": 4879263.3945454545,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "committer": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "id": "3f0d7e5ee060ad69f4bed62439a955512ac10f1c",
+          "message": "I don't know why the trunk link points to an online gambling site.",
+          "timestamp": "2026-07-26T01:24:08Z",
+          "url": "https://github.com/thomi137/swissqrust/commit/3f0d7e5ee060ad69f4bed62439a955512ac10f1c"
+        },
+        "date": 1785029154376,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "render_bill_to_pdf",
+            "value": 9409925.236666666,
+            "unit": "ns"
+          },
+          {
+            "name": "render_bill_to_svg",
+            "value": 4809669.014545454,
             "unit": "ns"
           }
         ]
