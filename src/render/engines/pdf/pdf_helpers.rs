@@ -4,14 +4,28 @@
  * https://opensource.org/licenses/MIT
  */
 
-use anyhow::Result;
 use pdf_writer::Finish;
 use pdf_writer::{Content, Pdf, Rect, Ref};
+use thiserror::Error;
 
 use crate::pdf::render_bill::{render_bill_to_pdf, RenderError};
 use crate::pdf::{name, PdfFontLibrary};
 use crate::FontStyle;
 use crate::{BillData, DrawOp, Language, Mm, PT_PER_MM};
+
+/// Errors from [`create_pdf`]: either the render pipeline itself failed
+/// ([`RenderError`]), or the rendered bytes couldn't be written to disk.
+#[derive(Debug, Error)]
+pub enum CreatePdfError {
+    #[error(transparent)]
+    Render(#[from] RenderError),
+    #[error("failed to write PDF to {path}: {source}")]
+    Io {
+        path: String,
+        #[source]
+        source: std::io::Error,
+    },
+}
 
 pub struct PdfPainter<'a> {
     pub content: &'a mut Content,
@@ -141,10 +155,10 @@ pub fn create_pdf(
     path: &str,
     language: Language,
     bill_data: &BillData,
-) -> anyhow::Result<()> {
+) -> Result<(), CreatePdfError> {
 
     let bytes = render_bill_to_pdf(bill_data, language)?;
-    std::fs::write(path, bytes)?;
+    std::fs::write(path, bytes).map_err(|source| CreatePdfError::Io { path: path.to_string(), source })?;
     Ok(())
 }
 

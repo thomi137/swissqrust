@@ -32,7 +32,7 @@
 //!
 //! let svg = swiss_qrust::svg::render_bill_to_svg(&bill, Language::De)?;
 //! assert!(svg.starts_with("<svg"));
-//! # Ok::<(), anyhow::Error>(())
+//! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 //!
 //! For a PDF instead of SVG, use [`pdf::render_bill_to_pdf`] (returns the
@@ -44,13 +44,6 @@
 //! [`InputBill`]: input::InputBill
 //! [`BillData`]: bill::BillData
 
-use anyhow::*;
-
-include!("generated/countries.rs");
-include!("generated/cross.rs");
-include!("generated/corner_marks_amount.rs");
-include!("generated/corner_marks_payable_by.rs");
-
 pub mod bill;
 pub mod render;
 pub mod constants;
@@ -58,9 +51,6 @@ pub mod language;
 pub mod generated;
 pub mod support;
 pub mod input;
-
-pub use serde_json::*;
-pub use strum::*;
 
 pub use bill::*;
 pub use language::*;
@@ -96,14 +86,25 @@ pub use input::*;
 ///
 /// let bill = parse_bill_data(toml, "toml")?;
 /// assert_eq!(bill.iban, "CH93 0076 2011 6238 5295 7");
-/// # Ok::<(), anyhow::Error>(())
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
-pub fn parse_bill_data(content: &str, extension: &str) -> anyhow::Result<InputBill> {
+pub fn parse_bill_data(content: &str, extension: &str) -> std::result::Result<InputBill, ParseBillDataError> {
     match extension {
         "toml" => Ok(toml::from_str(content)?),
         "json" => Ok(serde_json::from_str(content)?),
-        other => Err(anyhow::anyhow!("Unsupported input format: {other}")),
+        other => Err(ParseBillDataError::UnsupportedFormat(other.to_string())),
     }
+}
+
+/// Errors from [`parse_bill_data`].
+#[derive(Debug, thiserror::Error)]
+pub enum ParseBillDataError {
+    #[error("invalid TOML: {0}")]
+    Toml(#[from] toml::de::Error),
+    #[error("invalid JSON: {0}")]
+    Json(#[from] serde_json::Error),
+    #[error("unsupported input format {0:?}; expected \"toml\" or \"json\"")]
+    UnsupportedFormat(String),
 }
 
 

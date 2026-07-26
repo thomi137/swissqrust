@@ -5,9 +5,10 @@
  */
 
 use std::{
-    fs::{self, File},
+    env,
+    fs::File,
     io::Write,
-    path::Path,
+    path::PathBuf,
 };
 use serde::Deserialize;
 
@@ -65,26 +66,23 @@ impl From<CountryHelper> for CountryRaw {
 
 pub fn generate() {
 
-    let dest_path = Path::new("src/generated/countries.rs");
-
-    // ensure parent directory exists
-    if let Some(parent) = dest_path.parent() {
-        fs::create_dir_all(parent).expect("failed to create generated directory");
-    }
-
     // rerun if build_functions script changes
     println!("cargo:rerun-if-changed=build_functions.rs");
     // tell cargo to rerun if file has changed.
     println!("cargo:rerun-if-changed=assets/data/countries.json");
 
-    let json = fs::read_to_string("assets/data/countries.json")
+    let json = std::fs::read_to_string("assets/data/countries.json")
         .expect("failed to read countries.json");
 
     let countries: Vec<CountryRaw> =
         serde_json::from_str(&json).expect("invalid countries.json");
 
-    // output path inside src/generated for IDE visibility
-    let dest_path = Path::new("src/generated/countries.rs");
+    // Written into OUT_DIR (Cargo's designated scratch space for build
+    // script output), not into src/ - a build script writing into the
+    // source tree trips cargo publish's verification step, since it can't
+    // tell that from a real, unintended mutation.
+    let out_dir = env::var("OUT_DIR").expect("OUT_DIR not set");
+    let dest_path = PathBuf::from(out_dir).join("countries.rs");
 
     let mut enum_variants = String::new();
     let mut meta_arms = String::new();

@@ -55,7 +55,7 @@ pub enum RenderError {
 /// let bill = BillData::try_from(toml::from_str::<InputBill>(toml)?)?;
 /// let pdf_bytes = swiss_qrust::pdf::render_bill_to_pdf(&bill, Language::De)?;
 /// assert!(pdf_bytes.starts_with(b"%PDF"));
-/// # Ok::<(), anyhow::Error>(())
+/// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 pub fn render_bill_to_pdf(bill: &BillData, language: Language) -> Result<Vec<u8>, RenderError>  {
 

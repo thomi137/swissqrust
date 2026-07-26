@@ -3918,7 +3918,6 @@ dependencies = [
 name = "swiss_qrust"
 version = "0.2.0"
 dependencies = [
- "anyhow",
  "base64 0.23.0",
  "chrono",
  "criterion",
