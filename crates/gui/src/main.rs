@@ -18,8 +18,8 @@ use swiss_qrust::pdf::create_pdf;
 const SWISS_RED: Color = Color::from_rgb(0.835, 0.168, 0.117); // #D52B1E
 const SWISS_RED_HOVER: Color = Color::from_rgb(0.7, 0.1, 0.08);
 
-const INTER_REGULAR: &[u8] = include_bytes!("../../assets/fonts/Inter_24pt-Regular.ttf");
-const INTER_BOLD: &[u8] = include_bytes!("../../assets/fonts/Inter_28pt-Bold.ttf");
+const INTER_REGULAR: &[u8] = include_bytes!("../../../assets/fonts/Inter_24pt-Regular.ttf");
+const INTER_BOLD: &[u8] = include_bytes!("../../../assets/fonts/Inter_28pt-Bold.ttf");
 
 
 #[derive(Default)]
@@ -96,7 +96,7 @@ impl SwissQrApp {
             column![
                 row![
                      svg(svg::Handle::from_memory(
-                        include_bytes!("../../assets/svg/CH-Kreuz-Rot.svg")
+                        include_bytes!("../../../assets/svg/CH-Kreuz-Rot.svg")
                     ))
                         .width(50.0)
                         .height(50.0),

@@ -1,5 +1,5 @@
 [workspace]
-members = ["cli", "gui", "web"]
+members = ["crates/cli", "crates/gui", "crates/web"]
 
 [package]
 name = "swiss_qrust"

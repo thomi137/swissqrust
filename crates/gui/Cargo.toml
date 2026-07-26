@@ -9,7 +9,7 @@ name = "gui"
 path = "src/main.rs"
 
 [dependencies]
-swiss_qrust = { path = ".." }
+swiss_qrust = { path = "../.." }
 iced = { version = "0.14.0", features = ["svg", "advanced"] }
 rfd = "0.17.2"
 anyhow = "1.0.102"
@@ -19,14 +19,14 @@ serde_json = "1.0.149"
 [package.metadata.packager]
 identifier = "ch.prosser.swissqrust"
 icons = [
-    "../assets/iconset/icon.icns",
-    "../assets/ico/icon.ico",
-    "../assets/png/icon.png"
+    "../../assets/iconset/icon.icns",
+    "../../assets/ico/icon.ico",
+    "../../assets/png/icon.png"
 ]
 
 # Point to the actual binary file created by the build command
 binaries = [
-    { path = "../target/release/gui", main = true }
+    { path = "../../target/release/gui", main = true }
 ]
 
 before-packaging-command = "cargo build --release -p swiss-qrust-gui"
