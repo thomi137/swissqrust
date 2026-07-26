@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785053962667,
+  "lastUpdate": 1785072530513,
   "repoUrl": "https://github.com/thomi137/swissqrust",
   "entries": {
     "Benchmark": [
@@ -119,6 +119,36 @@ window.BENCHMARK_DATA = {
           {
             "name": "render_bill_to_svg",
             "value": 4773329.619090911,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "committer": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "id": "ead0bd15168e12f9c627e15da7be2fc598d47f4a",
+          "message": "Generate build.rs output into OUT_DIR; drop anyhow from the library\n\nbuild.rs used to write its 4 generated files (countries.rs, cross.rs,\ncorner_marks_amount.rs, corner_marks_payable_by.rs) directly into\nsrc/generated/, which made cargo publish's own verification step\nrefuse to proceed (a build script writing into the source tree looks\nindistinguishable from an unintended mutation, even though the write\nis deterministic and harmless). Writing them into OUT_DIR instead -\nCargo's actual designated scratch space for build scripts - and\nswitching src/generated/mod.rs's includes to\ninclude!(concat!(env!(\"OUT_DIR\"), ...)) fixes that properly: verified\nvia a full `cargo publish --dry-run` with verification enabled, no\n--no-verify needed. The 4 stale checked-in copies and the exclude list\nthey required are both gone.\n\nAlso removes anyhow from the library's own dependencies - it was only\never used in two public functions (parse_bill_data, create_pdf), both\nnow returning proper thiserror enums (ParseBillDataError,\nCreatePdfError) instead of an opaque, type-erased anyhow::Error,\nconsistent with every other error type in this crate. anyhow remains\nin crates/cli and crates/gui, where it's a normal, appropriate choice\nfor application code.\n\nRemoving anyhow's `use anyhow::*;` surfaced two other issues, fixed\nhere too:\n- lib.rs had its own redundant, silently-shadowed duplicate of the\n  generated country/SVG data via direct include!s, on top of the\n  `pub mod generated` + `pub use generated::*` that already exposed\n  the same items - compiling (and, since checked in, storing) the\n  entire country dataset twice for nothing.\n- `pub use serde_json::*;` was shadowing the real `Result` at crate\n  scope with serde_json's single-parameter Result<T> alias - the\n  actual cause of a compile error hit while fixing the above. Neither\n  it nor `pub use strum::*;` gate any part of this crate's real public\n  API (crates/web already depends on strum directly and imports\n  IntoEnumIterator itself), so both blanket re-exports are gone.",
+          "timestamp": "2026-07-26T13:27:17Z",
+          "url": "https://github.com/thomi137/swissqrust/commit/ead0bd15168e12f9c627e15da7be2fc598d47f4a"
+        },
+        "date": 1785072529842,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "render_bill_to_pdf",
+            "value": 10665292.51,
+            "unit": "ns"
+          },
+          {
+            "name": "render_bill_to_svg",
+            "value": 5078856.026999999,
             "unit": "ns"
           }
         ]
