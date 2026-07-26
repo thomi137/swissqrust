@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785079985800,
+  "lastUpdate": 1785080320143,
   "repoUrl": "https://github.com/thomi137/swissqrust",
   "entries": {
     "Benchmark": [
@@ -179,6 +179,36 @@ window.BENCHMARK_DATA = {
           {
             "name": "render_bill_to_svg",
             "value": 4856993.409999999,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "committer": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "id": "8dc527c9afa8490282235a7c667d4915bbb64808",
+          "message": "Add publish = false to crates/web, matching cli and gui\n\nNothing stopped an accidental cargo publish --workspace from trying to\npush the WASM frontend crate to crates.io - it wouldn't make sense\nthere (hardcoded relative asset paths, wasm-bindgen/\nconsole_error_panic_hook deps, tied to this specific deployed site).",
+          "timestamp": "2026-07-26T15:36:38Z",
+          "url": "https://github.com/thomi137/swissqrust/commit/8dc527c9afa8490282235a7c667d4915bbb64808"
+        },
+        "date": 1785080319597,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "render_bill_to_pdf",
+            "value": 9265936.403333334,
+            "unit": "ns"
+          },
+          {
+            "name": "render_bill_to_svg",
+            "value": 4768674.029090909,
             "unit": "ns"
           }
         ]
