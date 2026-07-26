@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["create_pdf"],"struct":["PDFBuilder","PdfPainter"]};
+window.SIDEBAR_ITEMS = {"enum":["CreatePdfError"],"fn":["create_pdf"],"struct":["PDFBuilder","PdfPainter"]};

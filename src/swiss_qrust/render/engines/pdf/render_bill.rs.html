@@ -55,7 +55,7 @@
 <a href=#55 id=55 data-nosnippet>55</a>/// let bill = BillData::try_from(toml::from_str::&lt;InputBill&gt;(toml)?)?;
 <a href=#56 id=56 data-nosnippet>56</a>/// let pdf_bytes = swiss_qrust::pdf::render_bill_to_pdf(&amp;bill, Language::De)?;
 <a href=#57 id=57 data-nosnippet>57</a>/// assert!(pdf_bytes.starts_with(b"%PDF"));
-<a href=#58 id=58 data-nosnippet>58</a>/// # Ok::&lt;(), anyhow::Error&gt;(())
+<a href=#58 id=58 data-nosnippet>58</a>/// # Ok::&lt;(), Box&lt;dyn std::error::Error&gt;&gt;(())
 <a href=#59 id=59 data-nosnippet>59</a>/// ```
 <a href=#60 id=60 data-nosnippet>60</a></span><span class="kw">pub fn </span>render_bill_to_pdf(bill: <span class="kw-2">&amp;</span>BillData, language: Language) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;, RenderError&gt;  {
 <a href=#61 id=61 data-nosnippet>61</a>
