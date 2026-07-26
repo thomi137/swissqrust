@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785072530513,
+  "lastUpdate": 1785079985800,
   "repoUrl": "https://github.com/thomi137/swissqrust",
   "entries": {
     "Benchmark": [
@@ -149,6 +149,36 @@ window.BENCHMARK_DATA = {
           {
             "name": "render_bill_to_svg",
             "value": 5078856.026999999,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "committer": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "id": "2412c6deeec8f65b659d64e687048e78bcf68c62",
+          "message": "Add Open Graph/Twitter Card meta tags to the web app; fix icon path\n\nThe icon path (../assets/png/icon.png) was never updated when web/\nmoved to crates/web/ - trunk build failed outright since nobody had\nrebuilt it since that move. Fixed to ../../assets/png/icon.png.\n\nAlso adds og:*/twitter:* meta tags so sharing the deployed site\n(swissqrust.prosser.ch) on X/Facebook/WhatsApp shows a proper preview\ncard instead of a bare link.",
+          "timestamp": "2026-07-26T15:31:02Z",
+          "url": "https://github.com/thomi137/swissqrust/commit/2412c6deeec8f65b659d64e687048e78bcf68c62"
+        },
+        "date": 1785079985167,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "render_bill_to_pdf",
+            "value": 9393946.018333338,
+            "unit": "ns"
+          },
+          {
+            "name": "render_bill_to_svg",
+            "value": 4856993.409999999,
             "unit": "ns"
           }
         ]
