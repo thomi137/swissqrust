@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1785029155214,
+  "lastUpdate": 1785053962667,
   "repoUrl": "https://github.com/thomi137/swissqrust",
   "entries": {
     "Benchmark": [
@@ -89,6 +89,36 @@ window.BENCHMARK_DATA = {
           {
             "name": "render_bill_to_svg",
             "value": 4809669.014545454,
+            "unit": "ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "committer": {
+            "name": "Thomas Prosser",
+            "email": "tp@thomit.com"
+          },
+          "id": "8f964e364180546744d043bf34d9408cb4cc3efc",
+          "message": "Remove redundant rust.yml CI workflow\n\nIt only did a plain cargo build/test on the same branches ci.yml\nalready covers with nextest + coverage - just a duplicate CI run on\nevery push. Also drops its now-dead badge from the README; the ci.yml\nbadge already reflects real test status.",
+          "timestamp": "2026-07-26T08:17:36Z",
+          "url": "https://github.com/thomi137/swissqrust/commit/8f964e364180546744d043bf34d9408cb4cc3efc"
+        },
+        "date": 1785053961096,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "render_bill_to_pdf",
+            "value": 9457966.643333336,
+            "unit": "ns"
+          },
+          {
+            "name": "render_bill_to_svg",
+            "value": 4773329.619090911,
             "unit": "ns"
           }
         ]
